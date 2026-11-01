@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.9612429">
+  <test-suite type="TestSuite" id="1013" name="XRI Examples" fullname="XRI Examples" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.961243" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1007" name="DEADeye.PlayMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.PlayMode.Tests.dll" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.937154" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="2848" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1008" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.934960" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1009" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.933979" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="DEADeyePlayModeTests" fullname="DEADeye.Tests.DEADeyePlayModeTests" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:50Z" duration="16.931040" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1002" name="PlayMode_01_Boot_TransitionsToLobbyScene" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_01_Boot_TransitionsToLobbyScene" methodname="PlayMode_01_Boot_TransitionsToLobbyScene" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1860080064" result="Passed" start-time="2026-11-01 20:21:33Z" end-time="2026-11-01 20:21:43Z" duration="9.495379" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyeBootLoader] Initializing DEADeye VR Core Systems...
+[DEADeyeBootLoader] Boot sequence completed. Routing to Dojo Lobby...
+[DEADeyeSceneTransition] Starting transition to LobbyScene (Lobby)...
+[DEADeyeDojoLobbyManager] Deactivated 3 legacy static toy figures from the Dojo.
+[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeGameManager] Game state changed to: Lobby
+[DEADeyeSceneTransition] Transition to LobbyScene completed.
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\LobbyScene_PlayMode.png (2094108 bytes)
+]]></output>
+            </test-case>
+            <test-case id="1003" name="PlayMode_02_Lobby_DifficultySelectionUpdatesGameManager" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_02_Lobby_DifficultySelectionUpdatesGameManager" methodname="PlayMode_02_Lobby_DifficultySelectionUpdatesGameManager" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1596570928" result="Passed" start-time="2026-11-01 20:21:43Z" end-time="2026-11-01 20:21:44Z" duration="1.117321" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyeDojoLobbyManager] Deactivated 3 legacy static toy figures from the Dojo.
+[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeGameManager] Difficulty set to: Elite
+[DEADeyeGameManager] Difficulty set to: Operative
+]]></output>
+            </test-case>
+            <test-case id="1004" name="PlayMode_03_RooftopMission_InitializesCityAndSniperPerch" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_03_RooftopMission_InitializesCityAndSniperPerch" methodname="PlayMode_03_RooftopMission_InitializesCityAndSniperPerch" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="756422559" result="Passed" start-time="2026-11-01 20:21:44Z" end-time="2026-11-01 20:21:46Z" duration="2.326405" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\RooftopMission_PlayMode.png (150522 bytes)
+]]></output>
+            </test-case>
+            <test-case id="1005" name="PlayMode_04_Sniper_FiresAndRegistersHitOnHostile" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_04_Sniper_FiresAndRegistersHitOnHostile" methodname="PlayMode_04_Sniper_FiresAndRegistersHitOnHostile" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="441626118" result="Passed" start-time="2026-11-01 20:21:46Z" end-time="2026-11-01 20:21:48Z" duration="1.949861" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\RooftopMission_ScopeView.png (150522 bytes)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeGameManager] Game state changed to: MissionActive
+]]></output>
+            </test-case>
+            <test-case id="1006" name="PlayMode_05_ResultsScreen_DisplaysOutcomeAndCanReturnToLobby" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_05_ResultsScreen_DisplaysOutcomeAndCanReturnToLobby" methodname="PlayMode_05_ResultsScreen_DisplaysOutcomeAndCanReturnToLobby" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="453763675" result="Passed" start-time="2026-11-01 20:21:48Z" end-time="2026-11-01 20:21:50Z" duration="2.009310" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeGameManager] Game state changed to: MissionResults
+[DEADeyeMissionDirector] Mission Finished! Result: VICTORY - Eliminated: 0, Escaped: 0
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\MissionResults_PlayMode.png (150522 bytes)
+Saving results to: C:/Users/user/AppData/LocalLow/Unity Technologies/XRI Examples\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

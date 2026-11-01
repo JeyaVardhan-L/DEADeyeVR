@@ -1,95 +1,126 @@
-# DEADeye VR — Clean Foundation Project
+# DEADeye VR — Urban Rooftop Sniper VR
 
-This project establishes the official, production-grade XR interaction and movement foundation for **DEADeye VR** in **Unity 6.3 LTS (`6000.3.27f2`)**, built upon the official **Unity XR Interaction Toolkit (XRI 3.4.0)** and **OpenXR (1.16.1)**.
-
----
-
-## 1. Project Specifications & Verified Packages
-
-- **Unity Editor:** `6000.3.27f2` (Unity 6.3 LTS)
-- **Render Pipeline:** Universal Render Pipeline (URP 17.3.0)
-- **XR Architecture:** OpenXR 1.16.1 + XR Interaction Toolkit 3.4.0
-
-### Verified Package Manifest (`Packages/manifest.json`)
-
-| Package Name | Exact Version | Description & Role |
-|---|---|---|
-| `com.unity.xr.interaction.toolkit` | **3.4.0** | Core VR interaction engine (XR Origin, direct/ray interactors, grab, socket, poke) |
-| `com.unity.xr.openxr` | **1.16.1** | Industry standard cross-platform XR runtime plugin (Meta Quest, Windows, SteamVR) |
-| `com.unity.xr.management` | **4.5.4** | XR loader lifecycle and platform feature management |
-| `com.unity.inputsystem` | **1.16.0** | Unity Input System powering hardware controllers and the XR Device Simulator |
-| `com.unity.render-pipelines.universal`| **17.3.0** | High-performance single-pass instanced VR graphics pipeline |
-| `com.unity.ugui` | **2.0.0** | Modern Canvas and UI event raycasting |
-| `com.unity.test-framework` | **1.6.0** | Automated NUnit test suite runner |
-| `com.unity.ai.navigation` | **2.0.10** | NavMesh pathfinding infrastructure |
+**DEADeye VR** is a vertical-slice tactical VR sniper game built on **Unity 6.3 LTS (`6000.3.27f2`)** targeting **Meta Quest 2 / 3 / Pro** with standalone Android APK support and seamless desktop simulator fallback.
 
 ---
 
-## 2. Test Scene: `FoundationTest.unity`
+## 🎯 Game Overview
 
-The test scene is located at [`Assets/Scenes/FoundationTest.unity`](file:///C:/Unity/Editors/DEADeyeVR_Foundation/Assets/Scenes/FoundationTest.unity).
+Players take the role of an elite marksman stationed on a high-altitude urban rooftop (elevation: 26 meters). Looking out over a bustling city district, the operative must identify, track, and neutralize hostile criminal syndicates and rogue entities before they reach extraction zones.
 
-### Scene Components:
-1. **XR Origin (XR Rig):** Official production rig with height tracking, continuous move provider, snap turn provider, direct interactors, ray interactors, and tunneling vignette.
-2. **Solid Floor Collider:** 30×30m arena floor with `BoxCollider` (`Floor_Solid30x30`), top surface at exactly $Y = 0.0\,\text{m}$.
-3. **Perimeter Enclosure Walls:** Four 6m high walls (`Wall_North`, `Wall_South`, `Wall_East`, `Wall_West`) with solid box colliders preventing out-of-bounds movement or falling.
-4. **Physical Grabbables:** Red Cube and Blue Sphere on the equipment table, configured with `Rigidbody` and `XRGrabInteractable` with realistic throw-on-detach physics.
-5. **Interactive Weapon:** `FoundationWeapon_Interactable` equipped with `XRGrabInteractable` and `FoundationWeapon`. Raycasts forward on trigger activation, emits visible tracer beam, and triggers target hit logic.
-6. **Target & Visual Readout:** `FoundationTarget_Bullseye` standing at $Z = 7.5\,\text{m}$ with concentric rings, animated hit color flash, procedurally generated chime tone, and real-time 3D TextMesh readout.
-7. **XR Interaction Simulator:** Built-in official simulator enabling complete desktop mouse and keyboard playtesting without needing physical VR hardware.
-
----
-
-## 3. Desktop Controls (XR Device Simulator)
-
-When running the scene in the Unity Editor without a VR headset connected, the official **XR Interaction Simulator** automatically controls the HMD and virtual controllers:
-
-### Headset (HMD) Navigation & Look
-- **`W`, `A`, `S`, `D`:** Continuous forward, backward, strafe left, and strafe right movement.
-- **Right Mouse Button (Hold & Drag):** Pitch and yaw look around (simulated HMD rotation).
-- **`Q` / `E`:** Snap turn left 45° / snap turn right 45°.
-
-### Controller Simulation & Hands
-- **`Space` (Hold) or `Left Shift` (Hold):** Selects Right / Left simulated controller.
-- **Mouse Drag (while holding Space/Shift):** Moves the simulated hand in 3D space.
-- **Scroll Wheel:** Moves the simulated hand closer or further along the view axis.
-- **`G` Key or Middle Mouse Click:** Grip interaction (Picks up weapon or grabbable objects).
-- **`Left Mouse Click` or `Left Ctrl`:** Trigger interaction (Fires the weapon when held).
+### Core Experience
+- **Dojo Tactical Lobby**: Inspect your tactical sniper rifle, review mission briefings on interactive HUD boards, select difficulty ratings ([RECRUIT], [OPERATIVE], [ELITE]), and observe your standing operative avatar.
+- **Rooftop Sniper Perch**: Positioned 26 meters above urban city streets with safety boundary collision preventing falls.
+- **Dual Optical Scope System**: Render-texture circular ocular lens offering 4x and 8x zoom magnification with crisp crosshair reticle and peripheral awareness.
+- **Dynamic Hostile AI**: Criminal syndicates and monstrous entities navigating baked NavMesh urban street networks using a multi-state finite state machine (*Patrol*, *Suspicious*, *Alerted*, *Escape*, *Eliminated*).
+- **Audio Waveform Synthesis**: Procedural, zero-royalty gunshot, bolt-cycling, reload, hit chime, alert sound, and ambient city audio synthesizers.
+- **Mission Director & Telemetry**: 120-second mission clock, score multiplier tracking, headshot detection (3x score bonus), accuracy rating, and debriefing results screen.
 
 ---
 
-## 4. How to Open and Run
+## 🎮 Controls & Interaction
 
-1. Launch Unity Hub.
-2. Click **Add project from disk** and select:
-   ```
-   C:\Unity\Editors\DEADeyeVR_Foundation
-   ```
-3. Open using Unity Editor **6000.3.27f2**.
-4. In the Project browser, open [`Assets/Scenes/FoundationTest.unity`](file:///C:/Unity/Editors/DEADeyeVR_Foundation/Assets/Scenes/FoundationTest.unity).
-5. Press **Play**.
-6. Move around using `W/A/S/D`, look with `RMB`, grab the weapon from the table with `G`, point at the target, and fire with `LMB`.
-7. Observe the target flash green and the 3D text counter increment (`TARGET HIT COUNT: 1`).
+DEADeye VR features **strict mutual exclusion** between Desktop Rig and VR XR Origin. The system automatically detects whether a VR HMD is connected and initializes the appropriate rig.
+
+### Desktop Simulator Mode
+| Action | Input Binding |
+| :--- | :--- |
+| **Move** | `W`, `A`, `S`, `D` keys |
+| **Look** | Mouse Delta |
+| **Aim / Optic Scope** | Right Mouse Button (`RMB`) |
+| **Fire Rifle** | Left Mouse Button (`LMB`) (Suppressed over UI buttons) |
+| **Reload Rifle** | `R` key |
+| **Sprint** | `Left Shift` |
+
+### Meta Quest / PCVR Mode
+| Action | VR Controller Binding |
+| :--- | :--- |
+| **Locomotion** | Left Controller Thumbstick |
+| **Snap / Smooth Turn** | Right Controller Thumbstick |
+| **Grab Weapon (Primary)** | Right Hand Grip Button |
+| **Stabilize (Secondary Foregrip)** | Left Hand Grip Button (near rifle barrel) |
+| **Fire Weapon** | Right Hand Primary Index Trigger |
+| **Interact with Menus** | Controller Ray Pointer + Index Trigger |
 
 ---
 
-## 5. Automated Tests
+## 🏗️ Project Architecture & Scenes
 
-Run the full automated test suite via the Unity Test Framework (UTF) or command line:
+All production code is organized cleanly within `Assets/DEADeye/` adhering to single-responsibility architectural boundaries:
 
-```powershell
-& "C:\Program Files\Unity\Hub\Editor\6000.3.27f2\Editor\Unity.exe" `
-  -batchmode `
-  -projectPath "C:\Unity\Editors\DEADeyeVR_Foundation" `
-  -runTests `
-  -testPlatform EditMode `
-  -testResults "test_results.xml" `
-  -logFile "test_run.log"
 ```
-All 7 unit integration tests and PlayMode tests pass with a 100% pass rate.
+Assets/DEADeye/
+├── Art/
+│   ├── Environments/   # Dojo lobby & urban materials
+│   ├── Materials/      # Tactical PBR materials
+│   ├── Shaders/        # Scope reticle & holographic shaders
+│   ├── Textures/       # High-resolution PBR textures
+│   ├── VFX/            # Muzzle flash, bullet sparks, impact VFX
+│   └── Weapons/        # Keith Thomson Sniper Rifle model & meshes
+├── Editor/             # Automated scene builders & Android APK pipeline
+├── Scenes/             # Authoritative project scenes
+│   ├── BootScene.unity         # Scene 0: Core singletons & bootloader
+│   ├── LobbyScene.unity        # Scene 1: Dojo lobby, operative, briefing
+│   └── RooftopMission.unity    # Scene 2: 26m urban perch, AI, optics, HUD
+├── Scripts/
+│   ├── AI/             # Hostile FSM, navigation, escape zones, markers
+│   ├── Core/           # GameManager, Audio, Score, Weapon, Input Router
+│   ├── Mission/        # Mission Director, objectives, difficulty settings
+│   ├── Player/         # Desktop FPS Rig, VR XR Origin, safety boundary
+│   ├── UI/             # Lobby Briefing UI, Mission HUD, Results Debriefing
+│   └── Weapons/        # Ballistic sniper rifle, 4x/8x optic camera
+└── Tests/
+    ├── EditMode/       # 10 integration tests validating core systems
+    └── PlayMode/       # 5 live gameplay tests & screenshot generators
+```
+
+### Authoritative Build Settings (`EditorBuildSettings.asset`)
+1. `Assets/DEADeye/Scenes/BootScene.unity` (Build Index 0)
+2. `Assets/DEADeye/Scenes/LobbyScene.unity` (Build Index 1)
+3. `Assets/DEADeye/Scenes/RooftopMission.unity` (Build Index 2)
 
 ---
 
-## 6. Licensing & Attribution
-Official Unity sample assets, shaders, and presets are licensed under the **Unity Companion License** (`LICENSE_UNITY_COMPANION.md`).
-All original foundation scripts (`FoundationWeapon.cs`, `FoundationTarget.cs`, `FoundationSceneBuilder.cs`, `FoundationVerificationRunner.cs`) are authored specifically for the DEADeye VR college project under permissive open-source terms.
+## 🚀 Getting Started
+
+### Prerequisites
+- **Unity Version**: `6000.3.27f2` (Unity 6.3 LTS)
+- **Render Pipeline**: Universal Render Pipeline (URP 17.3.0)
+- **XR Stack**: Unity XR Interaction Toolkit 3.4.0, OpenXR Plugin 1.16.1, Unity Input System 1.16.0
+
+### Running in the Unity Editor
+1. Launch Unity Hub and add `C:\Unity\Editors\DEADeyeVR_Foundation`.
+2. Open the project in Unity `6000.3.27f2`.
+3. In the Project window, navigate to `Assets/DEADeye/Scenes/BootScene.unity` and double-click to open.
+4. Press **Play**. The bootloader will initialize all authoritative managers and transition smoothly into `LobbyScene`.
+5. Click **[DEPLOY TO ROOFTOP]** or select your desired difficulty to engage the urban rooftop mission.
+
+---
+
+## 🧪 Automated Testing
+
+DEADeye VR includes an automated test suite achieving **100% test pass rate (15/15 tests)**:
+- **EditMode Tests (10/10 Passed)**: Validates scene presence, singleton integrity, mutual rig exclusion, weapon firing guards, hostile FSM state transitions, headshot multipliers (3x), score calculation, and difficulty speed scaling.
+- **PlayMode Tests (5/5 Passed)**: Validates full live gameplay lifecycle: Boot routing -> Lobby difficulty selection -> Rooftop perch initialization -> Hostile target elimination -> Mission results debriefing.
+
+To execute tests via Unity Test Runner:
+1. Open `Window > General > Test Runner`.
+2. Select **EditMode** or **PlayMode** tab.
+3. Click **Run All**.
+
+---
+
+## 📦 Meta Quest Android APK Build
+
+The project features a one-click automated build pipeline generating a standalone Meta Quest APK:
+- **Menu Option**: `DEADeye > Build > Build Android Quest APK`
+- **Output Artifact**: `Builds/Android/DEADeyeVR_Release.apk`
+- **Scripting Backend**: IL2CPP
+- **Architecture**: ARM64 (64-bit)
+- **Minimum SDK**: Android 10 (API Level 29)
+- **SHA-256 Checksum**: `65038FFE79812934C7C75E4F115FCBDCAE240CD96F834FC460BD4B0428B0D310`
+
+---
+
+## 📄 License & Attribution
+All engine components, assets, and procedural scripts comply with the [Unity Companion License](ASSET_LICENSES.md) and open-source CC-BY licenses. See [ASSET_LICENSES.md](ASSET_LICENSES.md) for full licensing details.

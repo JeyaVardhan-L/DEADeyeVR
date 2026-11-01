@@ -107,3 +107,4 @@ The following physical hardware capabilities can only be evaluated when deployin
 1. **Stereoscopic Depth Perception:** Convergence and accommodation on the target ring at 7.5 meters.
 2. **Physical Hand Controller Haptics:** Vibration pulses delivered through Touch controller haptic motors.
 3. **Standalone Android Performance:** Frame pacing and thermal throttling under Quest 2 mobile XR runtime.
+

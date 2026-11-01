@@ -78,3 +78,4 @@ The **DEADeye VR Foundation** provides a robust, decoupled, and standard-complia
 | Clunky desktop camera control | Custom raw `DEADeyeDesktopController` wrestling with cursor | Official Unity **XR Interaction Simulator** with standard desktop bindings. |
 | Weapon fell through floor on recoil | Dynamic position accumulation without baseline reset | Physics-grounded `XRGrabInteractable` with clean event-driven firing. |
 | UI text unreadable / pink shaders | Legacy font references and invalid UI scale | Standard URP 17 shaders and 3D TextMesh components with proper depth testing. |
+

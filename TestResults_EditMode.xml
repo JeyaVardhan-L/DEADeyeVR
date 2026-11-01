@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.6466899">
+  <test-suite type="TestSuite" id="1000" name="XRI Examples" fullname="XRI Examples" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.646690" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1012" name="DEADeye.EditMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.EditMode.Tests.dll" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.628415" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="27568" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1013" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.627485" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1014" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.626912" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="DEADeyeIntegrationTests" fullname="DEADeye.Tests.DEADeyeIntegrationTests" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="2.623153" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1002" name="Test_01_BootScene_ContainsAuthoritativeCoreSystems" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_01_BootScene_ContainsAuthoritativeCoreSystems" methodname="Test_01_BootScene_ContainsAuthoritativeCoreSystems" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="867081512" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:10Z" duration="0.597482" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1003" name="Test_02_LobbyScene_ContainsAvatarAndTacticalUI" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_02_LobbyScene_ContainsAvatarAndTacticalUI" methodname="Test_02_LobbyScene_ContainsAvatarAndTacticalUI" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1758079637" result="Passed" start-time="2026-11-01 20:01:10Z" end-time="2026-11-01 20:01:12Z" duration="1.197226" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1004" name="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" methodname="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="148020452" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.713485" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" methodname="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1345550237" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.021021" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyePlayerController] Active Player Rig: VR (XR Origin)
+]]></output>
+            </test-case>
+            <test-case id="1006" name="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_05_SniperWeapon_BlocksFiringOutsideMissionState" methodname="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="814761289" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.003780" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyeGameManager] Game state changed to: Lobby
+]]></output>
+            </test-case>
+            <test-case id="1007" name="Test_06_HostileStatePattern_TransitionsCorrectly" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_06_HostileStatePattern_TransitionsCorrectly" methodname="Test_06_HostileStatePattern_TransitionsCorrectly" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="2019725144" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.013897" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" methodname="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1372507093" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.016594" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="Test_08_ScoreManager_CalculatesMetricsAccurately" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_08_ScoreManager_CalculatesMetricsAccurately" methodname="Test_08_ScoreManager_CalculatesMetricsAccurately" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="2024911834" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.005608" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="Test_09_WeaponManager_ConsumesAmmoAndReloads" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_09_WeaponManager_ConsumesAmmoAndReloads" methodname="Test_09_WeaponManager_ConsumesAmmoAndReloads" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="388312341" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.001363" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="Test_10_DifficultySettings_ModifyHostileSpeeds" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_10_DifficultySettings_ModifyHostileSpeeds" methodname="Test_10_DifficultySettings_ModifyHostileSpeeds" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1675841484" result="Passed" start-time="2026-11-01 20:01:12Z" end-time="2026-11-01 20:01:12Z" duration="0.006669" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyeGameManager] Difficulty set to: Recruit
+[DEADeyeGameManager] Difficulty set to: Elite
+Saving results to: C:/Users/user/AppData/LocalLow/Unity Technologies/XRI Examples\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
