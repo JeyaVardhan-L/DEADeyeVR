@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="7" result="Passed" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.4489708">
+  <test-suite type="TestSuite" id="1000" name="XRI Examples" fullname="XRI Examples" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.448971" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1009" name="DEADeyeVR.Foundation.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeyeVR.Foundation.Tests.dll" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.406678" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="21864" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1010" name="DEADeyeVR" fullname="DEADeyeVR" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.405504" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1011" name="Foundation" fullname="DEADeyeVR.Foundation" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.405034" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1012" name="Tests" fullname="DEADeyeVR.Foundation.Tests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.404268" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1001" name="FoundationIntegrationTests" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.394441" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1002" name="Test_01_PlayerGroundedOnSolidFloor" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_01_PlayerGroundedOnSolidFloor" methodname="Test_01_PlayerGroundedOnSolidFloor" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1063155950" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:24Z" duration="0.186468" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1003" name="Test_02_PerimeterWallsCollidersEnforceBoundary" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_02_PerimeterWallsCollidersEnforceBoundary" methodname="Test_02_PerimeterWallsCollidersEnforceBoundary" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1854985700" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:24Z" duration="0.007868" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1004" name="Test_03_GrabbableObjects_PickupAndRelease" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_03_GrabbableObjects_PickupAndRelease" methodname="Test_03_GrabbableObjects_PickupAndRelease" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1730376669" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:24Z" duration="0.027986" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1005" name="Test_04_WeaponInteractable_CanBePickedUp" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_04_WeaponInteractable_CanBePickedUp" methodname="Test_04_WeaponInteractable_CanBePickedUp" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1737189379" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:24Z" duration="0.004607" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1006" name="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_05_WeaponAimAndFire_HitsTargetAndRegisters" methodname="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1509890917" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:24Z" duration="0.050845" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[[FoundationTarget] Target 'Target' HIT #1 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #1 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+]]></output>
+              </test-case>
+              <test-case id="1007" name="Test_06_MultipleShots_AccumulateCorrectHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_06_MultipleShots_AccumulateCorrectHits" methodname="Test_06_MultipleShots_AccumulateCorrectHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="707499444" result="Passed" start-time="2026-11-01 19:15:24Z" end-time="2026-11-01 19:15:25Z" duration="0.043145" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[[FoundationTarget] Target 'Target' HIT #1 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #1 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+[FoundationTarget] Target 'Target' HIT #2 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #2 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+[FoundationTarget] Target 'Target' HIT #3 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #3 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+[FoundationTarget] Target 'Target' HIT #4 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #4 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+[FoundationTarget] Target 'Target' HIT #5 at (0.00, 1.50, 5.40) with normal (0.00, 0.00, -1.00)
+[FoundationWeapon] Shot #5 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
+]]></output>
+              </test-case>
+              <test-case id="1008" name="Test_07_MissedShot_DoesNotIncrementTargetHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_07_MissedShot_DoesNotIncrementTargetHits" methodname="Test_07_MissedShot_DoesNotIncrementTargetHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="343581670" result="Passed" start-time="2026-11-01 19:15:25Z" end-time="2026-11-01 19:15:25Z" duration="0.007696" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[[FoundationWeapon] Shot #1 fired from (0.00, 1.50, 1.00) towards (0.00, 0.87, 0.50). Hit: None/Surface
+Saving results to: C:/Users/user/AppData/LocalLow/Unity Technologies/XRI Examples\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
