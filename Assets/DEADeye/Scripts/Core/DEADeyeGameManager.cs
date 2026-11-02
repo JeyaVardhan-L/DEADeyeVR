@@ -18,7 +18,7 @@ namespace DEADeye
         private static DEADeyeGameManager s_Instance;
 
         [Header("State")]
-        [SerializeField] private DEADeyeGameState currentState = DEADeyeGameState.Boot;
+        [SerializeField] private DEADeyeGameState currentState = DEADeyeGameState.MissionActive;
         [SerializeField] private DEADeyePlayerMode playerMode = DEADeyePlayerMode.Desktop;
         [SerializeField] private MissionDifficulty difficulty = MissionDifficulty.Operative;
         [SerializeField] private string selectedLoadout = "XM500_Sniper";
@@ -56,10 +56,17 @@ namespace DEADeye
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
 
             // Auto-detect VR vs Desktop mode
             DetectPlayerMode();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         public void DetectPlayerMode()

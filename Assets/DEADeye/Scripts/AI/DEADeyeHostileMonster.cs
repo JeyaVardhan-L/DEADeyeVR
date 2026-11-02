@@ -13,6 +13,12 @@ namespace DEADeye
         [SerializeField] private Material eyeMaterial;
         [SerializeField] private Material hornMaterial;
 
+        private Transform leftForearmTransform;
+        private Transform rightForearmTransform;
+        private Transform leftHindTransform;
+        private Transform rightHindTransform;
+        private Transform torsoTransform;
+
         protected override void Awake()
         {
             hostileType = HostileType.Monster;
@@ -64,6 +70,7 @@ namespace DEADeye
             torso.transform.localScale = new Vector3(0.85f, 0.75f, 0.65f);
             torso.GetComponent<Renderer>().material = bodyMaterial;
             Destroy(torso.GetComponent<Collider>());
+            torsoTransform = torso.transform;
 
             // Head
             GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -121,6 +128,7 @@ namespace DEADeye
             leftForearm.transform.localScale = new Vector3(0.28f, 0.85f, 0.32f);
             leftForearm.GetComponent<Renderer>().material = bodyMaterial;
             Destroy(leftForearm.GetComponent<Collider>());
+            leftForearmTransform = leftForearm.transform;
 
             GameObject rightForearm = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightForearm.name = "RightForearm";
@@ -130,6 +138,7 @@ namespace DEADeye
             rightForearm.transform.localScale = new Vector3(0.28f, 0.85f, 0.32f);
             rightForearm.GetComponent<Renderer>().material = bodyMaterial;
             Destroy(rightForearm.GetComponent<Collider>());
+            rightForearmTransform = rightForearm.transform;
 
             // Hind legs
             GameObject leftHind = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -139,6 +148,7 @@ namespace DEADeye
             leftHind.transform.localScale = new Vector3(0.24f, 0.75f, 0.28f);
             leftHind.GetComponent<Renderer>().material = bodyMaterial;
             Destroy(leftHind.GetComponent<Collider>());
+            leftHindTransform = leftHind.transform;
 
             GameObject rightHind = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightHind.name = "RightHind";
@@ -147,6 +157,32 @@ namespace DEADeye
             rightHind.transform.localScale = new Vector3(0.24f, 0.75f, 0.28f);
             rightHind.GetComponent<Renderer>().material = bodyMaterial;
             Destroy(rightHind.GetComponent<Collider>());
+            rightHindTransform = rightHind.transform;
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (isEliminated)
+            {
+                // Fall forward upon elimination
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(-80f, transform.eulerAngles.y, 0f), Time.deltaTime * 6f);
+                return;
+            }
+
+            // Quadruped/beast predatory stride animation
+            if (agent != null && agent.velocity.sqrMagnitude > 0.04f)
+            {
+                float speed = agent.velocity.magnitude * 6.0f;
+                float angle = Mathf.Sin(Time.time * speed) * 30f;
+
+                if (leftForearmTransform != null) leftForearmTransform.localRotation = Quaternion.Euler(-15f + angle, 0f, 15f);
+                if (rightForearmTransform != null) rightForearmTransform.localRotation = Quaternion.Euler(-15f - angle, 0f, -15f);
+                if (leftHindTransform != null) leftHindTransform.localRotation = Quaternion.Euler(-angle, 0f, 0f);
+                if (rightHindTransform != null) rightHindTransform.localRotation = Quaternion.Euler(angle, 0f, 0f);
+                if (torsoTransform != null) torsoTransform.localPosition = new Vector3(0f, 1.15f + Mathf.Abs(Mathf.Sin(Time.time * speed * 2f)) * 0.05f, 0.15f);
+            }
         }
     }
 }

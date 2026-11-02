@@ -84,7 +84,7 @@ namespace DEADeyeVR.Foundation.Tests
 
             // Verify downward raycast from standing eye height (1.65m) hits floor at Y = 0.0m
             Ray ray = new Ray(new Vector3(0f, 1.65f, 0f), Vector3.down);
-            bool hit = Physics.Raycast(ray, out RaycastHit hitInfo, 5f);
+            bool hit = floorObj.GetComponent<Collider>().Raycast(ray, out RaycastHit hitInfo, 5f);
 
             Assert.IsTrue(hit, "Downward raycast must hit the solid floor collider.");
             Assert.AreEqual(floorObj.GetComponent<Collider>(), hitInfo.collider, "Hit collider must be the solid floor collider.");

@@ -49,11 +49,6 @@ namespace DEADeye
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
             Instance = this;
 
             if (missionConfig != null)
@@ -65,13 +60,30 @@ namespace DEADeye
             timeRemaining = missionDuration;
         }
 
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
         private void Start()
         {
-            // Auto-start mission if game state is MissionActive
-            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState == DEADeyeGameState.MissionActive)
+            if (spawnPoints == null || spawnPoints.Count == 0)
             {
-                StartMission();
+                var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
+                if (cityBuilder != null)
+                {
+                    SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
+                }
             }
+
+            if (DEADeyeGameManager.Instance != null)
+            {
+                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
+            }
+            StartMission();
         }
 
         public void SetNavigationNodes(List<Transform> spawns, List<Transform> wps, List<Transform> escapes)
@@ -88,7 +100,8 @@ namespace DEADeye
 
         public void StartMission()
         {
-            if (isMissionActive) return;
+            if (missionLoopCoroutine != null) StopCoroutine(missionLoopCoroutine);
+            if (spawnLoopCoroutine != null) StopCoroutine(spawnLoopCoroutine);
 
             isMissionActive = true;
             timeRemaining = missionDuration;
@@ -108,6 +121,23 @@ namespace DEADeye
             }
 
             OnMissionStarted?.Invoke();
+
+            if (spawnPoints == null || spawnPoints.Count == 0)
+            {
+                var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
+                if (cityBuilder != null)
+                {
+                    SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
+                }
+            }
+
+            // Spawn initial wave immediately so targets are visibly patrolling the streets on startup
+            int initialWave = Mathf.Min(3, totalHostilesToSpawn);
+            for (int i = 0; i < initialWave; i++)
+            {
+                SpawnNextHostile();
+            }
+
             missionLoopCoroutine = StartCoroutine(MissionTimerRoutine());
             spawnLoopCoroutine = StartCoroutine(HostileSpawnerRoutine());
         }
@@ -140,11 +170,32 @@ namespace DEADeye
 
         public void SpawnNextHostile()
         {
-            if (spawnPoints == null || spawnPoints.Count == 0) return;
+            if (spawnPoints == null || spawnPoints.Count == 0)
+            {
+                var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
+                if (cityBuilder != null)
+                {
+                    SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
+                }
+            }
+
+            if (spawnPoints == null || spawnPoints.Count == 0)
+            {
+                Vector3 fallbackPos = new Vector3(0f, 0.1f, 20f + (hostilesSpawnedCount * 8f));
+                GameObject fallbackNode = new GameObject($"FallbackSpawn_{hostilesSpawnedCount + 1}");
+                fallbackNode.transform.position = fallbackPos;
+                spawnPoints = new List<Transform> { fallbackNode.transform };
+            }
 
             Transform spawnNode = spawnPoints[hostilesSpawnedCount % spawnPoints.Count];
+            Vector3 spawnPos = spawnNode.position;
+            if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit navHit, 6f, UnityEngine.AI.NavMesh.AllAreas))
+            {
+                spawnPos = navHit.position;
+            }
+
             GameObject hostileGO = new GameObject($"Hostile_{hostilesSpawnedCount + 1}");
-            hostileGO.transform.position = spawnNode.position;
+            hostileGO.transform.position = spawnPos;
             hostileGO.transform.rotation = spawnNode.rotation;
 
             DEADeyeHostileAI ai;
@@ -158,6 +209,11 @@ namespace DEADeye
                 ai = hostileGO.AddComponent<DEADeyeHostileCriminal>();
             }
 
+            if (ai.Agent != null && ai.Agent.isOnNavMesh)
+            {
+                ai.Agent.Warp(spawnPos);
+            }
+
             Transform escapeTarget = (escapePoints != null && escapePoints.Count > 0)
                 ? escapePoints[UnityEngine.Random.Range(0, escapePoints.Count)]
                 : null;
@@ -167,6 +223,7 @@ namespace DEADeye
             ai.OnEscaped += HandleHostileEscaped;
 
             hostilesSpawnedCount++;
+            Debug.Log($"[DEADeyeMissionDirector] Spawned hostile {hostileGO.name} at {spawnPos}");
         }
 
         private void HandleHostileEliminated(DEADeyeHostileAI hostile)

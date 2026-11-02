@@ -14,6 +14,12 @@ namespace DEADeye
         [SerializeField] private Material skinMaterial;
         [SerializeField] private Material pantsMaterial;
 
+        private Transform leftLegTransform;
+        private Transform rightLegTransform;
+        private Transform leftArmTransform;
+        private Transform rightArmTransform;
+        private Transform torsoTransform;
+
         protected override void Awake()
         {
             hostileType = HostileType.Criminal;
@@ -62,6 +68,7 @@ namespace DEADeye
             torso.transform.localScale = new Vector3(0.55f, 0.75f, 0.32f);
             torso.GetComponent<Renderer>().material = coatMaterial;
             Destroy(torso.GetComponent<Collider>());
+            torsoTransform = torso.transform;
 
             // Head with dedicated headshot trigger
             GameObject head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -91,6 +98,7 @@ namespace DEADeye
             leftLeg.transform.localScale = new Vector3(0.18f, 0.72f, 0.22f);
             leftLeg.GetComponent<Renderer>().material = pantsMaterial;
             Destroy(leftLeg.GetComponent<Collider>());
+            leftLegTransform = leftLeg.transform;
 
             GameObject rightLeg = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightLeg.name = "RightLeg";
@@ -99,6 +107,7 @@ namespace DEADeye
             rightLeg.transform.localScale = new Vector3(0.18f, 0.72f, 0.22f);
             rightLeg.GetComponent<Renderer>().material = pantsMaterial;
             Destroy(rightLeg.GetComponent<Collider>());
+            rightLegTransform = rightLeg.transform;
 
             // Arms & briefcase
             GameObject leftArm = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -108,6 +117,7 @@ namespace DEADeye
             leftArm.transform.localScale = new Vector3(0.14f, 0.65f, 0.16f);
             leftArm.GetComponent<Renderer>().material = coatMaterial;
             Destroy(leftArm.GetComponent<Collider>());
+            leftArmTransform = leftArm.transform;
 
             GameObject rightArm = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightArm.name = "RightArm";
@@ -116,6 +126,7 @@ namespace DEADeye
             rightArm.transform.localScale = new Vector3(0.14f, 0.65f, 0.16f);
             rightArm.GetComponent<Renderer>().material = coatMaterial;
             Destroy(rightArm.GetComponent<Collider>());
+            rightArmTransform = rightArm.transform;
 
             GameObject briefcase = GameObject.CreatePrimitive(PrimitiveType.Cube);
             briefcase.name = "Briefcase";
@@ -124,6 +135,31 @@ namespace DEADeye
             briefcase.transform.localScale = new Vector3(0.12f, 0.28f, 0.38f);
             briefcase.GetComponent<Renderer>().material = pantsMaterial;
             Destroy(briefcase.GetComponent<Collider>());
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (isEliminated)
+            {
+                // Fall down upon elimination
+                transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(85f, transform.eulerAngles.y, 0f), Time.deltaTime * 6f);
+                return;
+            }
+
+            // Limb walk animation while moving
+            if (agent != null && agent.velocity.sqrMagnitude > 0.04f)
+            {
+                float speed = agent.velocity.magnitude * 5.0f;
+                float angle = Mathf.Sin(Time.time * speed) * 26f;
+
+                if (leftLegTransform != null) leftLegTransform.localRotation = Quaternion.Euler(angle, 0f, 0f);
+                if (rightLegTransform != null) rightLegTransform.localRotation = Quaternion.Euler(-angle, 0f, 0f);
+                if (leftArmTransform != null) leftArmTransform.localRotation = Quaternion.Euler(-angle * 0.75f, 0f, 0f);
+                if (rightArmTransform != null) rightArmTransform.localRotation = Quaternion.Euler(angle * 0.75f, 0f, 0f);
+                if (torsoTransform != null) torsoTransform.localPosition = new Vector3(0f, 1.05f + Mathf.Abs(Mathf.Sin(Time.time * speed * 2f)) * 0.03f, 0f);
+            }
         }
     }
 

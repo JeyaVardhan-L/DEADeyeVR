@@ -23,39 +23,43 @@ namespace DEADeye.Tests
         }
 
         [Test]
-        public void Test_01_BootScene_ContainsAuthoritativeCoreSystems()
+        public void Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh()
         {
-            Scene scene = EditorSceneManager.OpenScene("Assets/DEADeye/Scenes/BootScene.unity", OpenSceneMode.Single);
-            Assert.IsTrue(scene.IsValid(), "BootScene should exist and be valid.");
+            Scene scene = EditorSceneManager.OpenScene("Assets/DEADeye/Scenes/RooftopMission.unity", OpenSceneMode.Single);
+            Assert.IsTrue(scene.IsValid(), "RooftopMission should exist and be valid.");
 
             var gm = Object.FindFirstObjectByType<DEADeyeGameManager>();
-            var transition = Object.FindFirstObjectByType<DEADeyeSceneTransition>();
-            var input = Object.FindFirstObjectByType<DEADeyeInputRouter>();
             var audio = Object.FindFirstObjectByType<DEADeyeAudioManager>();
-            var bootLoader = Object.FindFirstObjectByType<DEADeyeBootLoader>();
+            var director = Object.FindFirstObjectByType<DEADeyeMissionDirector>();
+            var scoreMgr = Object.FindFirstObjectByType<DEADeyeScoreManager>();
+            var enemyReg = Object.FindFirstObjectByType<DEADeyeEnemyRegistry>();
+            var weaponMgr = Object.FindFirstObjectByType<DEADeyeWeaponManager>();
+            var cityBuilder = Object.FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
+            var navSurface = Object.FindFirstObjectByType<NavMeshSurface>();
+            var weapon = Object.FindFirstObjectByType<DEADeyeSniperWeapon>();
+            var hud = Object.FindFirstObjectByType<DEADeyeMissionHUD>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
 
-            Assert.IsNotNull(gm, "BootScene must contain DEADeyeGameManager.");
-            Assert.IsNotNull(transition, "BootScene must contain DEADeyeSceneTransition.");
-            Assert.IsNotNull(input, "BootScene must contain DEADeyeInputRouter.");
-            Assert.IsNotNull(audio, "BootScene must contain DEADeyeAudioManager.");
-            Assert.IsNotNull(bootLoader, "BootScene must contain DEADeyeBootLoader.");
+            Assert.IsNotNull(gm, "RooftopMission must contain DEADeyeGameManager.");
+            Assert.IsNotNull(audio, "RooftopMission must contain DEADeyeAudioManager.");
+            Assert.IsNotNull(director, "RooftopMission must contain DEADeyeMissionDirector.");
+            Assert.IsNotNull(scoreMgr, "RooftopMission must contain DEADeyeScoreManager.");
+            Assert.IsNotNull(enemyReg, "RooftopMission must contain DEADeyeEnemyRegistry.");
+            Assert.IsNotNull(weaponMgr, "RooftopMission must contain DEADeyeWeaponManager.");
+            Assert.IsNotNull(cityBuilder, "RooftopMission must contain DEADeyeUrbanCityBuilder.");
+            Assert.IsNotNull(navSurface, "RooftopMission must have NavMeshSurface.");
+            Assert.IsNotNull(weapon, "RooftopMission must have mounted sniper rifle.");
+            Assert.IsNotNull(hud, "RooftopMission must have mission HUD.");
+            Assert.IsNotNull(boundary, "RooftopMission must have rooftop safety boundary.");
         }
 
         [Test]
-        public void Test_02_LobbyScene_ContainsAvatarAndTacticalUI()
+        public void Test_02_RooftopMission_IsSoleActiveBuildScene()
         {
-            Scene scene = EditorSceneManager.OpenScene("Assets/DEADeye/Scenes/LobbyScene.unity", OpenSceneMode.Single);
-            Assert.IsTrue(scene.IsValid(), "LobbyScene should exist and be valid.");
-
-            var lobbyUI = Object.FindFirstObjectByType<DEADeyeLobbyUI>();
-            var avatar = Object.FindFirstObjectByType<DEADeyeLobbyAvatarController>();
-            var playerCtrl = Object.FindFirstObjectByType<DEADeyePlayerController>();
-            var dojoMgr = Object.FindFirstObjectByType<DEADeyeDojoLobbyManager>();
-
-            Assert.IsNotNull(lobbyUI, "LobbyScene must contain DEADeyeLobbyUI briefing board.");
-            Assert.IsNotNull(avatar, "LobbyScene must contain DEADeyeLobbyAvatarController for tactical operative avatar.");
-            Assert.IsNotNull(playerCtrl, "LobbyScene must contain DEADeyePlayerController.");
-            Assert.IsNotNull(dojoMgr, "LobbyScene must contain DEADeyeDojoLobbyManager.");
+            var scenes = UnityEditor.EditorBuildSettings.scenes;
+            Assert.GreaterOrEqual(scenes.Length, 1, "EditorBuildSettings must have at least one scene.");
+            Assert.IsTrue(scenes[0].enabled, "Scene 0 must be enabled.");
+            Assert.AreEqual("Assets/DEADeye/Scenes/RooftopMission.unity", scenes[0].path, "Scene 0 must be RooftopMission.unity for direct game startup.");
         }
 
         [Test]

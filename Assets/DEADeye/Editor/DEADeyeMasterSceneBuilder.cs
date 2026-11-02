@@ -33,14 +33,12 @@ namespace DEADeye.Editor
                 Directory.CreateDirectory(SCENE_DIR);
             }
 
-            Debug.Log("[DEADeyeMasterSceneBuilder] Starting comprehensive build of all game scenes...");
+            Debug.Log("[DEADeyeMasterSceneBuilder] Starting build of authoritative RooftopMission scene...");
 
-            BuildBootScene();
-            BuildLobbyScene();
             BuildRooftopMissionScene();
             ConfigureBuildSettings();
 
-            Debug.Log("[DEADeyeMasterSceneBuilder] SUCCESS: All three scenes built, baked, and registered in Build Settings!");
+            Debug.Log("[DEADeyeMasterSceneBuilder] SUCCESS: Authoritative RooftopMission scene built, baked, and registered in Build Settings!");
         }
 
         public static void BuildBootScene()
@@ -151,10 +149,14 @@ namespace DEADeye.Editor
 
             // Mission Managers Root
             GameObject managersRoot = new GameObject("Mission_AuthoritativeManagers");
-            DEADeyeMissionDirector director = managersRoot.AddComponent<DEADeyeMissionDirector>();
+            DEADeyeGameManager gameManager = managersRoot.AddComponent<DEADeyeGameManager>();
+            gameManager.SetGameState(DEADeyeGameState.MissionActive);
+            DEADeyeAudioManager audioManager = managersRoot.AddComponent<DEADeyeAudioManager>();
+            DEADeyeInputRouter inputRouter = managersRoot.AddComponent<DEADeyeInputRouter>();
             DEADeyeScoreManager scoreManager = managersRoot.AddComponent<DEADeyeScoreManager>();
             DEADeyeEnemyRegistry enemyReg = managersRoot.AddComponent<DEADeyeEnemyRegistry>();
             DEADeyeWeaponManager weaponMgr = managersRoot.AddComponent<DEADeyeWeaponManager>();
+            DEADeyeMissionDirector director = managersRoot.AddComponent<DEADeyeMissionDirector>();
 
             // Urban City Environment Builder
             GameObject cityGO = new GameObject("CityEnvironment_Controller");
@@ -166,19 +168,46 @@ namespace DEADeye.Editor
             navSurface.collectObjects = CollectObjects.All;
             navSurface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
             navSurface.BuildNavMesh();
-            Debug.Log("[DEADeyeMasterSceneBuilder] Baked NavMesh for City Streets & Sidewalks.");
 
-            // Player Perch at (0, 26.0, -4.5) overlooking city streets (Z > 0)
-            Vector3 playerPerchPos = new Vector3(0f, 26.0f, -4.5f);
-            SetupPlayerController(playerPerchPos, Quaternion.identity);
+            string navDir = "Assets/DEADeye/Scenes/RooftopMission";
+            if (!Directory.Exists(navDir))
+            {
+                Directory.CreateDirectory(navDir);
+            }
+            string navAssetPath = $"{navDir}/NavMesh-CityEnvironment.asset";
+            if (navSurface.navMeshData != null)
+            {
+                if (File.Exists(navAssetPath))
+                {
+                    AssetDatabase.DeleteAsset(navAssetPath);
+                }
+                AssetDatabase.CreateAsset(navSurface.navMeshData, navAssetPath);
+                AssetDatabase.SaveAssets();
+                Debug.Log($"[DEADeyeMasterSceneBuilder] Saved NavMeshData asset to {navAssetPath}");
+            }
+
+            // Directly link nodes to director
+            director.SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
+            EditorUtility.SetDirty(managersRoot);
+
+            // Player Perch anchored right at the stationary sniper station overlooking city streets (Z > 0)
+            Vector3 playerPerchPos = new Vector3(0f, 26.0f, -2.5f);
+            GameObject playerGO = SetupPlayerController(playerPerchPos, Quaternion.identity);
 
             // Rooftop Boundary Safety Barrier
             GameObject boundaryGO = new GameObject("RooftopSafetyBoundary");
             boundaryGO.transform.position = new Vector3(0f, 26.0f, -6.0f);
             boundaryGO.AddComponent<DEADeyeRooftopBoundary>();
 
-            // Rooftop Sniper Weapon resting on front sandbag parapet at (0, 27.22, -1.1)
-            BuildSniperWeaponObject(new Vector3(0f, 27.22f, -1.1f));
+            // Rooftop Sniper Weapon
+            GameObject rifle = BuildSniperWeaponObject(new Vector3(0f, 27.22f, -1.1f));
+
+            // Attach rifle to desktop rig so it is immediately visible in foreground
+            DEADeyeDesktopRig desktopRig = playerGO.GetComponentInChildren<DEADeyeDesktopRig>();
+            if (desktopRig != null && rifle != null)
+            {
+                desktopRig.AttachWeapon(rifle.transform);
+            }
 
             // Mission Telemetry HUD & Results UI
             GameObject hudGO = new GameObject("DEADeye_MissionHUD");
@@ -319,13 +348,10 @@ namespace DEADeye.Editor
         {
             EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[]
             {
-                new EditorBuildSettingsScene(BOOT_SCENE_PATH, true),
-                new EditorBuildSettingsScene(LOBBY_SCENE_PATH, true),
-                new EditorBuildSettingsScene(ROOFTOP_SCENE_PATH, true),
-                new EditorBuildSettingsScene("Assets/Scenes/FoundationTest.unity", true)
+                new EditorBuildSettingsScene(ROOFTOP_SCENE_PATH, true)
             };
             EditorBuildSettings.scenes = scenes;
-            Debug.Log($"[DEADeyeMasterSceneBuilder] Registered {scenes.Length} scenes in EditorBuildSettings.");
+            Debug.Log($"[DEADeyeMasterSceneBuilder] Registered single authoritative scene {ROOFTOP_SCENE_PATH} in EditorBuildSettings.");
         }
     }
 }

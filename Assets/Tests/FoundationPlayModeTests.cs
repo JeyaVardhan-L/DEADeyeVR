@@ -14,9 +14,17 @@ namespace DEADeyeVR.Foundation.Tests
         public IEnumerator PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots()
         {
             // Load FoundationTest scene
-            AsyncOperation op = SceneManager.LoadSceneAsync("FoundationTest", LoadSceneMode.Single);
-            while (!op.isDone)
+            if (Application.isPlaying)
             {
+                AsyncOperation op = SceneManager.LoadSceneAsync("FoundationTest", LoadSceneMode.Single);
+                while (!op.isDone)
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/FoundationTest.unity", UnityEditor.SceneManagement.OpenSceneMode.Single);
                 yield return null;
             }
 

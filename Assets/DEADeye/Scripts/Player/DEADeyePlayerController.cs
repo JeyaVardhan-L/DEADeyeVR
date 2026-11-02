@@ -37,7 +37,7 @@ namespace DEADeye
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
             Instance = this;
@@ -55,6 +55,11 @@ namespace DEADeye
 
         private void OnDestroy()
         {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+
             if (DEADeyeGameManager.Instance != null)
             {
                 DEADeyeGameManager.Instance.OnPlayerModeChanged -= HandlePlayerModeChanged;

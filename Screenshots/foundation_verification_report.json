@@ -1,14 +1,16 @@
 {
-  "timestamp": "2026-11-01T20:10:54.4341137Z",
+  "test_suite": "FoundationPlayModeTests",
+  "timestamp": "2026-11-02T13:38:48.9420132Z",
   "unity_version": "6000.3.27f2",
   "platform": "WindowsEditor",
+  "scene_name": "FoundationTest",
+  "xr_origin_detected": true,
   "grounding_verified": true,
-  "wall_collisions_verified": true,
-  "simulator_active": true,
-  "weapon_firing_verified": true,
-  "target_hit_registered": true,
-  "target_hit_count": 2,
-  "shots_fired": 2,
-  "screenshot_captured": true,
-  "all_tests_passed": true
+  "ground_hit_y": 0,
+  "weapon_detected": true,
+  "target_detected": true,
+  "shots_fired": 1,
+  "target_hits_registered": 1,
+  "screenshot_path": "Screenshots/FoundationTest_PlayMode.png",
+  "playmode_verification_status": "SUCCESS"
 }

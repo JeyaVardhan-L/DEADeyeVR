@@ -33,11 +33,10 @@ namespace DEADeye
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
 
             if (sfxSource == null)
             {
@@ -53,6 +52,14 @@ namespace DEADeye
             }
 
             GenerateProceduralAudioClips();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         private void GenerateProceduralAudioClips()

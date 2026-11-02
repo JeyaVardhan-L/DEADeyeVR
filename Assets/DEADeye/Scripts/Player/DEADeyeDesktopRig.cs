@@ -20,6 +20,7 @@ namespace DEADeye
         [SerializeField] private float maxPitch = 80f;
 
         [Header("Weapon Mount")]
+        [SerializeField] private DEADeyeSniperWeapon equippedWeapon;
         [SerializeField] private Transform weaponSocket;
         [SerializeField] private Vector3 hipPosition = new Vector3(0.22f, -0.25f, 0.55f);
         [SerializeField] private Vector3 aimPosition = new Vector3(0f, -0.15f, 0.40f);
@@ -33,6 +34,7 @@ namespace DEADeye
 
         public Camera DesktopCamera => desktopCamera;
         public Transform WeaponSocket => weaponSocket;
+        public DEADeyeSniperWeapon EquippedWeapon => equippedWeapon;
         public bool IsAiming => isAiming;
 
         private void Awake()
@@ -58,12 +60,27 @@ namespace DEADeye
             }
 
             yaw = transform.eulerAngles.y;
+            pitch = 18f;
+            if (cameraPivot != null)
+            {
+                cameraPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            }
         }
 
         private void Start()
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+
+            if (equippedWeapon == null)
+            {
+                equippedWeapon = FindFirstObjectByType<DEADeyeSniperWeapon>();
+            }
+
+            if (equippedWeapon != null)
+            {
+                AttachWeapon(equippedWeapon.transform);
+            }
         }
 
         private void Update()
@@ -72,13 +89,6 @@ namespace DEADeye
             HandleMovement();
             HandleAiming();
             HandleWeaponInput();
-
-            // Unlock cursor if Escape is pressed
-            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetPauseDown())
-            {
-                Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
-                Cursor.visible = Cursor.lockState != CursorLockMode.Locked;
-            }
         }
 
         private void HandleMouseLook()
@@ -108,36 +118,31 @@ namespace DEADeye
 
         private void HandleMovement()
         {
-            Vector2 moveInput = Vector2.zero;
-            if (DEADeyeInputRouter.Instance != null)
+            // Stationary sniper position - player remains anchored at perch overlooking city
+            if (characterController != null && characterController.enabled)
             {
-                moveInput = DEADeyeInputRouter.Instance.GetMoveInput();
+                if (characterController.isGrounded && velocity.y < 0f)
+                {
+                    velocity.y = -2f;
+                }
+                velocity.y += gravity * Time.deltaTime;
+                characterController.Move(Vector3.up * velocity.y * Time.deltaTime);
             }
-            else if (UnityEngine.InputSystem.Keyboard.current != null)
-            {
-                if (UnityEngine.InputSystem.Keyboard.current.wKey.isPressed) moveInput.y += 1f;
-                if (UnityEngine.InputSystem.Keyboard.current.sKey.isPressed) moveInput.y -= 1f;
-                if (UnityEngine.InputSystem.Keyboard.current.aKey.isPressed) moveInput.x -= 1f;
-                if (UnityEngine.InputSystem.Keyboard.current.dKey.isPressed) moveInput.x += 1f;
-                moveInput = moveInput.normalized;
-            }
-
-            Vector3 moveDirection = (transform.forward * moveInput.y + transform.right * moveInput.x).normalized;
-
-            if (characterController.isGrounded && velocity.y < 0f)
-            {
-                velocity.y = -2f;
-            }
-
-            velocity.y += gravity * Time.deltaTime;
-
-            Vector3 motion = (moveDirection * moveSpeed + Vector3.up * velocity.y) * Time.deltaTime;
-            characterController.Move(motion);
         }
 
         private void HandleAiming()
         {
             isAiming = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetAimHeld();
+
+            if (equippedWeapon != null && equippedWeapon.ScopeOptic != null)
+            {
+                equippedWeapon.ScopeOptic.SetScopeActive(isAiming);
+            }
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.SetScopeOverlay(isAiming);
+            }
 
             if (weaponSocket != null)
             {
@@ -147,16 +152,35 @@ namespace DEADeye
 
             if (desktopCamera != null)
             {
-                float targetFov = isAiming ? 35f : 60f;
+                float targetFov = isAiming ? 25f : 60f;
                 desktopCamera.fieldOfView = Mathf.Lerp(desktopCamera.fieldOfView, targetFov, Time.deltaTime * aimTransitionSpeed);
             }
         }
 
         private void HandleWeaponInput()
         {
+            // Pause toggle on Escape
+            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetPauseDown())
+            {
+                if (DEADeyeMissionHUD.Instance != null)
+                {
+                    DEADeyeMissionHUD.Instance.TogglePause();
+                }
+                return;
+            }
+
             if (Cursor.lockState != CursorLockMode.Locked) return;
 
-            // Reload key
+            // Fire on LMB
+            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())
+            {
+                if (equippedWeapon != null)
+                {
+                    equippedWeapon.TryFire();
+                }
+            }
+
+            // Reload key (R)
             if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetReloadDown())
             {
                 if (DEADeyeWeaponManager.Instance != null)

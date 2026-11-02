@@ -68,14 +68,14 @@ namespace DEADeye
                 "SHOOTING ACCURACY: <b>85.7%</b>",
                 20, TextAlignmentOptions.Center, new Vector2(0f, -140f), new Vector2(600f, 220f), Color.white);
 
-            // Retry Button
-            retryButton = CreateButton(resultsPanel.transform, "Btn_Retry", "▶  RETRY MISSION",
-                new Vector2(-160f, -420f), new Vector2(240f, 55f), OnRetryClicked);
+            // Restart Button
+            retryButton = CreateButton(resultsPanel.transform, "Btn_Restart", "▶  RESTART MISSION",
+                new Vector2(-160f, -420f), new Vector2(240f, 55f), OnRestartClicked);
             retryButton.GetComponent<Image>().color = new Color(0.0f, 0.65f, 0.85f);
 
-            // Return to Lobby Button
-            lobbyButton = CreateButton(resultsPanel.transform, "Btn_Lobby", "RETURN TO DOJO LOBBY",
-                new Vector2(160f, -420f), new Vector2(240f, 55f), OnLobbyClicked);
+            // Quit Button
+            lobbyButton = CreateButton(resultsPanel.transform, "Btn_Quit", "✕  QUIT GAME",
+                new Vector2(160f, -420f), new Vector2(240f, 55f), OnQuitClicked);
             lobbyButton.GetComponent<Image>().color = new Color(0.22f, 0.25f, 0.30f);
         }
 
@@ -172,28 +172,20 @@ namespace DEADeye
             }
         }
 
-        public void OnRetryClicked()
+        public void OnRestartClicked()
         {
-            if (DEADeyeSceneTransition.Instance != null)
-            {
-                DEADeyeSceneTransition.Instance.LoadRooftopMission();
-            }
-            else
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(DEADeyeSceneTransition.SCENE_ROOFTOP);
-            }
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         }
 
-        public void OnLobbyClicked()
+        public void OnQuitClicked()
         {
-            if (DEADeyeSceneTransition.Instance != null)
-            {
-                DEADeyeSceneTransition.Instance.LoadLobby();
-            }
-            else
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(DEADeyeSceneTransition.SCENE_LOBBY);
-            }
+            Time.timeScale = 1f;
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            Application.Quit();
+            #endif
         }
     }
 }

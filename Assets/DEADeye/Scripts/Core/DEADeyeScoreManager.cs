@@ -27,21 +27,31 @@ namespace DEADeye
         public int EnemiesEliminated => enemiesEliminated;
         public int EnemiesEscaped => enemiesEscaped;
         public int CurrentCombo => currentCombo;
+        public int Misses => Mathf.Max(0, shotsFired - shotsHit);
 
         public float AccuracyPercentage => shotsFired > 0 ? ((float)shotsHit / shotsFired) * 100f : 0f;
 
         public event Action<int> OnScoreUpdated;
         public event Action<int, int> OnHostileCountUpdated; // (eliminated, escaped)
         public event Action<float> OnAccuracyUpdated;
+        public event Action<bool, int> OnHitRegistered; // (isHeadshot, points)
 
         private void Awake()
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                Destroy(this);
                 return;
             }
             Instance = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
 
         public void ResetMetrics()
@@ -70,17 +80,17 @@ namespace DEADeye
             shotsHit++;
             currentCombo++;
 
-            int finalPoints = points;
+            int finalPoints = isHeadshot ? 300 : 100;
             if (isHeadshot)
             {
                 headshots++;
-                finalPoints = Mathf.RoundToInt(points * 2.5f);
             }
 
             // Apply combo multiplier bonus
             int comboBonus = Mathf.Min(currentCombo, 5) * 20;
             currentScore += (finalPoints + comboBonus);
 
+            OnHitRegistered?.Invoke(isHeadshot, finalPoints);
             OnScoreUpdated?.Invoke(currentScore);
             OnAccuracyUpdated?.Invoke(AccuracyPercentage);
         }

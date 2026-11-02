@@ -44,15 +44,74 @@ namespace DEADeye
 
         private void Awake()
         {
-            if (generateOnAwake)
+            Transform cityRoot = transform.Find("CityEnvironment_Generated");
+            if (cityRoot != null)
+            {
+                CollectExistingNodes();
+            }
+            else if (generateOnAwake)
             {
                 BuildCityEnvironment();
+            }
+        }
+
+        public void CollectExistingNodes()
+        {
+            spawnPoints.Clear();
+            waypoints.Clear();
+            escapePoints.Clear();
+
+            foreach (Transform child in transform)
+            {
+                if (child.name.StartsWith("Spawn_"))
+                    spawnPoints.Add(child);
+                else if (child.name.StartsWith("Waypoint_"))
+                    waypoints.Add(child);
+            }
+
+            Transform escapeRoot = transform.Find("CityEnvironment_Generated/Escape_Corridors");
+            if (escapeRoot == null) escapeRoot = transform.Find("Escape_Corridors");
+            if (escapeRoot != null)
+            {
+                foreach (Transform child in escapeRoot)
+                {
+                    if (child.name.StartsWith("EscapeZone_"))
+                        escapePoints.Add(child);
+                }
+            }
+
+            if (DEADeyeMissionDirector.Instance != null)
+            {
+                DEADeyeMissionDirector.Instance.SetSpawnPoints(spawnPoints, waypoints, escapePoints);
             }
         }
 
         public void BuildCityEnvironment()
         {
             InitializeMaterials();
+
+            Transform existing = transform.Find("CityEnvironment_Generated");
+            if (existing != null)
+            {
+                SafeDestroy(existing.gameObject);
+            }
+
+            List<GameObject> toDestroy = new List<GameObject>();
+            foreach (Transform child in transform)
+            {
+                if (child.name.StartsWith("Spawn_") || child.name.StartsWith("Waypoint_"))
+                {
+                    toDestroy.Add(child.gameObject);
+                }
+            }
+            foreach (var go in toDestroy)
+            {
+                SafeDestroy(go);
+            }
+
+            spawnPoints.Clear();
+            waypoints.Clear();
+            escapePoints.Clear();
 
             GameObject cityRoot = new GameObject("CityEnvironment_Generated");
             cityRoot.transform.SetParent(transform, false);
@@ -325,11 +384,15 @@ namespace DEADeye
             // Corridor 3: West River Bridge (X = -42m, Z = 38m)
             CreateEscapeCorridorNode(escapeRoot.transform, "West River Bridge", new Vector3(-42f, 1.5f, 38f), new Vector3(8f, 4f, 14f));
 
-            // Setup Spawn Nodes along alleys
-            CreateSpawnNode("Spawn_AlleyNorth", new Vector3(-12f, 0.2f, 75f));
-            CreateSpawnNode("Spawn_AlleyEast", new Vector3(32f, 0.2f, 25f));
-            CreateSpawnNode("Spawn_AlleyWest", new Vector3(-32f, 0.2f, 48f));
-            CreateSpawnNode("Spawn_MainBoulevard", new Vector3(0f, 0.2f, 18f));
+            // Setup Spawn Nodes directly on street and sidewalk pathways
+            CreateSpawnNode("Spawn_BoulevardSouth", new Vector3(0f, 0.1f, 18f));
+            CreateSpawnNode("Spawn_BoulevardNorth", new Vector3(0f, 0.1f, 65f));
+            CreateSpawnNode("Spawn_WestSidewalk", new Vector3(-8.0f, 0.2f, 25f));
+            CreateSpawnNode("Spawn_EastSidewalk", new Vector3(8.0f, 0.2f, 25f));
+            CreateSpawnNode("Spawn_AvenueEast", new Vector3(28f, 0.1f, 38f));
+            CreateSpawnNode("Spawn_AvenueWest", new Vector3(-28f, 0.1f, 38f));
+            CreateSpawnNode("Spawn_Intersection", new Vector3(0f, 0.1f, 38f));
+            CreateSpawnNode("Spawn_NorthSidewalk", new Vector3(-8.0f, 0.2f, 55f));
 
             // Setup Waypoint Nodes along street intersections
             CreateWaypointNode("Waypoint_CenterIntersection", new Vector3(0f, 0.2f, 38f));

@@ -13,12 +13,10 @@ namespace DEADeye.Editor
     /// </summary>
     public static class DEADeyeAndroidBuilder
     {
-        private const string APK_OUTPUT_PATH = "Builds/Android/DEADeyeVR_Release.apk";
+        private const string APK_OUTPUT_PATH = "Builds/Android/DEADeye_Release.apk";
 
         private static readonly string[] BUILD_SCENES = new string[]
         {
-            "Assets/DEADeye/Scenes/BootScene.unity",
-            "Assets/DEADeye/Scenes/LobbyScene.unity",
             "Assets/DEADeye/Scenes/RooftopMission.unity"
         };
 
@@ -37,7 +35,7 @@ namespace DEADeye.Editor
             // 1. Target and Architecture Configuration
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.deadeye.vr");
-            PlayerSettings.productName = "DEADeye VR";
+            PlayerSettings.productName = "DEADeye";
             PlayerSettings.companyName = "DEADeye Studios";
             PlayerSettings.bundleVersion = "1.0.0";
             PlayerSettings.Android.bundleVersionCode = 1;
