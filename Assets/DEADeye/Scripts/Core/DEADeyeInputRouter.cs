@@ -13,12 +13,31 @@ namespace DEADeye
         public static DEADeyeInputRouter Instance { get; private set; }
 
         [Header("Desktop Sensitivity")]
-        [SerializeField] private float mouseSensitivity = 2.0f;
+        [Tooltip("Horizontal look sensitivity in degrees per pixel (tested around 0.10 - 0.15).")]
+        [SerializeField] private float horizontalSensitivity = 0.12f;
+        [Tooltip("Vertical look sensitivity in degrees per pixel (tested around 0.10 - 0.15).")]
+        [SerializeField] private float verticalSensitivity = 0.12f;
+
+        public float HorizontalSensitivity
+        {
+            get => horizontalSensitivity;
+            set => horizontalSensitivity = Mathf.Clamp(value, 0.01f, 2.0f);
+        }
+
+        public float VerticalSensitivity
+        {
+            get => verticalSensitivity;
+            set => verticalSensitivity = Mathf.Clamp(value, 0.01f, 2.0f);
+        }
 
         public float MouseSensitivity
         {
-            get => mouseSensitivity;
-            set => mouseSensitivity = Mathf.Clamp(value, 0.1f, 10f);
+            get => horizontalSensitivity * 10f;
+            set
+            {
+                horizontalSensitivity = Mathf.Clamp(value * 0.1f, 0.01f, 2.0f);
+                verticalSensitivity = horizontalSensitivity;
+            }
         }
 
         public bool IsPointerOverUI()
@@ -116,8 +135,9 @@ namespace DEADeye
         {
             if (Mouse.current != null)
             {
+                // Raw pixel delta - frame-rate independent degrees per pixel rotation
                 Vector2 delta = Mouse.current.delta.ReadValue();
-                return delta * (mouseSensitivity * 0.1f);
+                return new Vector2(delta.x * horizontalSensitivity, delta.y * verticalSensitivity);
             }
             return Vector2.zero;
         }

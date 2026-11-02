@@ -158,6 +158,20 @@ namespace DEADeye.Editor
             DEADeyeWeaponManager weaponMgr = managersRoot.AddComponent<DEADeyeWeaponManager>();
             DEADeyeMissionDirector director = managersRoot.AddComponent<DEADeyeMissionDirector>();
 
+            // Setup and bind 3 distinct animated humanoid characters
+            DEADeyeCharacterSetup.SetupAllCharacters();
+            GameObject enforcer = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Hostiles/Hostile_Enforcer.prefab");
+            GameObject infiltrator = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Hostiles/Hostile_Infiltrator.prefab");
+            GameObject commander = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Hostiles/Hostile_Commander.prefab");
+            var prefabsList = new System.Collections.Generic.List<GameObject>();
+            if (enforcer != null) prefabsList.Add(enforcer);
+            if (infiltrator != null) prefabsList.Add(infiltrator);
+            if (commander != null) prefabsList.Add(commander);
+            if (prefabsList.Count > 0)
+            {
+                director.SetHostilePrefabs(prefabsList.ToArray());
+            }
+
             // Urban City Environment Builder
             GameObject cityGO = new GameObject("CityEnvironment_Controller");
             DEADeyeUrbanCityBuilder cityBuilder = cityGO.AddComponent<DEADeyeUrbanCityBuilder>();

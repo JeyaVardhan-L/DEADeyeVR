@@ -16,9 +16,8 @@ namespace DEADeye
         [SerializeField] private float moveSpeed = 3.6f;
         [SerializeField] private float sprintMultiplier = 1.5f;
         [SerializeField] private float gravity = -9.81f;
-        [SerializeField] private float mouseSensitivity = 2.0f;
-        [SerializeField] private float minPitch = -70f;
-        [SerializeField] private float maxPitch = 70f;
+        [SerializeField] private float minPitch = -85f;
+        [SerializeField] private float maxPitch = 85f;
 
         [Header("Weapon Mount")]
         [SerializeField] private DEADeyeSniperWeapon equippedWeapon;
@@ -99,6 +98,20 @@ namespace DEADeye
 
         private void HandleMouseLook()
         {
+            // Re-capture cursor if user clicks on the game view during active gameplay
+            if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                bool isPaused = DEADeyeMissionHUD.Instance != null && DEADeyeMissionHUD.Instance.IsPaused;
+                bool isMissionActive = DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState == DEADeyeGameState.MissionActive;
+                bool isOverUI = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.IsPointerOverUI();
+
+                if (isMissionActive && !isPaused && !isOverUI && Cursor.lockState != CursorLockMode.Locked)
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            }
+
             if (Cursor.lockState != CursorLockMode.Locked) return;
 
             Vector2 lookInput = Vector2.zero;
@@ -108,12 +121,13 @@ namespace DEADeye
             }
             else if (UnityEngine.InputSystem.Mouse.current != null)
             {
-                lookInput = UnityEngine.InputSystem.Mouse.current.delta.ReadValue() * (mouseSensitivity * 0.1f);
+                Vector2 delta = UnityEngine.InputSystem.Mouse.current.delta.ReadValue();
+                lookInput = new Vector2(delta.x * 0.12f, delta.y * 0.12f);
             }
 
-            // Lower sensitivity when zoomed in scope
+            // Lower sensitivity when zoomed in scope (proportional to FOV magnification)
             float sensMultiplier = isAiming ? 0.35f : 1.0f;
-            yaw += lookInput.x * sensMultiplier;
+            yaw = Mathf.Repeat(yaw + lookInput.x * sensMultiplier, 360f);
             pitch -= lookInput.y * sensMultiplier;
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
@@ -121,6 +135,31 @@ namespace DEADeye
             if (cameraPivot != null)
             {
                 cameraPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            }
+        }
+
+        public void SetLookRotation(float targetPitch, float targetYaw)
+        {
+            pitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
+            yaw = Mathf.Repeat(targetYaw, 360f);
+            transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+            if (cameraPivot != null)
+            {
+                cameraPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            }
+        }
+
+        public void LookAtTarget(Vector3 worldTarget)
+        {
+            Transform camT = DesktopCamera != null ? DesktopCamera.transform : transform;
+            Vector3 dir = (worldTarget - camT.position).normalized;
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                Quaternion lookRot = Quaternion.LookRotation(dir);
+                Vector3 euler = lookRot.eulerAngles;
+                float targetPitch = euler.x > 180f ? euler.x - 360f : euler.x;
+                float targetYaw = euler.y;
+                SetLookRotation(targetPitch, targetYaw);
             }
         }
 

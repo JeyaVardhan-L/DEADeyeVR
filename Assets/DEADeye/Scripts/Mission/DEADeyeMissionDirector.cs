@@ -19,6 +19,7 @@ namespace DEADeye
         [SerializeField] private int maxEscapesAllowed = 3;
         [SerializeField] private int totalHostilesToSpawn = 8;
         [SerializeField] private float spawnInterval = 8.0f;
+        [SerializeField] private GameObject[] hostilePrefabs;
 
         [Header("Waypoints & Escape Corridors")]
         [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -91,6 +92,11 @@ namespace DEADeye
             spawnPoints = spawns;
             waypoints = wps;
             escapePoints = escapes;
+        }
+
+        public void SetHostilePrefabs(GameObject[] prefabs)
+        {
+            hostilePrefabs = prefabs;
         }
 
         public void SetSpawnPoints(List<Transform> spawns, List<Transform> wps, List<Transform> escapes)
@@ -194,19 +200,33 @@ namespace DEADeye
                 spawnPos = navHit.position;
             }
 
-            GameObject hostileGO = new GameObject($"Hostile_{hostilesSpawnedCount + 1}");
-            hostileGO.transform.position = spawnPos;
-            hostileGO.transform.rotation = spawnNode.rotation;
+            GameObject hostileGO = null;
+            DEADeyeHostileAI ai = null;
 
-            DEADeyeHostileAI ai;
-            // Alternate between Criminal and Monster
-            if (hostilesSpawnedCount % 3 == 2)
+            // Spawn from configured Humanoid Prefabs (Enforcer, Infiltrator, Commander)
+            if (hostilePrefabs != null && hostilePrefabs.Length > 0)
             {
-                ai = hostileGO.AddComponent<DEADeyeHostileMonster>();
+                int prefabIndex = hostilesSpawnedCount % hostilePrefabs.Length;
+                GameObject prefab = hostilePrefabs[prefabIndex];
+                if (prefab != null)
+                {
+                    hostileGO = Instantiate(prefab, spawnPos, spawnNode.rotation);
+                    hostileGO.name = $"Hostile_{hostilesSpawnedCount + 1}_{prefab.name}";
+                    ai = hostileGO.GetComponent<DEADeyeHostileAI>();
+                }
             }
-            else
+
+            // Fallback instantiation if no prefabs bound
+            if (hostileGO == null)
             {
-                ai = hostileGO.AddComponent<DEADeyeHostileCriminal>();
+                hostileGO = new GameObject($"Hostile_{hostilesSpawnedCount + 1}");
+                hostileGO.transform.position = spawnPos;
+                hostileGO.transform.rotation = spawnNode.rotation;
+
+                DEADeyeHostileHumanoid humanoidAI = hostileGO.AddComponent<DEADeyeHostileHumanoid>();
+                HumanoidVariant variant = (HumanoidVariant)(hostilesSpawnedCount % 3);
+                humanoidAI.InitializeVariant(variant);
+                ai = humanoidAI;
             }
 
             if (ai.Agent != null && ai.Agent.isOnNavMesh)

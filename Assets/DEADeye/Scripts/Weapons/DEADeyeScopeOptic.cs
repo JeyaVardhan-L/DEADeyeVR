@@ -39,10 +39,13 @@ namespace DEADeye
         {
             if (scopeTargetTexture != null) return;
 
-            // 1024x1024 texture for crisp optical sniper magnification
-            scopeTargetTexture = new RenderTexture(1024, 1024, 16, RenderTextureFormat.ARGB32)
+            // 1024x1024 texture with 4x MSAA for ultra-clean anti-aliased optical magnification
+            scopeTargetTexture = new RenderTexture(1024, 1024, 24, RenderTextureFormat.ARGB32)
             {
-                name = "RT_SniperScopeLens"
+                name = "RT_SniperScopeLens",
+                antiAliasing = 4,
+                filterMode = FilterMode.Bilinear,
+                useMipMap = false
             };
             scopeTargetTexture.Create();
 
@@ -50,6 +53,18 @@ namespace DEADeye
             {
                 scopeCamera.targetTexture = scopeTargetTexture;
                 scopeCamera.fieldOfView = useHighZoom ? highMagnificationFov : magnificationFov;
+
+                // Configure URP Camera Data for anti-aliasing and eliminate noisy post-processing
+                var uac = scopeCamera.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                if (uac == null)
+                {
+                    uac = scopeCamera.gameObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+                }
+                if (uac != null)
+                {
+                    uac.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.FastApproximateAntialiasing;
+                    uac.renderPostProcessing = false;
+                }
             }
 
             if (lensRenderer != null && lensRenderer.material != null)

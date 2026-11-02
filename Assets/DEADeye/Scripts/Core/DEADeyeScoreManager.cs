@@ -21,8 +21,10 @@ namespace DEADeye
         [SerializeField] private int currentCombo = 0;
 
         public int CurrentScore => currentScore;
+        public int TotalScore => currentScore;
         public int ShotsFired => shotsFired;
         public int ShotsHit => shotsHit;
+        public int TargetHits => shotsHit;
         public int Headshots => headshots;
         public int EnemiesEliminated => enemiesEliminated;
         public int EnemiesEscaped => enemiesEscaped;

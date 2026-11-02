@@ -138,6 +138,15 @@ namespace DEADeye
             }
         }
 
+        private void ConfigureMat(Material mat, Color col, float smoothness = 0.0f)
+        {
+            mat.color = col;
+            mat.SetFloat("_Smoothness", smoothness);
+            mat.SetFloat("_Metallic", 0.0f);
+            mat.SetFloat("_SpecularHighlights", 0.0f);
+            mat.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+        }
+
         private void InitializeMaterials()
         {
             Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
@@ -149,27 +158,27 @@ namespace DEADeye
             if (asphaltMaterial == null)
             {
                 asphaltMaterial = new Material(litShader) { name = "Mat_Asphalt" };
-                asphaltMaterial.color = new Color(0.14f, 0.15f, 0.16f);
+                ConfigureMat(asphaltMaterial, new Color(0.14f, 0.15f, 0.16f), 0.0f);
             }
             if (sidewalkMaterial == null)
             {
                 sidewalkMaterial = new Material(litShader) { name = "Mat_Sidewalk" };
-                sidewalkMaterial.color = new Color(0.68f, 0.68f, 0.66f);
+                ConfigureMat(sidewalkMaterial, new Color(0.68f, 0.68f, 0.66f), 0.0f);
             }
             if (buildingConcreteMat == null)
             {
                 buildingConcreteMat = new Material(litShader) { name = "Mat_BuildingConcrete" };
-                buildingConcreteMat.color = new Color(0.32f, 0.35f, 0.38f);
+                ConfigureMat(buildingConcreteMat, new Color(0.32f, 0.35f, 0.38f), 0.0f);
             }
             if (buildingBrickMat == null)
             {
                 buildingBrickMat = new Material(litShader) { name = "Mat_BuildingBrick" };
-                buildingBrickMat.color = new Color(0.42f, 0.25f, 0.22f);
+                ConfigureMat(buildingBrickMat, new Color(0.42f, 0.25f, 0.22f), 0.0f);
             }
             if (windowGlassMat == null)
             {
                 windowGlassMat = new Material(litShader) { name = "Mat_WindowGlass" };
-                windowGlassMat.color = new Color(0.12f, 0.22f, 0.30f);
+                ConfigureMat(windowGlassMat, new Color(0.12f, 0.22f, 0.30f), 0.0f);
             }
             if (roadMarkingMat == null)
             {
@@ -184,12 +193,12 @@ namespace DEADeye
             if (metalRooftopMat == null)
             {
                 metalRooftopMat = new Material(litShader) { name = "Mat_RooftopMetal" };
-                metalRooftopMat.color = new Color(0.25f, 0.27f, 0.29f);
+                ConfigureMat(metalRooftopMat, new Color(0.25f, 0.27f, 0.29f), 0.0f);
             }
             if (facadeTrimMat == null)
             {
                 facadeTrimMat = new Material(litShader) { name = "Mat_FacadeTrim" };
-                facadeTrimMat.color = new Color(0.18f, 0.20f, 0.22f);
+                ConfigureMat(facadeTrimMat, new Color(0.18f, 0.20f, 0.22f), 0.0f);
             }
         }
 
@@ -670,6 +679,7 @@ namespace DEADeye
         private void CreateSafetyBoundary(Transform parent, Vector3 pos, Vector3 size)
         {
             GameObject boundary = new GameObject("SafetyBoundary_Invisible");
+            boundary.layer = LayerMask.NameToLayer("Ignore Raycast");
             boundary.transform.SetParent(parent, false);
             boundary.transform.position = pos;
             BoxCollider col = boundary.AddComponent<BoxCollider>();

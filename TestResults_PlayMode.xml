@@ -1,98 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.0926303">
-  <test-suite type="TestSuite" id="1013" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.092630" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="13" result="Passed" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:36Z" duration="43.0022025">
+  <test-suite type="TestSuite" id="1022" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:36Z" duration="43.002203" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="PlayMode" />
     </properties>
-    <test-suite type="Assembly" id="1007" name="DEADeye.PlayMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.PlayMode.Tests.dll" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.071623" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1016" name="DEADeye.PlayMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.PlayMode.Tests.dll" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:36Z" duration="42.976234" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="12572" />
+        <property name="_PID" value="23280" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="PlayMode" />
         <property name="EditorOnly" value="False" />
       </properties>
-      <test-suite type="TestSuite" id="1008" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.070173" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1017" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:36Z" duration="42.974722" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1009" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.069405" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1018" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:36Z" duration="42.973868" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestFixture" id="1001" name="DEADeyePlayModeTests" fullname="DEADeye.Tests.DEADeyePlayModeTests" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.066432" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1001" name="DEADeyeAccuracyTests" fullname="DEADeye.Tests.DEADeyeAccuracyTests" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:21Z" duration="27.907157" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1002" name="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" methodname="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1073306745" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:25Z" duration="6.379486" asserts="0">
+            <test-case id="1002" name="Accuracy_01_CrosshairDirectlyOnEnemyBody_HitRegisters" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_01_CrosshairDirectlyOnEnemyBody_HitRegisters" methodname="Accuracy_01_CrosshairDirectlyOnEnemyBody_HitRegisters" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="1456159491" result="Passed" start-time="2026-11-02 18:56:53Z" end-time="2026-11-02 18:57:01Z" duration="8.336095" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Initial.png (503747 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=ENFORCER, Collider=Hitbox_Torso, Distance=23.3m, Damage=100, Blocked=False
 ]]></output>
             </test-case>
-            <test-case id="1003" name="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" methodname="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="45559183" result="Passed" start-time="2026-11-02 14:50:25Z" end-time="2026-11-02 14:50:29Z" duration="3.670101" asserts="0">
+            <test-case id="1003" name="Accuracy_02_CrosshairDirectlyOnEnemyHead_HeadshotRegisters" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_02_CrosshairDirectlyOnEnemyHead_HeadshotRegisters" methodname="Accuracy_02_CrosshairDirectlyOnEnemyHead_HeadshotRegisters" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="385614110" result="Passed" start-time="2026-11-02 18:57:01Z" end-time="2026-11-02 18:57:02Z" duration="1.241026" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Hostiles.png (503453 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] HEADSHOT: Target=ENFORCER, Collider=Hitbox_Head, Distance=23.4m, Damage=300, Blocked=False
 ]]></output>
             </test-case>
-            <test-case id="1004" name="PlayMode_03_ScopeOptic_AimingAndMagnification" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_03_ScopeOptic_AimingAndMagnification" methodname="PlayMode_03_ScopeOptic_AimingAndMagnification" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1871170749" result="Passed" start-time="2026-11-02 14:50:29Z" end-time="2026-11-02 14:50:31Z" duration="2.631577" asserts="0">
+            <test-case id="1004" name="Accuracy_03_CrosshairBetweenTwoEnemies_CorrectTargetRegisters" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_03_CrosshairBetweenTwoEnemies_CorrectTargetRegisters" methodname="Accuracy_03_CrosshairBetweenTwoEnemies_CorrectTargetRegisters" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="911870050" result="Passed" start-time="2026-11-02 18:57:02Z" end-time="2026-11-02 18:57:04Z" duration="1.250073" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Scoped.png (117911 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=ENFORCER, Collider=Hitbox_Torso, Distance=28.3m, Damage=100, Blocked=False
 ]]></output>
             </test-case>
-            <test-case id="1005" name="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" methodname="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1608348714" result="Passed" start-time="2026-11-02 14:50:31Z" end-time="2026-11-02 14:50:34Z" duration="2.745422" asserts="0">
+            <test-case id="1005" name="Accuracy_04_TargetAtDifferentDistances_HitsRegister" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_04_TargetAtDifferentDistances_HitsRegister" methodname="Accuracy_04_TargetAtDifferentDistances_HitsRegister" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="1550623058" result="Passed" start-time="2026-11-02 18:57:04Z" end-time="2026-11-02 18:57:08Z" duration="4.528926" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=INFILTRATOR, Collider=Hitbox_Torso, Distance=18.3m, Damage=100, Blocked=False
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=INFILTRATOR, Collider=Hitbox_Torso, Distance=43.3m, Damage=100, Blocked=False
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=INFILTRATOR, Collider=Hitbox_Torso, Distance=73.3m, Damage=100, Blocked=False
 ]]></output>
             </test-case>
-            <test-case id="1006" name="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" methodname="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1203711609" result="Passed" start-time="2026-11-02 14:50:34Z" end-time="2026-11-02 14:50:39Z" duration="4.600762" asserts="0">
+            <test-case id="1006" name="Accuracy_05_TargetBehindBuilding_ShotIsBlocked" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_05_TargetBehindBuilding_ShotIsBlocked" methodname="Accuracy_05_TargetBehindBuilding_ShotIsBlocked" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="911608834" result="Passed" start-time="2026-11-02 18:57:08Z" end-time="2026-11-02 18:57:11Z" duration="2.562634" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object=Building_Obstacle, Distance=16.5m, Blocked=False
+]]></output>
+            </test-case>
+            <test-case id="1007" name="Accuracy_06_ScopeCentreOnTarget_HitRegisters" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_06_ScopeCentreOnTarget_HitRegisters" methodname="Accuracy_06_ScopeCentreOnTarget_HitRegisters" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="1343285447" result="Passed" start-time="2026-11-02 18:57:11Z" end-time="2026-11-02 18:57:15Z" duration="4.523085" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] BODY HIT: Target=COMMANDER, Collider=Hitbox_Torso, Distance=48.3m, Damage=100, Blocked=False
+]]></output>
+            </test-case>
+            <test-case id="1008" name="Accuracy_07_MuzzleObstruction_ShotDoesNotPassThroughNearbyGeometry" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_07_MuzzleObstruction_ShotDoesNotPassThroughNearbyGeometry" methodname="Accuracy_07_MuzzleObstruction_ShotDoesNotPassThroughNearbyGeometry" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="1524085270" result="Passed" start-time="2026-11-02 18:57:15Z" end-time="2026-11-02 18:57:18Z" duration="2.794816" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+Failed to create agent because it is not close enough to the NavMesh
+[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object=Nearby_MuzzleObstruction, Distance=1.8m, Blocked=False
+]]></output>
+            </test-case>
+            <test-case id="1009" name="Accuracy_08_Miss_NoDamageOrScoreAwarded" fullname="DEADeye.Tests.DEADeyeAccuracyTests.Accuracy_08_Miss_NoDamageOrScoreAwarded" methodname="Accuracy_08_Miss_NoDamageOrScoreAwarded" classname="DEADeye.Tests.DEADeyeAccuracyTests" runstate="Runnable" seed="1788589081" result="Passed" start-time="2026-11-02 18:57:18Z" end-time="2026-11-02 18:57:21Z" duration="2.635819" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+[DEADeyeSniperWeapon] MISS: Aimed into open air, no target hit.
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1010" name="DEADeyePlayModeTests" fullname="DEADeye.Tests.DEADeyePlayModeTests" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 18:57:21Z" end-time="2026-11-02 18:57:36Z" duration="15.062490" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1011" name="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" methodname="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="851124526" result="Passed" start-time="2026-11-02 18:57:21Z" end-time="2026-11-02 18:57:22Z" duration="1.724856" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Initial.png (313982 bytes)
+]]></output>
+            </test-case>
+            <test-case id="1012" name="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" methodname="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1539596303" result="Passed" start-time="2026-11-02 18:57:22Z" end-time="2026-11-02 18:57:25Z" duration="2.909349" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Hostiles.png (314145 bytes)
+]]></output>
+            </test-case>
+            <test-case id="1013" name="PlayMode_03_ScopeOptic_AimingAndMagnification" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_03_ScopeOptic_AimingAndMagnification" methodname="PlayMode_03_ScopeOptic_AimingAndMagnification" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="774986865" result="Passed" start-time="2026-11-02 18:57:25Z" end-time="2026-11-02 18:57:28Z" duration="3.052237" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Scoped.png (62116 bytes)
+]]></output>
+            </test-case>
+            <test-case id="1014" name="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" methodname="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="17277422" result="Passed" start-time="2026-11-02 18:57:28Z" end-time="2026-11-02 18:57:32Z" duration="3.321801" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
+[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object=BackgroundSkyscraper_0_125, Distance=111.7m, Blocked=False
+[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object=BackgroundSkyscraper_0_125, Distance=111.7m, Blocked=False
+]]></output>
+            </test-case>
+            <test-case id="1015" name="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" methodname="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1387452503" result="Passed" start-time="2026-11-02 18:57:32Z" end-time="2026-11-02 18:57:36Z" duration="4.049670" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
 [DEADeyeGameManager] Game state changed to: MissionResults
 [DEADeyeMissionDirector] Mission Finished! Result: VICTORY - Eliminated: 0, Escaped: 0
 The character with Unicode value \u25B6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Text].
 The character with Unicode value \u2715 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Text].
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Results.png (503504 bytes)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Results.png (313939 bytes)
 [DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1_Hostile_Enforcer at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2_Hostile_Infiltrator at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3_Hostile_Commander at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4_Hostile_Enforcer at (-1.00, 0.08, 48.00)
 Saving results to: C:/Users/user/AppData/LocalLow/DEADeye Studios/DEADeye\TestResults.xml
 ]]></output>
             </test-case>

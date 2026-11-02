@@ -48,6 +48,13 @@ namespace DEADeye
             return currentAmmo > 0 && !isReloading;
         }
 
+        public void ResetAmmo()
+        {
+            currentAmmo = magazineCapacity;
+            isReloading = false;
+            OnAmmoChanged?.Invoke(currentAmmo, magazineCapacity);
+        }
+
         public void ConsumeAmmo()
         {
             if (currentAmmo > 0)

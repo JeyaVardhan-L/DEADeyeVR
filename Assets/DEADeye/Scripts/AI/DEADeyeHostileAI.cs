@@ -134,7 +134,7 @@ namespace DEADeye
             }
         }
 
-        public void ChangeState(HostileStateType nextStateType)
+        public virtual void ChangeState(HostileStateType nextStateType)
         {
             if (isEliminated || hasEscaped) return;
 
