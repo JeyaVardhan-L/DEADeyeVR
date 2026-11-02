@@ -93,6 +93,7 @@ namespace DEADeye
             rt.sizeDelta = size;
 
             TextMeshProUGUI tmp = go.AddComponent<TextMeshProUGUI>();
+            tmp.font = DEADeyeMissionHUD.GetDefaultFont();
             tmp.text = content;
             tmp.fontSize = fontSize;
             tmp.alignment = alignment;
@@ -126,6 +127,7 @@ namespace DEADeye
             trt.offsetMax = Vector2.zero;
 
             TextMeshProUGUI tmp = textGO.AddComponent<TextMeshProUGUI>();
+            tmp.font = DEADeyeMissionHUD.GetDefaultFont();
             tmp.text = label;
             tmp.fontSize = 18;
             tmp.alignment = TextAlignmentOptions.Center;
@@ -135,6 +137,8 @@ namespace DEADeye
             btn.onClick.AddListener(onClick);
             return btn;
         }
+
+        public void ShowResults(bool isVictory) => DisplayResults(isVictory);
 
         public void DisplayResults(bool isVictory)
         {

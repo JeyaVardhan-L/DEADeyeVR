@@ -19,14 +19,14 @@ namespace DEADeye
         [SerializeField] private DEADeyeScopeOptic scopeOptic;
 
         [Header("Ballistics")]
-        [SerializeField] private float maxRange = 300f;
+        [SerializeField] private float maxRange = 350f;
         [SerializeField] private int baseDamage = 100;
         [SerializeField] private float fireRateCooldown = 0.85f; // Bolt-action cycle
         [SerializeField] private LayerMask hitLayers = ~0;
 
         [Header("Recoil Recovery")]
-        [SerializeField] private float recoilKickPitch = 3.5f;
-        [SerializeField] private float recoilKickBack = 0.04f;
+        [SerializeField] private float recoilKickPitch = 4.5f;
+        [SerializeField] private float recoilKickBack = 0.08f;
         [SerializeField] private float recoilRecoverySpeed = 12f;
 
         [Header("Effects")]
@@ -36,6 +36,7 @@ namespace DEADeye
         private float nextFireTime = 0f;
         private Vector3 recoilOffset = Vector3.zero;
         private Quaternion recoilRotation = Quaternion.identity;
+        private Vector3 reloadOffset = Vector3.zero;
         private IXRSelectInteractor secondaryInteractor;
 
         public bool IsReadyToFire => Time.time >= nextFireTime;
@@ -45,12 +46,27 @@ namespace DEADeye
         {
             base.Awake();
 
+            // Ensure Rifle Mesh is true 1:1 scale (1.42m real-world length)
+            Transform rifleMesh = transform.Find("RifleMesh");
+            if (rifleMesh != null)
+            {
+                rifleMesh.localScale = Vector3.one;
+            }
+
             if (muzzlePoint == null)
             {
-                GameObject muzzleGO = new GameObject("MuzzlePoint");
-                muzzleGO.transform.SetParent(transform, false);
-                muzzleGO.transform.localPosition = new Vector3(0f, 0.05f, 0.85f);
-                muzzlePoint = muzzleGO.transform;
+                Transform existingMuzzle = transform.Find("MuzzlePoint");
+                if (existingMuzzle != null)
+                {
+                    muzzlePoint = existingMuzzle;
+                }
+                else
+                {
+                    GameObject muzzleGO = new GameObject("MuzzlePoint");
+                    muzzleGO.transform.SetParent(transform, false);
+                    muzzleGO.transform.localPosition = new Vector3(0f, 0.08f, 0.85f);
+                    muzzlePoint = muzzleGO.transform;
+                }
             }
 
             if (scopeOptic == null)
@@ -72,14 +88,14 @@ namespace DEADeye
                 }
             }
 
-            bulletTracer.startWidth = 0.02f;
+            bulletTracer.startWidth = 0.025f;
             bulletTracer.endWidth = 0.01f;
             bulletTracer.enabled = false;
 
             Shader tracerShader = Shader.Find("Universal Render Pipeline/Unlit");
             if (tracerShader == null) tracerShader = Shader.Find("Unlit/Color");
             Material tracerMat = new Material(tracerShader) { name = "TracerMat" };
-            tracerMat.color = new Color(1.0f, 0.85f, 0.3f, 0.9f);
+            tracerMat.color = new Color(1.0f, 0.88f, 0.35f, 0.95f);
             bulletTracer.sharedMaterial = tracerMat;
         }
 
@@ -87,12 +103,34 @@ namespace DEADeye
         {
             base.OnEnable();
             activated.AddListener(OnActivatedTrigger);
+
+            if (DEADeyeWeaponManager.Instance != null)
+            {
+                DEADeyeWeaponManager.Instance.OnReloadStarted += HandleReloadStarted;
+                DEADeyeWeaponManager.Instance.OnReloadCompleted += HandleReloadCompleted;
+            }
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             activated.RemoveListener(OnActivatedTrigger);
+
+            if (DEADeyeWeaponManager.Instance != null)
+            {
+                DEADeyeWeaponManager.Instance.OnReloadStarted -= HandleReloadStarted;
+                DEADeyeWeaponManager.Instance.OnReloadCompleted -= HandleReloadCompleted;
+            }
+        }
+
+        private void HandleReloadStarted()
+        {
+            reloadOffset = new Vector3(0.04f, -0.14f, -0.05f);
+        }
+
+        private void HandleReloadCompleted()
+        {
+            reloadOffset = Vector3.zero;
         }
 
         private void Update()
@@ -115,11 +153,13 @@ namespace DEADeye
                 }
             }
 
-            // Smooth recoil recovery toward zero
+            // Smooth procedural recoil recovery toward zero
             recoilOffset = Vector3.Lerp(recoilOffset, Vector3.zero, Time.deltaTime * recoilRecoverySpeed);
             recoilRotation = Quaternion.Slerp(recoilRotation, Quaternion.identity, Time.deltaTime * recoilRecoverySpeed);
 
-            transform.localPosition += recoilOffset * Time.deltaTime;
+            // Apply procedural offsets cleanly without accumulating drift
+            transform.localPosition = recoilOffset + reloadOffset;
+            transform.localRotation = recoilRotation;
         }
 
         private void OnActivatedTrigger(ActivateEventArgs args)
@@ -185,13 +225,29 @@ namespace DEADeye
                 muzzleFlash.Play();
             }
 
-            // Apply recoil kick
-            recoilOffset = -Vector3.forward * recoilKickBack;
-            recoilRotation = Quaternion.Euler(-recoilKickPitch, 0f, 0f);
+            // Apply procedural recoil kick
+            recoilOffset = new Vector3(0f, 0.02f, -recoilKickBack);
+            recoilRotation = Quaternion.Euler(-recoilKickPitch, Random.Range(-0.4f, 0.4f), 0f);
 
-            // Ballistics Raycast
-            Vector3 shootOrigin = muzzlePoint.position;
-            Vector3 shootDirection = muzzlePoint.forward;
+            // Precision Ballistics Raycast:
+            // When in first-person camera mode, raycast from camera viewport center (0.5, 0.5)
+            // for 100% pixel-perfect crosshair alignment!
+            Vector3 shootOrigin;
+            Vector3 shootDirection;
+
+            if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.ActiveCamera != null)
+            {
+                Camera activeCam = DEADeyePlayerController.Instance.ActiveCamera;
+                Ray centerRay = activeCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                shootOrigin = centerRay.origin;
+                shootDirection = centerRay.direction;
+            }
+            else
+            {
+                shootOrigin = muzzlePoint.position;
+                shootDirection = muzzlePoint.forward;
+            }
+
             Vector3 endPoint = shootOrigin + shootDirection * maxRange;
 
             if (Physics.Raycast(shootOrigin, shootDirection, out RaycastHit hit, maxRange, hitLayers, QueryTriggerInteraction.Collide))
@@ -211,7 +267,8 @@ namespace DEADeye
             // Show Tracer & Bolt Cycle (Only when playing)
             if (Application.isPlaying)
             {
-                StartCoroutine(DisplayTracerRoutine(shootOrigin, endPoint));
+                Vector3 tracerStart = muzzlePoint != null ? muzzlePoint.position : shootOrigin;
+                StartCoroutine(DisplayTracerRoutine(tracerStart, endPoint));
                 StartCoroutine(BoltCycleRoutine());
             }
         }
@@ -258,7 +315,8 @@ namespace DEADeye
             yield return new WaitForSeconds(fireRateCooldown * 0.45f);
             if (DEADeyeAudioManager.Instance != null)
             {
-                DEADeyeAudioManager.Instance.PlayBoltCycle(muzzlePoint.position);
+                Vector3 pos = muzzlePoint != null ? muzzlePoint.position : transform.position;
+                DEADeyeAudioManager.Instance.PlayBoltCycle(pos);
             }
         }
     }

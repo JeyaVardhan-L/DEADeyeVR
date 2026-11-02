@@ -11,8 +11,8 @@ namespace DEADeye
         [Header("Optic Camera")]
         [SerializeField] private Camera scopeCamera;
         [SerializeField] private Renderer lensRenderer;
-        [SerializeField] private float magnificationFov = 15f; // ~4x zoom compared to 60 fov
-        [SerializeField] private float highMagnificationFov = 8f; // ~8x zoom
+        [SerializeField] private float magnificationFov = 12f; // ~5x zoom compared to 60 fov
+        [SerializeField] private float highMagnificationFov = 6f; // ~10x zoom
         [SerializeField] private bool useHighZoom = false;
 
         [Header("State")]
@@ -20,6 +20,7 @@ namespace DEADeye
 
         public Camera ScopeCamera => scopeCamera;
         public bool IsAiming => isAiming;
+        public RenderTexture ScopeTargetTexture => scopeTargetTexture;
 
         private RenderTexture scopeTargetTexture;
 
@@ -34,12 +35,12 @@ namespace DEADeye
             SetScopeActive(false);
         }
 
-        private void SetupScopeRenderTexture()
+        public void SetupScopeRenderTexture()
         {
             if (scopeTargetTexture != null) return;
 
-            // 512x512 texture optimal for mobile Quest performance & crisp reticle
-            scopeTargetTexture = new RenderTexture(512, 512, 16, RenderTextureFormat.ARGB32)
+            // 1024x1024 texture for crisp optical sniper magnification
+            scopeTargetTexture = new RenderTexture(1024, 1024, 16, RenderTextureFormat.ARGB32)
             {
                 name = "RT_SniperScopeLens"
             };
@@ -51,7 +52,7 @@ namespace DEADeye
                 scopeCamera.fieldOfView = useHighZoom ? highMagnificationFov : magnificationFov;
             }
 
-            if (lensRenderer != null)
+            if (lensRenderer != null && lensRenderer.material != null)
             {
                 lensRenderer.material.mainTexture = scopeTargetTexture;
             }
@@ -60,6 +61,11 @@ namespace DEADeye
         public void SetScopeActive(bool active)
         {
             isAiming = active;
+            if (active && scopeTargetTexture == null)
+            {
+                SetupScopeRenderTexture();
+            }
+
             if (scopeCamera != null)
             {
                 scopeCamera.enabled = active;
@@ -67,6 +73,15 @@ namespace DEADeye
             if (lensRenderer != null)
             {
                 lensRenderer.enabled = active;
+            }
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                if (active && scopeTargetTexture != null)
+                {
+                    DEADeyeMissionHUD.Instance.SetScopeTexture(scopeTargetTexture);
+                }
+                DEADeyeMissionHUD.Instance.SetScopeOverlay(active);
             }
         }
 
@@ -89,4 +104,3 @@ namespace DEADeye
         }
     }
 }
-

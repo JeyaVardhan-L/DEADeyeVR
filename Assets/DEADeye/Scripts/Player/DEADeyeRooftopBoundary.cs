@@ -9,9 +9,9 @@ namespace DEADeye
     public class DEADeyeRooftopBoundary : MonoBehaviour
     {
         [Header("Boundary Box Constraints")]
-        [SerializeField] private Vector3 center = new Vector3(0f, 26f, 0f);
-        [SerializeField] private Vector3 size = new Vector3(20f, 10f, 16f);
-        [SerializeField] private Vector3 safeSpawnPosition = new Vector3(0f, 26.1f, 0f);
+        [SerializeField] private Vector3 center = new Vector3(0f, 26f, -6f);
+        [SerializeField] private Vector3 size = new Vector3(16f, 10f, 14f);
+        [SerializeField] private Vector3 safeSpawnPosition = new Vector3(0f, 26.0f, -2.5f);
 
         private void LateUpdate()
         {

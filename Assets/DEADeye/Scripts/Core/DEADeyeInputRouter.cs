@@ -90,6 +90,15 @@ namespace DEADeye
             return false;
         }
 
+        public bool GetSprintHeld()
+        {
+            if (Keyboard.current != null && (Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public Vector2 GetMoveInput()
         {
             Vector2 move = Vector2.zero;

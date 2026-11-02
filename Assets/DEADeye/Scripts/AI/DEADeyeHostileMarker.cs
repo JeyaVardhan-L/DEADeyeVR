@@ -3,15 +3,16 @@ using UnityEngine;
 namespace DEADeye
 {
     /// <summary>
-    /// Overhead tactical indicator displaying a red downward-pointing triangle above hostile targets.
+    /// Overhead tactical indicator displaying a bright red downward-pointing triangle above hostile targets.
     /// Billboards dynamically toward the active player camera.
+    /// High visibility across short and long sniper engagement ranges.
     /// </summary>
     public class DEADeyeHostileMarker : MonoBehaviour
     {
         [Header("Marker Settings")]
-        [SerializeField] private float heightOffset = 2.2f;
-        [SerializeField] private Vector3 markerScale = new Vector3(0.35f, 0.45f, 0.35f);
-        [SerializeField] private Color markerColor = new Color(0.95f, 0.15f, 0.15f, 0.95f);
+        [SerializeField] private float heightOffset = 2.4f;
+        [SerializeField] private Vector3 markerScale = new Vector3(0.55f, 0.65f, 0.55f);
+        [SerializeField] private Color markerColor = new Color(1.0f, 0.12f, 0.12f, 0.98f);
 
         private GameObject markerGO;
         private Camera targetCamera;
@@ -61,7 +62,14 @@ namespace DEADeye
 
             if (targetCamera == null || !targetCamera.isActiveAndEnabled)
             {
-                targetCamera = Camera.main;
+                if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.ActiveCamera != null)
+                {
+                    targetCamera = DEADeyePlayerController.Instance.ActiveCamera;
+                }
+                else
+                {
+                    targetCamera = Camera.main;
+                }
             }
 
             if (targetCamera != null)
@@ -70,7 +78,7 @@ namespace DEADeye
                 markerGO.transform.rotation = Quaternion.LookRotation(markerGO.transform.position - targetCamera.transform.position);
 
                 // Subtle bobbing animation
-                float bob = Mathf.Sin(Time.time * 4f) * 0.05f;
+                float bob = Mathf.Sin(Time.time * 4.5f) * 0.06f;
                 markerGO.transform.localPosition = new Vector3(0f, heightOffset + bob, 0f);
             }
         }
@@ -84,4 +92,3 @@ namespace DEADeye
         }
     }
 }
-

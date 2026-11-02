@@ -46,14 +46,14 @@ namespace DEADeye
             if (bodyMaterial == null)
             {
                 bodyMaterial = new Material(litShader) { name = "MonsterBodyMat" };
-                bodyMaterial.color = new Color(0.12f, 0.08f, 0.14f);
+                bodyMaterial.color = new Color(0.52f, 0.14f, 0.18f); // High-contrast demonic crimson
             }
             if (eyeMaterial == null)
             {
                 Shader unlitShader = Shader.Find("Universal Render Pipeline/Unlit");
                 if (unlitShader == null) unlitShader = Shader.Find("Unlit/Color");
                 eyeMaterial = new Material(unlitShader) { name = "MonsterEyeMat" };
-                eyeMaterial.color = new Color(1.0f, 0.2f, 0.0f);
+                eyeMaterial.color = new Color(1.0f, 0.45f, 0.0f); // Bright glowing orange
             }
             if (hornMaterial == null)
             {

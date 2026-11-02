@@ -4,7 +4,7 @@ namespace DEADeye
 {
     /// <summary>
     /// Dedicated First-Person Desktop Controller for keyboard & mouse gameplay.
-    /// Provides smooth WASD locomotion, clamped mouse look, weapon holding, and interaction.
+    /// Provides smooth WASD locomotion, sprint modifier, clamped mouse look, weapon holding, and interaction.
     /// Mutually exclusive with the XR Origin rig.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
@@ -13,18 +13,19 @@ namespace DEADeye
         [Header("Camera & Vision")]
         [SerializeField] private Camera desktopCamera;
         [SerializeField] private Transform cameraPivot;
-        [SerializeField] private float moveSpeed = 4.0f;
+        [SerializeField] private float moveSpeed = 3.6f;
+        [SerializeField] private float sprintMultiplier = 1.5f;
         [SerializeField] private float gravity = -9.81f;
         [SerializeField] private float mouseSensitivity = 2.0f;
-        [SerializeField] private float minPitch = -80f;
-        [SerializeField] private float maxPitch = 80f;
+        [SerializeField] private float minPitch = -70f;
+        [SerializeField] private float maxPitch = 70f;
 
         [Header("Weapon Mount")]
         [SerializeField] private DEADeyeSniperWeapon equippedWeapon;
         [SerializeField] private Transform weaponSocket;
-        [SerializeField] private Vector3 hipPosition = new Vector3(0.22f, -0.25f, 0.55f);
-        [SerializeField] private Vector3 aimPosition = new Vector3(0f, -0.15f, 0.40f);
-        [SerializeField] private float aimTransitionSpeed = 12f;
+        [SerializeField] private Vector3 hipPosition = new Vector3(0.24f, -0.22f, 0.62f);
+        [SerializeField] private Vector3 aimPosition = new Vector3(0f, -0.16f, 0.35f);
+        [SerializeField] private float aimTransitionSpeed = 14f;
 
         private CharacterController characterController;
         private float pitch = 0f;
@@ -46,6 +47,11 @@ namespace DEADeye
                 desktopCamera = GetComponentInChildren<Camera>();
             }
 
+            if (desktopCamera != null)
+            {
+                desktopCamera.tag = "MainCamera";
+            }
+
             if (cameraPivot == null && desktopCamera != null)
             {
                 cameraPivot = desktopCamera.transform;
@@ -60,7 +66,7 @@ namespace DEADeye
             }
 
             yaw = transform.eulerAngles.y;
-            pitch = 18f;
+            pitch = 14f; // Naturally angled down toward street intersection
             if (cameraPivot != null)
             {
                 cameraPivot.localRotation = Quaternion.Euler(pitch, 0f, 0f);
@@ -105,8 +111,10 @@ namespace DEADeye
                 lookInput = UnityEngine.InputSystem.Mouse.current.delta.ReadValue() * (mouseSensitivity * 0.1f);
             }
 
-            yaw += lookInput.x;
-            pitch -= lookInput.y;
+            // Lower sensitivity when zoomed in scope
+            float sensMultiplier = isAiming ? 0.35f : 1.0f;
+            yaw += lookInput.x * sensMultiplier;
+            pitch -= lookInput.y * sensMultiplier;
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
@@ -118,15 +126,29 @@ namespace DEADeye
 
         private void HandleMovement()
         {
-            // Stationary sniper position - player remains anchored at perch overlooking city
             if (characterController != null && characterController.enabled)
             {
+                Vector2 moveInput = Vector2.zero;
+                if (DEADeyeInputRouter.Instance != null)
+                {
+                    moveInput = DEADeyeInputRouter.Instance.GetMoveInput();
+                }
+
+                bool isSprinting = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetSprintHeld();
+                float currentSpeed = moveSpeed * (isSprinting ? sprintMultiplier : 1.0f);
+                if (isAiming) currentSpeed *= 0.45f;
+
+                Vector3 moveDirection = (transform.right * moveInput.x + transform.forward * moveInput.y).normalized;
+                Vector3 horizontalMove = moveDirection * currentSpeed;
+
                 if (characterController.isGrounded && velocity.y < 0f)
                 {
                     velocity.y = -2f;
                 }
                 velocity.y += gravity * Time.deltaTime;
-                characterController.Move(Vector3.up * velocity.y * Time.deltaTime);
+
+                Vector3 fullMove = (horizontalMove + Vector3.up * velocity.y) * Time.deltaTime;
+                characterController.Move(fullMove);
             }
         }
 
@@ -152,7 +174,7 @@ namespace DEADeye
 
             if (desktopCamera != null)
             {
-                float targetFov = isAiming ? 25f : 60f;
+                float targetFov = isAiming ? 32f : 60f;
                 desktopCamera.fieldOfView = Mathf.Lerp(desktopCamera.fieldOfView, targetFov, Time.deltaTime * aimTransitionSpeed);
             }
         }

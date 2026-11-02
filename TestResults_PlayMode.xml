@@ -1,97 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.7255065">
-  <test-suite type="TestSuite" id="1013" name="DEADeye VR" fullname="DEADeye VR" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.725507" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.0926303">
+  <test-suite type="TestSuite" id="1013" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.092630" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="PlayMode" />
     </properties>
-    <test-suite type="Assembly" id="1007" name="DEADeye.PlayMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.PlayMode.Tests.dll" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.704502" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1007" name="DEADeye.PlayMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.PlayMode.Tests.dll" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.071623" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="13028" />
+        <property name="_PID" value="12572" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="PlayMode" />
         <property name="EditorOnly" value="False" />
       </properties>
-      <test-suite type="TestSuite" id="1008" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.702646" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1008" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.070173" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1009" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.701712" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1009" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.069405" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestFixture" id="1001" name="DEADeyePlayModeTests" fullname="DEADeye.Tests.DEADeyePlayModeTests" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:35Z" duration="16.698666" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1001" name="DEADeyePlayModeTests" fullname="DEADeye.Tests.DEADeyePlayModeTests" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:39Z" duration="20.066432" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-case id="1002" name="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" methodname="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1112758966" result="Passed" start-time="2026-11-02 13:37:18Z" end-time="2026-11-02 13:37:24Z" duration="6.007869" asserts="0">
+            <test-case id="1002" name="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" methodname="PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1073306745" result="Passed" start-time="2026-11-02 14:50:19Z" end-time="2026-11-02 14:50:25Z" duration="6.379486" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Initial.png (50854 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Initial.png (503747 bytes)
 ]]></output>
             </test-case>
-            <test-case id="1003" name="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" methodname="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="2059021609" result="Passed" start-time="2026-11-02 13:37:24Z" end-time="2026-11-02 13:37:27Z" duration="3.140870" asserts="0">
+            <test-case id="1003" name="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" methodname="PlayMode_02_HostileTargets_SpawnAndPatrolWithMarkers" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="45559183" result="Passed" start-time="2026-11-02 14:50:25Z" end-time="2026-11-02 14:50:29Z" duration="3.670101" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Hostiles.png (50854 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Hostiles.png (503453 bytes)
 ]]></output>
             </test-case>
-            <test-case id="1004" name="PlayMode_03_ScopeOptic_AimingAndMagnification" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_03_ScopeOptic_AimingAndMagnification" methodname="PlayMode_03_ScopeOptic_AimingAndMagnification" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="854360037" result="Passed" start-time="2026-11-02 13:37:27Z" end-time="2026-11-02 13:37:29Z" duration="1.989936" asserts="0">
+            <test-case id="1004" name="PlayMode_03_ScopeOptic_AimingAndMagnification" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_03_ScopeOptic_AimingAndMagnification" methodname="PlayMode_03_ScopeOptic_AimingAndMagnification" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1871170749" result="Passed" start-time="2026-11-02 14:50:29Z" end-time="2026-11-02 14:50:31Z" duration="2.631577" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Scoped.png (50854 bytes)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Scoped.png (117911 bytes)
 ]]></output>
             </test-case>
-            <test-case id="1005" name="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" methodname="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1628806155" result="Passed" start-time="2026-11-02 13:37:29Z" end-time="2026-11-02 13:37:31Z" duration="2.216983" asserts="0">
+            <test-case id="1005" name="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" methodname="PlayMode_04_Ballistics_PrecisionHeadshotAndAmmoConsumption" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1608348714" result="Passed" start-time="2026-11-02 14:50:31Z" end-time="2026-11-02 14:50:34Z" duration="2.745422" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
 ]]></output>
             </test-case>
-            <test-case id="1006" name="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" methodname="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1436804281" result="Passed" start-time="2026-11-02 13:37:31Z" end-time="2026-11-02 13:37:35Z" duration="3.307670" asserts="0">
+            <test-case id="1006" name="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" fullname="DEADeye.Tests.DEADeyePlayModeTests.PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" methodname="PlayMode_05_GameplayLoop_MissionEnd_ResultsAndRestart" classname="DEADeye.Tests.DEADeyePlayModeTests" runstate="Runnable" seed="1203711609" result="Passed" start-time="2026-11-02 14:50:34Z" end-time="2026-11-02 14:50:39Z" duration="4.600762" asserts="0">
               <properties>
                 <property name="_JOINTYPE" value="UnityCombinatorial" />
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
 [DEADeyeGameManager] Game state changed to: MissionResults
 [DEADeyeMissionDirector] Mission Finished! Result: VICTORY - Eliminated: 0, Escaped: 0
-[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Results.png (50854 bytes)
+The character with Unicode value \u25B6 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Text].
+The character with Unicode value \u2715 was not found in the [LiberationSans SDF] font asset or any potential fallbacks. It was replaced by Unicode character \u25A1 in text object [Text].
+[PlayModeTest] Screenshot encoded to: C:/Unity/Editors/DEADeyeVR_Foundation/Assets\..\Screenshots\SniperView_Results.png (503504 bytes)
 [DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 18.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (0.00, 0.08, 65.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (-8.00, 0.16, 25.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.16, 25.00)
-Saving results to: C:/Users/user/AppData/LocalLow/DEADeye Studios/DEADeye VR\TestResults.xml
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (-5.50, 0.10, 26.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (1.50, 0.09, 36.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_3 at (8.00, 0.16, 24.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (-1.00, 0.08, 48.00)
+Saving results to: C:/Users/user/AppData/LocalLow/DEADeye Studios/DEADeye\TestResults.xml
 ]]></output>
             </test-case>
           </test-suite>

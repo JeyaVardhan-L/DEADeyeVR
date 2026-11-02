@@ -190,8 +190,8 @@ namespace DEADeye.Editor
             director.SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
             EditorUtility.SetDirty(managersRoot);
 
-            // Player Perch anchored right at the stationary sniper station overlooking city streets (Z > 0)
-            Vector3 playerPerchPos = new Vector3(0f, 26.0f, -2.5f);
+            // Player Perch anchored right at the sniper station overlooking city streets (Z > 0)
+            Vector3 playerPerchPos = new Vector3(0f, 26.0f, -1.8f);
             GameObject playerGO = SetupPlayerController(playerPerchPos, Quaternion.identity);
 
             // Rooftop Boundary Safety Barrier
@@ -200,7 +200,7 @@ namespace DEADeye.Editor
             boundaryGO.AddComponent<DEADeyeRooftopBoundary>();
 
             // Rooftop Sniper Weapon
-            GameObject rifle = BuildSniperWeaponObject(new Vector3(0f, 27.22f, -1.1f));
+            GameObject rifle = BuildSniperWeaponObject(new Vector3(0f, 26.85f, -1.1f));
 
             // Attach rifle to desktop rig so it is immediately visible in foreground
             DEADeyeDesktopRig desktopRig = playerGO.GetComponentInChildren<DEADeyeDesktopRig>();
@@ -238,10 +238,12 @@ namespace DEADeye.Editor
             cc.height = 1.8f;
 
             GameObject camGO = new GameObject("DesktopCamera");
+            camGO.tag = "MainCamera";
             camGO.transform.SetParent(desktopGO.transform, false);
             camGO.transform.localPosition = new Vector3(0f, 1.6f, 0f);
             camGO.transform.localRotation = Quaternion.identity;
             Camera cam = camGO.AddComponent<Camera>();
+            cam.tag = "MainCamera";
             cam.nearClipPlane = 0.1f;
             cam.farClipPlane = 600f;
             cam.fieldOfView = 60f;
@@ -301,7 +303,7 @@ namespace DEADeye.Editor
                 meshInstance.transform.SetParent(rifleRoot.transform, false);
                 meshInstance.transform.localPosition = Vector3.zero;
                 meshInstance.transform.localRotation = Quaternion.identity;
-                meshInstance.transform.localScale = Vector3.one * 0.14f;
+                meshInstance.transform.localScale = Vector3.one; // True 1:1 real-world sniper scale (1.42m)
             }
             else
             {
@@ -314,8 +316,8 @@ namespace DEADeye.Editor
 
             // Physical Grab Collider
             BoxCollider col = rifleRoot.AddComponent<BoxCollider>();
-            col.center = new Vector3(0f, 0.05f, 0.15f);
-            col.size = new Vector3(0.15f, 0.25f, 0.95f);
+            col.center = new Vector3(0f, 0.05f, 0.05f);
+            col.size = new Vector3(0.25f, 0.35f, 1.45f);
 
             Rigidbody rb = rifleRoot.AddComponent<Rigidbody>();
             rb.isKinematic = true; // Grounded on sandbag rest until grabbed
@@ -323,15 +325,15 @@ namespace DEADeye.Editor
             // Muzzle Point
             GameObject muzzle = new GameObject("MuzzlePoint");
             muzzle.transform.SetParent(rifleRoot.transform, false);
-            muzzle.transform.localPosition = new Vector3(0f, 0.06f, 0.65f);
+            muzzle.transform.localPosition = new Vector3(0f, 0.08f, 0.85f);
 
             // Scope Optic Camera & Lens
             GameObject scopeGO = new GameObject("SniperScopeOptic");
             scopeGO.transform.SetParent(rifleRoot.transform, false);
-            scopeGO.transform.localPosition = new Vector3(0f, 0.12f, 0.05f);
+            scopeGO.transform.localPosition = new Vector3(0f, 0.18f, -0.05f);
 
             Camera scopeCam = scopeGO.AddComponent<Camera>();
-            scopeCam.fieldOfView = 15f;
+            scopeCam.fieldOfView = 12f;
             scopeCam.nearClipPlane = 0.2f;
             scopeCam.farClipPlane = 600f;
             scopeCam.enabled = false;

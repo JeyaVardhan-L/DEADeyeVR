@@ -4,15 +4,17 @@ namespace DEADeye
 {
     /// <summary>
     /// Urban Criminal hostile.
-    /// Humanoid silhouette with coat, hat, and street attire.
+    /// Humanoid operative silhouette with high-contrast tactical vest, helmet, and carbine.
     /// Navigates sidewalks, crosswalks, and alleys attempting to reach extraction points.
+    /// High-contrast colors ensure immediate visibility from high rooftop sniper perches.
     /// </summary>
     public class DEADeyeHostileCriminal : DEADeyeHostileAI
     {
         [Header("Procedural Visuals")]
-        [SerializeField] private Material coatMaterial;
+        [SerializeField] private Material vestMaterial;
         [SerializeField] private Material skinMaterial;
         [SerializeField] private Material pantsMaterial;
+        [SerializeField] private Material helmetMaterial;
 
         private Transform leftLegTransform;
         private Transform rightLegTransform;
@@ -44,29 +46,34 @@ namespace DEADeye
             Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
             if (litShader == null) litShader = Shader.Find("Standard");
 
-            if (coatMaterial == null)
+            if (vestMaterial == null)
             {
-                coatMaterial = new Material(litShader) { name = "CriminalCoatMat" };
-                coatMaterial.color = new Color(0.18f, 0.22f, 0.28f);
+                vestMaterial = new Material(litShader) { name = "CriminalVestMat" };
+                vestMaterial.color = new Color(0.90f, 0.28f, 0.14f); // High-contrast tactical orange/crimson
             }
             if (skinMaterial == null)
             {
                 skinMaterial = new Material(litShader) { name = "CriminalSkinMat" };
-                skinMaterial.color = new Color(0.85f, 0.68f, 0.55f);
+                skinMaterial.color = new Color(0.88f, 0.72f, 0.60f);
             }
             if (pantsMaterial == null)
             {
                 pantsMaterial = new Material(litShader) { name = "CriminalPantsMat" };
-                pantsMaterial.color = new Color(0.12f, 0.12f, 0.14f);
+                pantsMaterial.color = new Color(0.20f, 0.24f, 0.28f); // Tactical grey
+            }
+            if (helmetMaterial == null)
+            {
+                helmetMaterial = new Material(litShader) { name = "CriminalHelmetMat" };
+                helmetMaterial.color = new Color(0.92f, 0.92f, 0.90f); // High-vis ballistic white helmet
             }
 
-            // Torso (Coat)
+            // Torso (High-vis Tactical Vest)
             GameObject torso = GameObject.CreatePrimitive(PrimitiveType.Cube);
             torso.name = "Torso";
             torso.transform.SetParent(root.transform, false);
             torso.transform.localPosition = new Vector3(0f, 1.05f, 0f);
-            torso.transform.localScale = new Vector3(0.55f, 0.75f, 0.32f);
-            torso.GetComponent<Renderer>().material = coatMaterial;
+            torso.transform.localScale = new Vector3(0.58f, 0.76f, 0.35f);
+            torso.GetComponent<Renderer>().material = vestMaterial;
             Destroy(torso.GetComponent<Collider>());
             torsoTransform = torso.transform;
 
@@ -81,16 +88,16 @@ namespace DEADeye
             headCollider.isTrigger = true;
             head.AddComponent<DEADeyeHeadshotTrigger>().Initialize(this);
 
-            // Hat
-            GameObject hat = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            hat.name = "Hat";
-            hat.transform.SetParent(root.transform, false);
-            hat.transform.localPosition = new Vector3(0f, 1.78f, 0f);
-            hat.transform.localScale = new Vector3(0.32f, 0.08f, 0.32f);
-            hat.GetComponent<Renderer>().material = pantsMaterial;
-            Destroy(hat.GetComponent<Collider>());
+            // Ballistic Helmet with Visor
+            GameObject helmet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            helmet.name = "Helmet";
+            helmet.transform.SetParent(root.transform, false);
+            helmet.transform.localPosition = new Vector3(0f, 1.72f, 0f);
+            helmet.transform.localScale = new Vector3(0.34f, 0.24f, 0.34f);
+            helmet.GetComponent<Renderer>().material = helmetMaterial;
+            Destroy(helmet.GetComponent<Collider>());
 
-            // Legs
+            // Legs (Combat trousers)
             GameObject leftLeg = GameObject.CreatePrimitive(PrimitiveType.Cube);
             leftLeg.name = "LeftLeg";
             leftLeg.transform.SetParent(root.transform, false);
@@ -109,32 +116,34 @@ namespace DEADeye
             Destroy(rightLeg.GetComponent<Collider>());
             rightLegTransform = rightLeg.transform;
 
-            // Arms & briefcase
+            // Arms & Carbine
             GameObject leftArm = GameObject.CreatePrimitive(PrimitiveType.Cube);
             leftArm.name = "LeftArm";
             leftArm.transform.SetParent(root.transform, false);
-            leftArm.transform.localPosition = new Vector3(-0.35f, 1.0f, 0.05f);
-            leftArm.transform.localScale = new Vector3(0.14f, 0.65f, 0.16f);
-            leftArm.GetComponent<Renderer>().material = coatMaterial;
+            leftArm.transform.localPosition = new Vector3(-0.36f, 1.0f, 0.05f);
+            leftArm.transform.localScale = new Vector3(0.15f, 0.65f, 0.16f);
+            leftArm.GetComponent<Renderer>().material = vestMaterial;
             Destroy(leftArm.GetComponent<Collider>());
             leftArmTransform = leftArm.transform;
 
             GameObject rightArm = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rightArm.name = "RightArm";
             rightArm.transform.SetParent(root.transform, false);
-            rightArm.transform.localPosition = new Vector3(0.35f, 1.0f, 0.05f);
-            rightArm.transform.localScale = new Vector3(0.14f, 0.65f, 0.16f);
-            rightArm.GetComponent<Renderer>().material = coatMaterial;
+            rightArm.transform.localPosition = new Vector3(0.36f, 1.0f, 0.05f);
+            rightArm.transform.localScale = new Vector3(0.15f, 0.65f, 0.16f);
+            rightArm.GetComponent<Renderer>().material = vestMaterial;
             Destroy(rightArm.GetComponent<Collider>());
             rightArmTransform = rightArm.transform;
 
-            GameObject briefcase = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            briefcase.name = "Briefcase";
-            briefcase.transform.SetParent(root.transform, false);
-            briefcase.transform.localPosition = new Vector3(0.42f, 0.55f, 0.05f);
-            briefcase.transform.localScale = new Vector3(0.12f, 0.28f, 0.38f);
-            briefcase.GetComponent<Renderer>().material = pantsMaterial;
-            Destroy(briefcase.GetComponent<Collider>());
+            // Tactical Carbine Rifle carried across chest
+            GameObject carbine = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            carbine.name = "Carbine";
+            carbine.transform.SetParent(root.transform, false);
+            carbine.transform.localPosition = new Vector3(0.12f, 0.95f, 0.22f);
+            carbine.transform.localRotation = Quaternion.Euler(15f, -25f, 10f);
+            carbine.transform.localScale = new Vector3(0.08f, 0.14f, 0.65f);
+            carbine.GetComponent<Renderer>().material = pantsMaterial;
+            Destroy(carbine.GetComponent<Collider>());
         }
 
         protected override void Update()
@@ -185,4 +194,3 @@ namespace DEADeye
         }
     }
 }
-
