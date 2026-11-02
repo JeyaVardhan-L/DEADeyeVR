@@ -36,3 +36,4 @@ This document outlines known behavioral differences between desktop simulation a
    - Add dynamic day/night cycles, urban rain precipitation with lens water droplets, and ambient traffic on lower elevated freeways.
 4. **Interactive Tactical Spotter**:
    - Implement an AI or cooperative spotter character stationed on the rooftop providing vocal distance telemetry and high-value target callouts.
+

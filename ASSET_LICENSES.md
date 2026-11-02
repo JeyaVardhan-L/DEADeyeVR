@@ -71,3 +71,4 @@ In compliance with project directives:
 - **Author**: DEADeye VR Development Team
 - **License**: MIT License / Project Proprietary
 - **Description**: Procedurally generates urban skyscrapers, city street grids, extraction boundary trigger volumes, and silhouetted hostile humanoids with headshot hitboxes using native Unity geometry primitives and unlit/URP shaders.
+

@@ -147,3 +147,4 @@ sequenceDiagram
 | **`DEADeye.Editor`** | `Assets/DEADeye/Editor/DEADeye.Editor.asmdef` | Automated scene generation and Android APK compilation pipeline |
 | **`DEADeye.EditMode.Tests`** | `Assets/DEADeye/Tests/EditMode/DEADeye.EditMode.Tests.asmdef` | 10 unit and architectural integration test suites |
 | **`DEADeye.PlayMode.Tests`** | `Assets/DEADeye/Tests/PlayMode/DEADeye.PlayMode.Tests.asmdef` | 5 end-to-end live gameplay test suites with in-engine screenshot captures |
+
