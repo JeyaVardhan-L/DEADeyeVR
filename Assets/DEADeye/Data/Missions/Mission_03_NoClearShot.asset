@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427473fff1f1069449396a0e1c34ec81, type: 3}
+  m_Name: Mission_03_NoClearShot
+  m_EditorClassIdentifier: DEADeye.Runtime::DEADeye.DEADeyeMissionDefinition
+  missionId: 2
+  operationCode: OP-03
+  operationTitle: NO CLEAR SHOT
+  districtName: RESIDENTIAL DISTRICT & BROWNSTONE COURTYARD
+  tacticalBriefing: 'Syndicate enforcers have taken defensive positions in the residential
+    district, using civilian pedestrians and apartment alleyways as human shielding.
+
+
+    ROE
+    STRICTLY ENFORCED: Zero civilian collateral permitted. Positively identify armed
+    hostiles before breaking trigger pressure. One civilian casualty results in mission
+    compromise.'
+  primaryObjective: Eliminate 8 Fortified Hostiles without Civilian Casualties
+  secondaryObjective: Neutralize all hostiles in under 75 seconds
+  timeLimitSeconds: 100
+  hostileCount: 8
+  maxEscapesAllowed: 2
+  hasTechnicians: 0
+  hasCivilians: 1
+  hostileSpawnInterval: 6
+  threatLevel: HIGH (DENSE CIVILIAN POPULATION / HOSTAGES)
+  weatherCondition: DUSK / LOW ANGLE SHADOWS
+  recommendedZoom: 8

@@ -558,7 +558,7 @@ namespace DEADeye
             if (ammoText != null)
             {
                 string colTag = current == 0 ? "<color=red>" : "<color=#00E5FF>";
-                ammoText.text = $"AMMO: {colTag}{current}</color> / {max}\n<size=15><color=#888888>[R] RELOAD</color></size>";
+                ammoText.text = $"AMMO: {colTag}{current}</color> / ∞\n<size=15><color=#888888>[R] RELOAD</color></size>";
             }
         }
 

@@ -215,6 +215,7 @@ namespace DEADeye
                 DEADeyeScoreManager.Instance.RegisterElimination();
             }
 
+            GetComponent<DEADeyeProceduralCharacterAnimator>()?.OnEliminated();
             OnEliminated?.Invoke(this);
 
             // Procedural death reaction (collapse/sink and destroy)

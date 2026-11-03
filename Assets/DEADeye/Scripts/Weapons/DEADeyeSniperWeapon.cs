@@ -458,6 +458,30 @@ namespace DEADeye
                 return;
             }
 
+            // Check Civilian AI
+            DEADeyeCivilianAI civilian = hit.collider.GetComponentInParent<DEADeyeCivilianAI>();
+            if (civilian != null)
+            {
+                if (enableDebugDiagnostics)
+                {
+                    Debug.LogWarning($"[DEADeyeSniperWeapon] CIVILIAN HIT: Target={civilian.ClassificationName}, Distance={hit.distance:F1}m");
+                }
+                civilian.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
+                return;
+            }
+
+            // Check Friendly VIP AI
+            DEADeyeFriendlyAI friendly = hit.collider.GetComponentInParent<DEADeyeFriendlyAI>();
+            if (friendly != null)
+            {
+                if (enableDebugDiagnostics)
+                {
+                    Debug.LogWarning($"[DEADeyeSniperWeapon] FRIENDLY HIT: Target={friendly.ClassificationName}, Distance={hit.distance:F1}m");
+                }
+                friendly.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
+                return;
+            }
+
             // Hit environment (building, wall, road)
             if (enableDebugDiagnostics)
             {

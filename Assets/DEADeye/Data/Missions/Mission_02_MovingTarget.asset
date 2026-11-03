@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427473fff1f1069449396a0e1c34ec81, type: 3}
+  m_Name: Mission_02_MovingTarget
+  m_EditorClassIdentifier: DEADeye.Runtime::DEADeye.DEADeyeMissionDefinition
+  missionId: 1
+  operationCode: OP-02
+  operationTitle: MOVING TARGET
+  districtName: CENTRAL TRANSPORT CORRIDOR
+  tacticalBriefing: 'A syndicate motor convoy transporting prototype military decryption
+    hardware is attempting a high-speed transit through the central boulevard toward
+    the north highway tunnel.
+
+
+    Interdict the convoy. Neutralize the lead vehicle
+    drivers and armed escort foot patrols before any target vehicle reaches the extraction
+    tunnel.'
+  primaryObjective: Intercept Transport Convoy & Neutralize 7 Syndicate Couriers
+  secondaryObjective: Eliminate Lead Driver before crossing the central intersection
+  timeLimitSeconds: 90
+  hostileCount: 7
+  maxEscapesAllowed: 1
+  hasTechnicians: 0
+  hasCivilians: 0
+  hostileSpawnInterval: 4.5
+  threatLevel: CRITICAL (RAPID ESCAPE VEHICLES & ARMORED ESCORT)
+  weatherCondition: MIDDAY HEAT / HEAT SHIMMER
+  recommendedZoom: 8

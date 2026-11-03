@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427473fff1f1069449396a0e1c34ec81, type: 3}
+  m_Name: Mission_04_DeadGround
+  m_EditorClassIdentifier: DEADeye.Runtime::DEADeye.DEADeyeMissionDefinition
+  missionId: 3
+  operationCode: OP-04
+  operationTitle: DEAD GROUND
+  districtName: UNFINISHED HIGH-RISE CONSTRUCTION SITE
+  tacticalBriefing: 'Syndicate leadership has established a high-ground tactical
+    command post inside an unfinished high-rise skyscraper skeleton. An enemy sniper
+    is positioned on the high crane platform providing cross-fire over the entire
+    sector.
+
+
+    Eliminate the crane sniper immediately to suppress incoming fire,
+    then systematically eliminate the ground security squad and Syndicate Commander.'
+  primaryObjective: Eliminate Crane Sniper & Neutralize Syndicate Commander + Squad
+  secondaryObjective: Eliminate Crane Sniper within the first 30 seconds
+  timeLimitSeconds: 120
+  hostileCount: 8
+  maxEscapesAllowed: 2
+  hasTechnicians: 0
+  hasCivilians: 0
+  hostileSpawnInterval: 5.5
+  threatLevel: MAXIMUM (COUNTER-SNIPER POSITION & HEAVY ASSAULT)
+  weatherCondition: FOG DRIFT / ELEVATED WIND GUSTS
+  recommendedZoom: 8

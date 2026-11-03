@@ -7,19 +7,25 @@ namespace DEADeye
 {
     /// <summary>
     /// Authoritative mission controller managing hostile waves, timer countdown,
-    /// objective tracking, and mission completion/failure evaluation.
+    /// dynamic tactical objectives, VIP protection, civilian presence, and mission completion.
+    /// Supports the full 4-operation urban campaign.
     /// </summary>
     public class DEADeyeMissionDirector : MonoBehaviour
     {
         public static DEADeyeMissionDirector Instance { get; private set; }
 
-        [Header("Configuration")]
-        [SerializeField] private DEADeyeMissionObjective missionConfig;
+        [Header("Active Mission Definition")]
+        [SerializeField] private DEADeyeMissionDefinition activeMission;
         [SerializeField] private float missionDuration = 120f;
-        [SerializeField] private int maxEscapesAllowed = 3;
-        [SerializeField] private int totalHostilesToSpawn = 8;
-        [SerializeField] private float spawnInterval = 8.0f;
+        [SerializeField] private int maxEscapesAllowed = 2;
+        [SerializeField] private int totalHostilesToSpawn = 6;
+        [SerializeField] private float spawnInterval = 6.5f;
+
+        [Header("Character Prefabs")]
         [SerializeField] private GameObject[] hostilePrefabs;
+        [SerializeField] private GameObject technicianPrefab;
+        [SerializeField] private GameObject civilianPrefab;
+        [SerializeField] private GameObject securityEscortPrefab;
 
         [Header("Waypoints & Escape Corridors")]
         [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
@@ -32,7 +38,13 @@ namespace DEADeye
         [SerializeField] private int hostilesSpawnedCount = 0;
         [SerializeField] private int hostilesEliminatedCount = 0;
         [SerializeField] private int hostilesEscapedCount = 0;
+        [SerializeField] private float commsRepairProgress = 0f;
 
+        private List<GameObject> activeSpawnedEntities = new List<GameObject>();
+        private List<DEADeyeFriendlyAI> activeTechnicians = new List<DEADeyeFriendlyAI>();
+        private List<DEADeyeCivilianAI> activeCivilians = new List<DEADeyeCivilianAI>();
+
+        public DEADeyeMissionDefinition ActiveMission => activeMission;
         public float TimeRemaining => timeRemaining;
         public float MissionDuration => missionDuration;
         public bool IsMissionActive => isMissionActive;
@@ -40,10 +52,12 @@ namespace DEADeye
         public int HostilesEliminated => hostilesEliminatedCount;
         public int HostilesEscaped => hostilesEscapedCount;
         public int MaxEscapesAllowed => maxEscapesAllowed;
+        public float CommsRepairProgress => commsRepairProgress;
 
         public event Action OnMissionStarted;
         public event Action<bool> OnMissionEnded; // true = victory, false = defeat
         public event Action<float> OnTimerTick;
+        public event Action<float> OnCommsProgressUpdated;
 
         private Coroutine missionLoopCoroutine;
         private Coroutine spawnLoopCoroutine;
@@ -51,14 +65,7 @@ namespace DEADeye
         private void Awake()
         {
             Instance = this;
-
-            if (missionConfig != null)
-            {
-                missionDuration = missionConfig.missionDurationSeconds;
-                totalHostilesToSpawn = missionConfig.initialHostileTargetCount;
-                maxEscapesAllowed = missionConfig.maxAllowedEscapes;
-            }
-            timeRemaining = missionDuration;
+            LoadPrefabsIfMissing();
         }
 
         private void OnDestroy()
@@ -71,6 +78,65 @@ namespace DEADeye
 
         private void Start()
         {
+            CollectNavigationNodes();
+
+            if (DEADeyeGameManager.Instance != null)
+            {
+                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
+            }
+
+            // If an active mission is assigned, launch it.
+            // Otherwise, load default Mission 01: BROKEN SIGNAL.
+            if (activeMission != null)
+            {
+                LaunchMission(activeMission);
+            }
+            else
+            {
+                var defaultMission = Resources.Load<DEADeyeMissionDefinition>("Missions/Mission_01_BrokenSignal");
+#if UNITY_EDITOR
+                if (defaultMission == null)
+                {
+                    defaultMission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                }
+#endif
+                if (defaultMission != null)
+                {
+                    LaunchMission(defaultMission);
+                }
+                else
+                {
+                    StartMission();
+                }
+            }
+        }
+
+        public void LoadPrefabsIfMissing()
+        {
+            if (hostilePrefabs == null || hostilePrefabs.Length == 0)
+            {
+#if UNITY_EDITOR
+                var h1 = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Hostile_Tactical_Rifleman.prefab");
+                var h2 = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Hostile_Sniper_Scout.prefab");
+                var h3 = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Hostile_Commander.prefab");
+                List<GameObject> list = new List<GameObject>();
+                if (h1 != null) list.Add(h1);
+                if (h2 != null) list.Add(h2);
+                if (h3 != null) list.Add(h3);
+                if (list.Count > 0) hostilePrefabs = list.ToArray();
+
+                if (technicianPrefab == null)
+                    technicianPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Friendly_Technician.prefab");
+                if (securityEscortPrefab == null)
+                    securityEscortPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Friendly_Security_Escort.prefab");
+                if (civilianPrefab == null)
+                    civilianPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Civilian_Male_Casual.prefab");
+#endif
+            }
+        }
+
+        public void CollectNavigationNodes()
+        {
             if (spawnPoints == null || spawnPoints.Count == 0)
             {
                 var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
@@ -79,12 +145,6 @@ namespace DEADeye
                     SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
                 }
             }
-
-            if (DEADeyeGameManager.Instance != null)
-            {
-                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
-            }
-            StartMission();
         }
 
         public void SetNavigationNodes(List<Transform> spawns, List<Transform> wps, List<Transform> escapes)
@@ -94,14 +154,28 @@ namespace DEADeye
             escapePoints = escapes;
         }
 
+        public void SetSpawnPoints(List<Transform> spawns, List<Transform> wps, List<Transform> escapes)
+        {
+            SetNavigationNodes(spawns, wps, escapes);
+        }
+
         public void SetHostilePrefabs(GameObject[] prefabs)
         {
             hostilePrefabs = prefabs;
         }
 
-        public void SetSpawnPoints(List<Transform> spawns, List<Transform> wps, List<Transform> escapes)
+        public void LaunchMission(DEADeyeMissionDefinition mission)
         {
-            SetNavigationNodes(spawns, wps, escapes);
+            activeMission = mission;
+            if (mission != null)
+            {
+                missionDuration = mission.timeLimitSeconds;
+                totalHostilesToSpawn = mission.hostileCount;
+                maxEscapesAllowed = mission.maxEscapesAllowed;
+                spawnInterval = mission.hostileSpawnInterval;
+            }
+
+            StartMission();
         }
 
         public void StartMission()
@@ -109,15 +183,24 @@ namespace DEADeye
             if (missionLoopCoroutine != null) StopCoroutine(missionLoopCoroutine);
             if (spawnLoopCoroutine != null) StopCoroutine(spawnLoopCoroutine);
 
+            // Clean up previous mission entities
+            ClearActiveEntities();
+
             isMissionActive = true;
             timeRemaining = missionDuration;
             hostilesSpawnedCount = 0;
             hostilesEliminatedCount = 0;
             hostilesEscapedCount = 0;
+            commsRepairProgress = 0f;
 
             if (DEADeyeScoreManager.Instance != null)
             {
                 DEADeyeScoreManager.Instance.ResetMetrics();
+            }
+
+            if (DEADeyeWeaponManager.Instance != null)
+            {
+                DEADeyeWeaponManager.Instance.ResetAmmo();
             }
 
             if (DEADeyeAudioManager.Instance != null)
@@ -126,26 +209,129 @@ namespace DEADeye
                 DEADeyeAudioManager.Instance.StartAmbientCity();
             }
 
-            OnMissionStarted?.Invoke();
+            CollectNavigationNodes();
 
-            if (spawnPoints == null || spawnPoints.Count == 0)
-            {
-                var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
-                if (cityBuilder != null)
-                {
-                    SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
-                }
-            }
+            // Spawn Mission-specific assets
+            SpawnMissionSpecificEntities();
 
-            // Spawn initial wave immediately so targets are visibly patrolling the streets on startup
+            // Spawn initial hostile wave immediately
             int initialWave = Mathf.Min(3, totalHostilesToSpawn);
             for (int i = 0; i < initialWave; i++)
             {
                 SpawnNextHostile();
             }
 
+            OnMissionStarted?.Invoke();
             missionLoopCoroutine = StartCoroutine(MissionTimerRoutine());
             spawnLoopCoroutine = StartCoroutine(HostileSpawnerRoutine());
+
+            Debug.Log($"[DEADeyeMissionDirector] Mission '{ (activeMission != null ? activeMission.operationTitle : "OPERATION") }' started! Duration: {missionDuration}s, Hostiles: {totalHostilesToSpawn}");
+        }
+
+        private void ClearActiveEntities()
+        {
+            foreach (var go in activeSpawnedEntities)
+            {
+                if (go != null) Destroy(go);
+            }
+            activeSpawnedEntities.Clear();
+            activeTechnicians.Clear();
+            activeCivilians.Clear();
+        }
+
+        private void SpawnMissionSpecificEntities()
+        {
+            // 1. Mission 01: BROKEN SIGNAL -> Spawn 2 Friendly Comms Technicians at the Comms Tower in East Plaza
+            if (activeMission == null || activeMission.hasTechnicians)
+            {
+                Vector3 tech1Pos = new Vector3(21.5f, 0.15f, 37.5f);
+                Vector3 tech2Pos = new Vector3(23.2f, 0.15f, 38.5f);
+
+                SpawnTechnician(tech1Pos, "Lead Technician Marcus");
+                SpawnTechnician(tech2Pos, "Systems Tech Elena");
+            }
+
+            // 2. Mission 03: NO CLEAR SHOT -> Spawn Civilians walking sidewalks
+            if (activeMission != null && activeMission.hasCivilians)
+            {
+                Vector3[] civSpawns = new Vector3[]
+                {
+                    new Vector3(-8.5f, 0.15f, 22f),
+                    new Vector3(-8.5f, 0.15f, 35f),
+                    new Vector3(-8.5f, 0.15f, 52f),
+                    new Vector3(-20f, 0.15f, 38f)
+                };
+
+                for (int i = 0; i < civSpawns.Length; i++)
+                {
+                    SpawnCivilian(civSpawns[i], $"Civilian_{i + 1}");
+                }
+            }
+        }
+
+        private void SpawnTechnician(Vector3 pos, string techName)
+        {
+            GameObject go = null;
+            if (technicianPrefab != null)
+            {
+                go = Instantiate(technicianPrefab, pos, Quaternion.Euler(0f, -90f, 0f));
+            }
+            else
+            {
+                go = new GameObject(techName);
+                go.transform.position = pos;
+                go.AddComponent<DEADeyeFriendlyAI>();
+            }
+
+            go.name = techName;
+            activeSpawnedEntities.Add(go);
+
+            var friendlyAI = go.GetComponent<DEADeyeFriendlyAI>();
+            if (friendlyAI != null)
+            {
+                activeTechnicians.Add(friendlyAI);
+                friendlyAI.SetClassification(techName, 100);
+                friendlyAI.SetPerformsWork(true, 2.5f); // ~40s total work
+                friendlyAI.OnProgressUpdated += HandleCommsProgress;
+                friendlyAI.OnVipKilled += HandleTechnicianKilled;
+            }
+        }
+
+        private void SpawnCivilian(Vector3 pos, string civName)
+        {
+            GameObject go = null;
+            if (civilianPrefab != null)
+            {
+                go = Instantiate(civilianPrefab, pos, Quaternion.identity);
+            }
+            else
+            {
+                go = new GameObject(civName);
+                go.transform.position = pos;
+                go.AddComponent<DEADeyeCivilianAI>();
+            }
+
+            go.name = civName;
+            activeSpawnedEntities.Add(go);
+
+            var civAI = go.GetComponent<DEADeyeCivilianAI>();
+            if (civAI != null)
+            {
+                activeCivilians.Add(civAI);
+                civAI.SetPatrolRoute(waypoints);
+            }
+        }
+
+        private void HandleCommsProgress(float progress)
+        {
+            commsRepairProgress = progress;
+            OnCommsProgressUpdated?.Invoke(progress);
+        }
+
+        private void HandleTechnicianKilled(DEADeyeFriendlyAI tech)
+        {
+            Debug.LogError($"[DEADeyeMissionDirector] MISSION FAILED: Comms Technician {tech.name} was eliminated!");
+            EndMission(false);
         }
 
         private IEnumerator MissionTimerRoutine()
@@ -159,8 +345,8 @@ namespace DEADeye
 
             if (isMissionActive)
             {
-                // Timer elapsed -> assess outcome
-                bool victory = hostilesEscapedCount < maxEscapesAllowed;
+                // Timer elapsed -> check if mission objectives were met
+                bool victory = hostilesEscapedCount < maxEscapesAllowed && hostilesEliminatedCount >= (totalHostilesToSpawn / 2);
                 EndMission(victory);
             }
         }
@@ -169,21 +355,17 @@ namespace DEADeye
         {
             while (isMissionActive && hostilesSpawnedCount < totalHostilesToSpawn)
             {
-                SpawnNextHostile();
                 yield return new WaitForSeconds(spawnInterval);
+                if (isMissionActive)
+                {
+                    SpawnNextHostile();
+                }
             }
         }
 
         public void SpawnNextHostile()
         {
-            if (spawnPoints == null || spawnPoints.Count == 0)
-            {
-                var cityBuilder = FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
-                if (cityBuilder != null)
-                {
-                    SetSpawnPoints(cityBuilder.SpawnPoints, cityBuilder.Waypoints, cityBuilder.EscapePoints);
-                }
-            }
+            CollectNavigationNodes();
 
             if (spawnPoints == null || spawnPoints.Count == 0)
             {
@@ -203,7 +385,7 @@ namespace DEADeye
             GameObject hostileGO = null;
             DEADeyeHostileAI ai = null;
 
-            // Spawn from configured Humanoid Prefabs (Enforcer, Infiltrator, Commander)
+            // Spawn from configured clothed Humanoid Prefabs (Rifleman, Scout, Commander)
             if (hostilePrefabs != null && hostilePrefabs.Length > 0)
             {
                 int prefabIndex = hostilesSpawnedCount % hostilePrefabs.Length;
@@ -228,6 +410,8 @@ namespace DEADeye
                 humanoidAI.InitializeVariant(variant);
                 ai = humanoidAI;
             }
+
+            activeSpawnedEntities.Add(hostileGO);
 
             if (ai.Agent != null && ai.Agent.isOnNavMesh)
             {
@@ -298,8 +482,28 @@ namespace DEADeye
                 DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionResults);
             }
 
+            // Retrieve score metrics
+            int score = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.CurrentScore : 0;
+            int headshots = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.Headshots : 0;
+            float accuracy = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.AccuracyPercentage : 0f;
+            int civCasualties = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.CivilianCasualties : 0;
+
+            // Show debrief on tactical terminal
+            if (DEADeyeTacticalTerminalUI.Instance != null)
+            {
+                DEADeyeTacticalTerminalUI.Instance.ShowDebrief(
+                    isVictory,
+                    score,
+                    headshots,
+                    accuracy,
+                    hostilesEliminatedCount,
+                    hostilesEscapedCount,
+                    civCasualties
+                );
+            }
+
             OnMissionEnded?.Invoke(isVictory);
-            Debug.Log($"[DEADeyeMissionDirector] Mission Finished! Result: {(isVictory ? "VICTORY" : "DEFEAT")} - Eliminated: {hostilesEliminatedCount}, Escaped: {hostilesEscapedCount}");
+            Debug.Log($"[DEADeyeMissionDirector] Mission Finished! Result: {(isVictory ? "VICTORY" : "DEFEAT")} - Eliminated: {hostilesEliminatedCount}, Escaped: {hostilesEscapedCount}, Score: {score}");
         }
     }
 }

@@ -127,6 +127,18 @@ namespace DEADeye
                 sfxSource.PlayOneShot(missionFailClip, 1.0f);
         }
 
+        public void PlayButtonClick()
+        {
+            if (sfxSource != null && boltCycleClip != null)
+                sfxSource.PlayOneShot(boltCycleClip, 0.45f);
+        }
+
+        public void PlayRadioChatter()
+        {
+            if (sfxSource != null && missionStartClip != null)
+                sfxSource.PlayOneShot(missionStartClip, 0.6f);
+        }
+
         public void StartAmbientCity()
         {
             if (ambientSource != null && ambientCityClip != null)

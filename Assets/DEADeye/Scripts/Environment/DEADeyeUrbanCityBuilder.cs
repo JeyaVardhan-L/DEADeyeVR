@@ -28,6 +28,10 @@ namespace DEADeye
         [SerializeField] private Material roadStripeWhiteMat;
         [SerializeField] private Material metalRooftopMat;
         [SerializeField] private Material facadeTrimMat;
+        [SerializeField] private Material craneYellowMat;
+        [SerializeField] private Material beaconRedMat;
+        [SerializeField] private Material highwayGreenMat;
+        [SerializeField] private Material marketClothMat;
 
         private List<Transform> spawnPoints = new List<Transform>();
         private List<Transform> waypoints = new List<Transform>();
@@ -121,6 +125,10 @@ namespace DEADeye
             BuildStreetsAndSidewalks(cityRoot.transform);
             BuildUrbanBuildings(cityRoot.transform);
             BuildStreetDetails(cityRoot.transform);
+            BuildCommercialPlazaAndCommsTower(cityRoot.transform);
+            BuildConstructionDistrict(cityRoot.transform);
+            BuildResidentialDetails(cityRoot.transform);
+            BuildOverheadHighwaySign(cityRoot.transform);
             BuildEscapeCorridors(cityRoot.transform);
             BuildRooftopSniperNest(cityRoot.transform);
 
@@ -199,6 +207,26 @@ namespace DEADeye
             {
                 facadeTrimMat = new Material(litShader) { name = "Mat_FacadeTrim" };
                 ConfigureMat(facadeTrimMat, new Color(0.18f, 0.20f, 0.22f), 0.0f);
+            }
+            if (craneYellowMat == null)
+            {
+                craneYellowMat = new Material(litShader) { name = "Mat_CraneYellow" };
+                ConfigureMat(craneYellowMat, new Color(0.92f, 0.65f, 0.08f), 0.0f);
+            }
+            if (beaconRedMat == null)
+            {
+                beaconRedMat = new Material(unlitShader) { name = "Mat_BeaconRed" };
+                beaconRedMat.color = new Color(1.0f, 0.15f, 0.15f);
+            }
+            if (highwayGreenMat == null)
+            {
+                highwayGreenMat = new Material(litShader) { name = "Mat_HighwayGreen" };
+                ConfigureMat(highwayGreenMat, new Color(0.08f, 0.42f, 0.22f), 0.0f);
+            }
+            if (marketClothMat == null)
+            {
+                marketClothMat = new Material(litShader) { name = "Mat_MarketCloth" };
+                ConfigureMat(marketClothMat, new Color(0.85f, 0.28f, 0.22f), 0.0f);
             }
         }
 
@@ -442,6 +470,280 @@ namespace DEADeye
             CreateDumpster(propsRoot.transform, new Vector3(11.5f, 0.75f, 44f));
         }
 
+        private void BuildCommercialPlazaAndCommsTower(Transform parent)
+        {
+            GameObject plazaRoot = new GameObject("CommercialPlaza_And_CommsTower");
+            plazaRoot.transform.SetParent(parent, false);
+
+            // 1. High-Tech Municipal Relay Comms Tower (Mission 01 Objective Site at X = 22.5m, Z = 38m)
+            Vector3 towerBasePos = new Vector3(22.5f, 0f, 38f);
+            GameObject commsTower = new GameObject("CommunicationsRelayTower");
+            commsTower.transform.SetParent(plazaRoot.transform, false);
+            commsTower.transform.position = towerBasePos;
+
+            // Concrete Base Pedestal
+            GameObject basePedestal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            basePedestal.name = "TowerPedestal";
+            basePedestal.transform.SetParent(commsTower.transform, false);
+            basePedestal.transform.localPosition = new Vector3(0f, 0.25f, 0f);
+            basePedestal.transform.localScale = new Vector3(6.0f, 0.5f, 6.0f);
+            basePedestal.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            // 4 Steel Strut Legs reaching 24m high
+            float strutHeight = 24f;
+            Vector3[] strutOffsets = new Vector3[]
+            {
+                new Vector3(-2.2f, 0f, -2.2f),
+                new Vector3(2.2f, 0f, -2.2f),
+                new Vector3(-2.2f, 0f, 2.2f),
+                new Vector3(2.2f, 0f, 2.2f)
+            };
+            foreach (var offset in strutOffsets)
+            {
+                GameObject strut = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                strut.name = "TowerLeg";
+                strut.transform.SetParent(commsTower.transform, false);
+                strut.transform.localPosition = new Vector3(offset.x * 0.5f, strutHeight * 0.5f, offset.z * 0.5f);
+                strut.transform.localScale = new Vector3(0.22f, strutHeight * 0.5f, 0.22f);
+                strut.GetComponent<Renderer>().material = metalRooftopMat;
+                SafeDestroy(strut.GetComponent<Collider>());
+            }
+
+            // Central Antenna Mast Spire
+            GameObject mast = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            mast.name = "CentralSpire";
+            mast.transform.SetParent(commsTower.transform, false);
+            mast.transform.localPosition = new Vector3(0f, 13f, 0f);
+            mast.transform.localScale = new Vector3(0.18f, 13f, 0.18f);
+            mast.GetComponent<Renderer>().material = metalRooftopMat;
+            SafeDestroy(mast.GetComponent<Collider>());
+
+            // Satellite Microwave Dishes on Tower
+            GameObject dish1 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            dish1.name = "SatelliteDish_High";
+            dish1.transform.SetParent(commsTower.transform, false);
+            dish1.transform.localPosition = new Vector3(0f, 18f, 0.5f);
+            dish1.transform.localScale = new Vector3(2.2f, 0.15f, 2.2f);
+            dish1.transform.localRotation = Quaternion.Euler(75f, 0f, 0f);
+            dish1.GetComponent<Renderer>().material = facadeTrimMat;
+            SafeDestroy(dish1.GetComponent<Collider>());
+
+            // Red Flashing Safety Beacon atop Comms Tower
+            GameObject beacon = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            beacon.name = "HazardBeacon";
+            beacon.transform.SetParent(commsTower.transform, false);
+            beacon.transform.localPosition = new Vector3(0f, strutHeight + 0.6f, 0f);
+            beacon.transform.localScale = Vector3.one * 0.7f;
+            beacon.GetComponent<Renderer>().material = beaconRedMat;
+            SafeDestroy(beacon.GetComponent<Collider>());
+
+            Light beaconLight = beacon.AddComponent<Light>();
+            beaconLight.type = LightType.Point;
+            beaconLight.color = Color.red;
+            beaconLight.range = 35f;
+            beaconLight.intensity = 3.5f;
+
+            // Ground Engineering Arrays & Consoles where Technicians work
+            GameObject serverConsole = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            serverConsole.name = "ServerConsole_Workstation";
+            serverConsole.transform.SetParent(commsTower.transform, false);
+            serverConsole.transform.localPosition = new Vector3(0f, 0.9f, -1.2f);
+            serverConsole.transform.localScale = new Vector3(2.4f, 1.2f, 1.0f);
+            serverConsole.GetComponent<Renderer>().material = metalRooftopMat;
+
+            // Battery Rack
+            GameObject batteryRack = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            batteryRack.name = "BackupGeneratorRack";
+            batteryRack.transform.SetParent(commsTower.transform, false);
+            batteryRack.transform.localPosition = new Vector3(-1.8f, 0.8f, 1.0f);
+            batteryRack.transform.localScale = new Vector3(1.6f, 1.1f, 1.4f);
+            batteryRack.GetComponent<Renderer>().material = facadeTrimMat;
+
+            // 2. Commercial Market Stalls with Colored Canopies in the Plaza
+            CreateMarketStall(plazaRoot.transform, new Vector3(18f, 0f, 26f), Color.red, "MarketStall_Produce");
+            CreateMarketStall(plazaRoot.transform, new Vector3(18f, 0f, 50f), new Color(0.15f, 0.45f, 0.85f), "MarketStall_Electronics");
+            CreateMarketStall(plazaRoot.transform, new Vector3(28f, 0f, 50f), new Color(0.18f, 0.75f, 0.35f), "MarketStall_Textiles");
+        }
+
+        private void CreateMarketStall(Transform parent, Vector3 pos, Color canopyColor, string name)
+        {
+            GameObject stall = new GameObject(name);
+            stall.transform.SetParent(parent, false);
+            stall.transform.position = pos;
+
+            // Table counter
+            GameObject table = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            table.name = "Counter";
+            table.transform.SetParent(stall.transform, false);
+            table.transform.localPosition = new Vector3(0f, 0.5f, 0f);
+            table.transform.localScale = new Vector3(3.2f, 1.0f, 1.6f);
+            table.GetComponent<Renderer>().material = buildingBrickMat;
+
+            // Overhead canopy
+            GameObject canopy = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            canopy.name = "Canopy";
+            canopy.transform.SetParent(stall.transform, false);
+            canopy.transform.localPosition = new Vector3(0f, 2.4f, 0f);
+            canopy.transform.localScale = new Vector3(3.6f, 0.15f, 2.4f);
+
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
+            if (litShader == null) litShader = Shader.Find("Standard");
+            Material mat = new Material(litShader) { color = canopyColor };
+            canopy.GetComponent<Renderer>().material = mat;
+            SafeDestroy(canopy.GetComponent<Collider>());
+        }
+
+        private void BuildConstructionDistrict(Transform parent)
+        {
+            GameObject constRoot = new GameObject("Construction_District_DeadGround");
+            constRoot.transform.SetParent(parent, false);
+
+            Vector3 sitePos = new Vector3(-26f, 0f, 72f);
+            GameObject skeleton = new GameObject("UnfinishedSkyscraperSkeleton");
+            skeleton.transform.SetParent(constRoot.transform, false);
+            skeleton.transform.position = sitePos;
+
+            // 4 Unfinished Concrete Floor Slabs (Y = 4, 8, 12, 16m)
+            for (int f = 1; f <= 4; f++)
+            {
+                float floorY = f * 4.2f;
+                GameObject slab = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                slab.name = $"Slab_Floor_{f}";
+                slab.transform.SetParent(skeleton.transform, false);
+                slab.transform.localPosition = new Vector3(0f, floorY, 0f);
+                slab.transform.localScale = new Vector3(20f, 0.4f, 22f);
+                slab.GetComponent<Renderer>().material = buildingConcreteMat;
+
+                // Steel I-beam structural pillars
+                for (int x = -1; x <= 1; x += 2)
+                {
+                    for (int z = -1; z <= 1; z += 2)
+                    {
+                        GameObject pillar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        pillar.name = $"SteelColumn_F{f}_{x}_{z}";
+                        pillar.transform.SetParent(skeleton.transform, false);
+                        pillar.transform.localPosition = new Vector3(x * 8.5f, floorY - 2.1f, z * 9.5f);
+                        pillar.transform.localScale = new Vector3(0.55f, 4.2f, 0.55f);
+                        pillar.GetComponent<Renderer>().material = metalRooftopMat;
+                    }
+                }
+            }
+
+            // Sniper platform on Floor 4 with sandbags (Mission 04 Sniper Vantage)
+            GameObject sniperNest = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            sniperNest.name = "CraneSniperVantageSandbags";
+            sniperNest.transform.SetParent(skeleton.transform, false);
+            sniperNest.transform.localPosition = new Vector3(5.5f, 17.3f, 4.0f);
+            sniperNest.transform.localScale = new Vector3(2.5f, 0.85f, 0.6f);
+            sniperNest.GetComponent<Renderer>().material = sidewalkMaterial;
+
+            // Heavy Construction Tower Crane
+            GameObject crane = new GameObject("TowerCrane");
+            crane.transform.SetParent(constRoot.transform, false);
+            crane.transform.position = new Vector3(-14f, 0f, 74f);
+
+            // Vertical Crane Mast (28m high)
+            GameObject craneMast = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            craneMast.name = "CraneMast";
+            craneMast.transform.SetParent(crane.transform, false);
+            craneMast.transform.localPosition = new Vector3(0f, 14f, 0f);
+            craneMast.transform.localScale = new Vector3(1.6f, 28f, 1.6f);
+            craneMast.GetComponent<Renderer>().material = craneYellowMat;
+
+            // Crane Operator Cabin
+            GameObject cabin = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cabin.name = "CraneCabin";
+            cabin.transform.SetParent(crane.transform, false);
+            cabin.transform.localPosition = new Vector3(1.2f, 27.5f, 0f);
+            cabin.transform.localScale = new Vector3(1.6f, 1.8f, 1.6f);
+            cabin.GetComponent<Renderer>().material = windowGlassMat;
+            SafeDestroy(cabin.GetComponent<Collider>());
+
+            // Horizontal Jib Boom extending 22m out over the site
+            GameObject jibBoom = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            jibBoom.name = "JibBoom";
+            jibBoom.transform.SetParent(crane.transform, false);
+            jibBoom.transform.localPosition = new Vector3(6.5f, 29f, 0f);
+            jibBoom.transform.localScale = new Vector3(22f, 1.2f, 1.2f);
+            jibBoom.GetComponent<Renderer>().material = craneYellowMat;
+            SafeDestroy(jibBoom.GetComponent<Collider>());
+
+            // Counterweight Block on rear
+            GameObject counterweight = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            counterweight.name = "Counterweight";
+            counterweight.transform.SetParent(crane.transform, false);
+            counterweight.transform.localPosition = new Vector3(-6.5f, 29f, 0f);
+            counterweight.transform.localScale = new Vector3(4.5f, 2.0f, 2.0f);
+            counterweight.GetComponent<Renderer>().material = buildingConcreteMat;
+        }
+
+        private void BuildResidentialDetails(Transform parent)
+        {
+            GameObject resRoot = new GameObject("Residential_Alley_Details");
+            resRoot.transform.SetParent(parent, false);
+
+            // Fire Escape Platforms on West Facade (X = -15m)
+            for (int f = 1; f <= 3; f++)
+            {
+                float y = f * 4.2f + 1.5f;
+                GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                platform.name = $"FireEscape_Platform_F{f}";
+                platform.transform.SetParent(resRoot.transform, false);
+                platform.transform.position = new Vector3(-14.2f, y, 32f);
+                platform.transform.localScale = new Vector3(1.2f, 0.15f, 4.0f);
+                platform.GetComponent<Renderer>().material = metalRooftopMat;
+
+                // Railing
+                GameObject rail = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                rail.name = $"FireEscape_Rail_F{f}";
+                rail.transform.SetParent(platform.transform, false);
+                rail.transform.localPosition = new Vector3(0.5f, 0.5f, 0f);
+                rail.transform.localScale = new Vector3(0.08f, 1.0f, 1.0f);
+                rail.GetComponent<Renderer>().material = metalRooftopMat;
+                SafeDestroy(rail.GetComponent<Collider>());
+            }
+        }
+
+        private void BuildOverheadHighwaySign(Transform parent)
+        {
+            GameObject gantryRoot = new GameObject("OverheadHighwayGantry");
+            gantryRoot.transform.SetParent(parent, false);
+            gantryRoot.transform.position = new Vector3(0f, 0f, 55f);
+
+            // 2 Upright Columns
+            GameObject colLeft = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            colLeft.name = "GantryCol_Left";
+            colLeft.transform.SetParent(gantryRoot.transform, false);
+            colLeft.transform.localPosition = new Vector3(-7.5f, 3.5f, 0f);
+            colLeft.transform.localScale = new Vector3(0.35f, 3.5f, 0.35f);
+            colLeft.GetComponent<Renderer>().material = metalRooftopMat;
+
+            GameObject colRight = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            colRight.name = "GantryCol_Right";
+            colRight.transform.SetParent(gantryRoot.transform, false);
+            colRight.transform.localPosition = new Vector3(7.5f, 3.5f, 0f);
+            colRight.transform.localScale = new Vector3(0.35f, 3.5f, 0.35f);
+            colRight.GetComponent<Renderer>().material = metalRooftopMat;
+
+            // Overhead Truss
+            GameObject truss = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            truss.name = "GantryTruss";
+            truss.transform.SetParent(gantryRoot.transform, false);
+            truss.transform.localPosition = new Vector3(0f, 7.0f, 0f);
+            truss.transform.localScale = new Vector3(15.5f, 0.65f, 0.65f);
+            truss.GetComponent<Renderer>().material = metalRooftopMat;
+            SafeDestroy(truss.GetComponent<Collider>());
+
+            // Highway Directional Sign Board
+            GameObject signBoard = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            signBoard.name = "HighwaySignBoard";
+            signBoard.transform.SetParent(gantryRoot.transform, false);
+            signBoard.transform.localPosition = new Vector3(0f, 6.2f, -0.4f);
+            signBoard.transform.localScale = new Vector3(12.0f, 1.8f, 0.15f);
+            signBoard.GetComponent<Renderer>().material = highwayGreenMat;
+            SafeDestroy(signBoard.GetComponent<Collider>());
+        }
+
         private void CreateStreetlamp(Transform parent, Vector3 pos)
         {
             GameObject lamp = new GameObject("Streetlight");
@@ -664,6 +966,48 @@ namespace DEADeye
             antenna.transform.localScale = new Vector3(0.12f, 6.0f, 0.12f);
             antenna.GetComponent<Renderer>().material = metalRooftopMat;
             SafeDestroy(antenna.GetComponent<Collider>());
+
+            // Tactical Mission Briefing Terminal on Rooftop
+            BuildRooftopTacticalTerminal(nest.transform);
+        }
+
+        private void BuildRooftopTacticalTerminal(Transform parent)
+        {
+            GameObject terminalGO = new GameObject("TacticalBriefingTerminal_Station");
+            terminalGO.transform.SetParent(parent, false);
+            terminalGO.transform.position = new Vector3(-3.2f, rooftopHeight, -3.8f);
+            terminalGO.transform.rotation = Quaternion.Euler(0f, 40f, 0f);
+
+            // Desk
+            GameObject desk = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            desk.name = "TerminalDesk";
+            desk.transform.SetParent(terminalGO.transform, false);
+            desk.transform.localPosition = new Vector3(0f, 0.45f, 0f);
+            desk.transform.localScale = new Vector3(2.2f, 0.9f, 1.2f);
+            desk.GetComponent<Renderer>().material = metalRooftopMat;
+
+            // Main Display Screen
+            GameObject monitor = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            monitor.name = "MainTacticalDisplay";
+            monitor.transform.SetParent(terminalGO.transform, false);
+            monitor.transform.localPosition = new Vector3(0f, 1.35f, 0.15f);
+            monitor.transform.localScale = new Vector3(1.5f, 0.9f, 0.08f);
+            monitor.transform.localRotation = Quaternion.Euler(-12f, 0f, 0f);
+
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
+            if (litShader == null) litShader = Shader.Find("Standard");
+            Material screenMat = new Material(litShader) { color = new Color(0.02f, 0.15f, 0.25f) };
+            monitor.GetComponent<Renderer>().material = screenMat;
+            SafeDestroy(monitor.GetComponent<Collider>());
+
+            // Keyboard / Input Console
+            GameObject kb = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            kb.name = "ConsoleKeyboard";
+            kb.transform.SetParent(terminalGO.transform, false);
+            kb.transform.localPosition = new Vector3(0f, 0.92f, -0.2f);
+            kb.transform.localScale = new Vector3(1.2f, 0.05f, 0.45f);
+            kb.GetComponent<Renderer>().material = facadeTrimMat;
+            SafeDestroy(kb.GetComponent<Collider>());
         }
 
         private void CreateParapetWall(Transform parent, Vector3 pos, Vector3 size, string name)

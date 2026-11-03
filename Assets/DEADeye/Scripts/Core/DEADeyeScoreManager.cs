@@ -9,7 +9,7 @@ namespace DEADeye
     /// </summary>
     public class DEADeyeScoreManager : MonoBehaviour
     {
-        public static DEADeyeScoreManager Instance { get; private set; }
+        public static DEADeyeScoreManager Instance { get; set; }
 
         [Header("Live Metrics")]
         [SerializeField] private int currentScore = 0;
@@ -18,6 +18,7 @@ namespace DEADeye
         [SerializeField] private int headshots = 0;
         [SerializeField] private int enemiesEliminated = 0;
         [SerializeField] private int enemiesEscaped = 0;
+        [SerializeField] private int civilianCasualties = 0;
         [SerializeField] private int currentCombo = 0;
 
         public int CurrentScore => currentScore;
@@ -28,6 +29,7 @@ namespace DEADeye
         public int Headshots => headshots;
         public int EnemiesEliminated => enemiesEliminated;
         public int EnemiesEscaped => enemiesEscaped;
+        public int CivilianCasualties => civilianCasualties;
         public int CurrentCombo => currentCombo;
         public int Misses => Mathf.Max(0, shotsFired - shotsHit);
 
@@ -64,6 +66,7 @@ namespace DEADeye
             headshots = 0;
             enemiesEliminated = 0;
             enemiesEscaped = 0;
+            civilianCasualties = 0;
             currentCombo = 0;
 
             OnScoreUpdated?.Invoke(currentScore);
@@ -115,6 +118,14 @@ namespace DEADeye
             currentCombo = 0;
             OnScoreUpdated?.Invoke(currentScore);
             OnHostileCountUpdated?.Invoke(enemiesEliminated, enemiesEscaped);
+        }
+
+        public void RegisterCivilianCasualty()
+        {
+            civilianCasualties++;
+            currentScore = Mathf.Max(0, currentScore - 500); // Heavy penalty for civilian casualty
+            currentCombo = 0;
+            OnScoreUpdated?.Invoke(currentScore);
         }
     }
 }

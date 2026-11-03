@@ -250,5 +250,91 @@ namespace DEADeye.Tests
             Object.DestroyImmediate(enemyGO);
             Object.DestroyImmediate(gmGO);
         }
+
+        [Test]
+        public void Test_11_CampaignMissions_ExistAndAreConfigured()
+        {
+            string[] missionNames = new string[]
+            {
+                "Mission_01_BrokenSignal.asset",
+                "Mission_02_MovingTarget.asset",
+                "Mission_03_NoClearShot.asset",
+                "Mission_04_DeadGround.asset"
+            };
+
+            foreach (var mName in missionNames)
+            {
+                string path = $"Assets/DEADeye/Data/Missions/{mName}";
+                var mission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>(path);
+                Assert.IsNotNull(mission, $"Campaign mission at {path} must exist.");
+                Assert.IsNotEmpty(mission.operationTitle, "Mission title must not be empty.");
+                Assert.Greater(mission.timeLimitSeconds, 30f, "Mission time limit must be > 30s.");
+                Assert.Greater(mission.hostileCount, 0, "Hostile count must be > 0.");
+            }
+        }
+
+        [Test]
+        public void Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents()
+        {
+            string[] prefabs = new string[]
+            {
+                "Assets/DEADeye/Prefabs/Characters/Hostile_Tactical_Rifleman.prefab",
+                "Assets/DEADeye/Prefabs/Characters/Hostile_Sniper_Scout.prefab",
+                "Assets/DEADeye/Prefabs/Characters/Hostile_Commander.prefab",
+                "Assets/DEADeye/Prefabs/Characters/Friendly_Technician.prefab",
+                "Assets/DEADeye/Prefabs/Characters/Civilian_Male_Casual.prefab"
+            };
+
+            foreach (var pPath in prefabs)
+            {
+                var go = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(pPath);
+                Assert.IsNotNull(go, $"Character prefab {pPath} must exist.");
+                Assert.IsNotNull(go.GetComponent<NavMeshAgent>(), $"Character {go.name} must have NavMeshAgent.");
+                Assert.IsNotNull(go.GetComponent<Collider>(), $"Character {go.name} must have a root Collider.");
+                Assert.IsNotNull(go.GetComponent<DEADeyeProceduralCharacterAnimator>(), $"Character {go.name} must have ProceduralCharacterAnimator.");
+            }
+        }
+
+        [Test]
+        public void Test_13_FriendlyAI_TracksRepairProgressAndKills()
+        {
+            GameObject friendlyGO = new GameObject("TestFriendlyTech");
+            friendlyGO.AddComponent<NavMeshAgent>().enabled = false;
+            var friendly = friendlyGO.AddComponent<DEADeyeFriendlyAI>();
+
+            Assert.AreEqual(0f, friendly.WorkProgress, "Initial progress must be 0%.");
+            Assert.AreEqual(100, friendly.CurrentHealth, "Initial health must be 100.");
+            Assert.IsFalse(friendly.IsEliminated, "Friendly must not be eliminated initially.");
+
+            bool killEventFired = false;
+            friendly.OnVipKilled += (v) => killEventFired = true;
+
+            friendly.TakeDamage(150, Vector3.zero, Vector3.up, false);
+            Assert.IsTrue(friendly.IsEliminated, "Friendly should be eliminated after taking lethal damage.");
+            Assert.IsTrue(killEventFired, "OnVipKilled event must fire.");
+
+            Object.DestroyImmediate(friendlyGO);
+        }
+
+        [Test]
+        public void Test_14_CivilianAI_PenalizesFriendlyFire()
+        {
+            GameObject smGO = new GameObject("TestSM_Civ");
+            var sm = smGO.AddComponent<DEADeyeScoreManager>();
+            DEADeyeScoreManager.Instance = sm;
+            sm.ResetMetrics();
+
+            GameObject civGO = new GameObject("TestCiv");
+            civGO.AddComponent<NavMeshAgent>().enabled = false;
+            var civ = civGO.AddComponent<DEADeyeCivilianAI>();
+
+            civ.TakeDamage(100, Vector3.zero, Vector3.up, false);
+            Assert.IsTrue(civ.IsEliminated, "Civilian must be eliminated.");
+            Assert.AreEqual(1, sm.CivilianCasualties, "Score manager must record 1 civilian casualty.");
+
+            Object.DestroyImmediate(civGO);
+            Object.DestroyImmediate(smGO);
+            DEADeyeScoreManager.Instance = null;
+        }
     }
 }
