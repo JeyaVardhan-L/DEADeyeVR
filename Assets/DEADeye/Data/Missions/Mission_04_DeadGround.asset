@@ -15,15 +15,18 @@ MonoBehaviour:
   missionId: 3
   operationCode: OP-04
   operationTitle: DEAD GROUND
-  districtName: UNFINISHED HIGH-RISE CONSTRUCTION SITE
+  districtName: UNFINISHED HIGH-RISE CONSTRUCTION SITE & CRANE
+  isLocked: 1
+  statusText: 'LOCKED [COMPLETE OP-03]'
+  difficulty: MAXIMUM (HIGH-GROUND COUNTER-SNIPER)
   tacticalBriefing: 'Syndicate leadership has established a high-ground tactical
     command post inside an unfinished high-rise skyscraper skeleton. An enemy sniper
-    is positioned on the high crane platform providing cross-fire over the entire
-    sector.
+    is positioned on the 28m tower crane platform providing cross-fire over the sector.
 
 
-    Eliminate the crane sniper immediately to suppress incoming fire,
-    then systematically eliminate the ground security squad and Syndicate Commander.'
+    Eliminate
+    the crane marksman immediately to suppress incoming fire, then systematically
+    neutralize the ground security assault squad and the Syndicate Commander.'
   primaryObjective: Eliminate Crane Sniper & Neutralize Syndicate Commander + Squad
   secondaryObjective: Eliminate Crane Sniper within the first 30 seconds
   timeLimitSeconds: 120

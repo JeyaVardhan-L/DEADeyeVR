@@ -8,9 +8,12 @@ namespace DEADeye
     /// <summary>
     /// In-mission HUD displaying live COD Mobile style sniper telemetry:
     /// - Top-left: Countdown timer, current score, remaining hostiles, and escape count.
+    /// - Top-center: Objective Tracker bar.
+    /// - Top-right: Permanent "[ MISSION INFO (I) ]" button.
     /// - Bottom-right: Ammunition count and reload prompt.
     /// - Center: Dynamic hit/headshot feedback (+100 BODY HIT / +300 HEADSHOT) with hitmarker.
-    /// - Center: Optical circular sniper scope reticle overlay with live magnified camera render.
+    /// - Center: Optical circular sniper scope reticle overlay (strictly raycast-transparent).
+    /// - Full-screen Tactical Mission Info overlay (toggled via 'I' key or button click).
     /// - Pause menu with Resume, Restart, and Quit.
     /// - Results debriefing screen.
     /// </summary>
@@ -58,51 +61,44 @@ namespace DEADeye
         [SerializeField] private TextMeshProUGUI radioSenderText;
         [SerializeField] private TextMeshProUGUI radioMessageText;
 
-        [Header("Tutorial State")]
-        private int currentTutorialStep = 0;
-        private bool hasLooked = false;
-        private bool hasMoved = false;
-        private bool hasScoped = false;
-        private bool hasSpotted = false;
-        private bool hasFired = false;
-        private bool hasReloaded = false;
-        private Coroutine objectiveFlashCoroutine;
-
         [Header("Feedback Elements")]
         [SerializeField] private TextMeshProUGUI hitFeedbackText;
         [SerializeField] private GameObject hitmarkerObject;
         [SerializeField] private GameObject scopeOverlay;
         [SerializeField] private RawImage scopeLensRawImage;
         [SerializeField] private GameObject pausePanel;
+        [SerializeField] private GameObject missionInfoPanel;
 
         [Header("Results Panel")]
         [SerializeField] private DEADeyeResultsUI resultsUI;
 
         private bool isPaused = false;
+        private bool isMissionInfoActive = false;
         private Coroutine hitFeedbackCoroutine;
         private Coroutine spottingBannerCoroutine;
         private Coroutine radioDialogueCoroutine;
+        private Coroutine objectiveFlashCoroutine;
 
         public bool IsPaused => isPaused;
+        public bool IsMissionInfoActive => isMissionInfoActive;
 
         private void Awake()
         {
             Instance = this;
             Time.timeScale = 1f;
             isPaused = false;
+            isMissionInfoActive = false;
             EnsureHUDCanvas();
         }
 
         private void Start()
         {
-            // Subscribe to Mission Director
             if (DEADeyeMissionDirector.Instance != null)
             {
                 DEADeyeMissionDirector.Instance.OnTimerTick += UpdateTimerDisplay;
                 DEADeyeMissionDirector.Instance.OnMissionEnded += HandleMissionEnded;
             }
 
-            // Subscribe to Score Manager
             if (DEADeyeScoreManager.Instance != null)
             {
                 DEADeyeScoreManager.Instance.OnScoreUpdated += UpdateScoreDisplay;
@@ -110,7 +106,6 @@ namespace DEADeye
                 DEADeyeScoreManager.Instance.OnHitRegistered += ShowHitFeedback;
             }
 
-            // Subscribe to Weapon Manager
             if (DEADeyeWeaponManager.Instance != null)
             {
                 DEADeyeWeaponManager.Instance.OnAmmoChanged += UpdateAmmoDisplay;
@@ -118,7 +113,6 @@ namespace DEADeye
                 DEADeyeWeaponManager.Instance.OnReloadCompleted += HandleReloadCompleted;
             }
 
-            // Find scope optic if available
             var weapon = FindFirstObjectByType<DEADeyeSniperWeapon>();
             if (weapon != null && weapon.ScopeOptic != null && weapon.ScopeOptic.ScopeTargetTexture != null)
             {
@@ -182,7 +176,7 @@ namespace DEADeye
                 topBar.transform.SetParent(canvasGO.transform, false);
                 RectTransform tbRT = topBar.AddComponent<RectTransform>();
                 tbRT.anchorMin = new Vector2(0.02f, 0.86f);
-                tbRT.anchorMax = new Vector2(0.36f, 0.98f);
+                tbRT.anchorMax = new Vector2(0.32f, 0.98f);
                 tbRT.offsetMin = Vector2.zero;
                 tbRT.offsetMax = Vector2.zero;
 
@@ -194,16 +188,16 @@ namespace DEADeye
                 tbOutline.effectDistance = new Vector2(1.5f, -1.5f);
 
                 timerText = CreateText(topBar.transform, "TimerText", "TIME: 02:00", 22, new Vector2(16f, -10f), new Vector2(200f, 32f), Color.white);
-                scoreText = CreateText(topBar.transform, "ScoreText", "SCORE: 0000", 22, new Vector2(230f, -10f), new Vector2(200f, 32f), new Color(0.0f, 0.9f, 1.0f));
+                scoreText = CreateText(topBar.transform, "ScoreText", "SCORE: 0000", 22, new Vector2(210f, -10f), new Vector2(200f, 32f), new Color(0.0f, 0.9f, 1.0f));
                 hostilesRemainingText = CreateText(topBar.transform, "HostilesText", "HOSTILES: 8", 18, new Vector2(16f, -50f), new Vector2(200f, 28f), Color.white);
-                escapesText = CreateText(topBar.transform, "EscapesText", "ESCAPED: 0 / 3", 18, new Vector2(230f, -50f), new Vector2(200f, 28f), new Color(1.0f, 0.85f, 0.2f));
+                escapesText = CreateText(topBar.transform, "EscapesText", "ESCAPED: 0 / 3", 18, new Vector2(210f, -50f), new Vector2(200f, 28f), new Color(1.0f, 0.85f, 0.2f));
 
                 // 2. Objective Tracker Bar (Top Center)
                 GameObject objBar = new GameObject("ObjectiveBar");
                 objBar.transform.SetParent(canvasGO.transform, false);
                 RectTransform objRT = objBar.AddComponent<RectTransform>();
-                objRT.anchorMin = new Vector2(0.28f, 0.83f);
-                objRT.anchorMax = new Vector2(0.72f, 0.98f);
+                objRT.anchorMin = new Vector2(0.34f, 0.85f);
+                objRT.anchorMax = new Vector2(0.78f, 0.98f);
                 objRT.offsetMin = Vector2.zero;
                 objRT.offsetMax = Vector2.zero;
 
@@ -217,26 +211,44 @@ namespace DEADeye
                 objectiveTitleText = CreateText(objBar.transform, "ObjectiveTitleText", "OBJECTIVE 1 OF 6: RECON & SPOT", 17, new Vector2(16f, -6f), new Vector2(800f, 26f), new Color(0.0f, 0.95f, 1.0f));
                 objectiveRationaleText = CreateText(objBar.transform, "ObjectiveRationaleText", "Dwell optical scope reticle on Elena, Marcus, and the broadcast tower to confirm tactical status.", 13, new Vector2(16f, -34f), new Vector2(800f, 38f), new Color(0.85f, 0.90f, 0.95f));
                 objectiveProgressText = CreateText(objBar.transform, "ObjectiveProgressText", "TARGETS SPOTTED: 0 / 3", 13, new Vector2(16f, -74f), new Vector2(800f, 22f), new Color(0.0f, 1.0f, 0.5f));
-                objectiveText = objectiveTitleText; // Compatibility alias
+                objectiveText = objectiveTitleText;
 
-                // 2b. Contextual Tutorial Panel (Bottom Center)
-                GameObject tutGO = new GameObject("ContextualTutorialPanel");
-                tutGO.transform.SetParent(canvasGO.transform, false);
-                RectTransform tutRT = tutGO.AddComponent<RectTransform>();
-                tutRT.anchorMin = new Vector2(0.24f, 0.03f);
-                tutRT.anchorMax = new Vector2(0.76f, 0.09f);
-                tutRT.offsetMin = Vector2.zero;
-                tutRT.offsetMax = Vector2.zero;
+                // 2b. PERMANENT MISSION INFO HUD BUTTON (Top Right: X: 80% to 98%, Y: 88% to 98%)
+                GameObject infoBtnGO = new GameObject("Btn_HUD_MissionInfo");
+                infoBtnGO.transform.SetParent(canvasGO.transform, false);
+                RectTransform ibRT = infoBtnGO.AddComponent<RectTransform>();
+                ibRT.anchorMin = new Vector2(0.80f, 0.88f);
+                ibRT.anchorMax = new Vector2(0.98f, 0.98f);
+                ibRT.offsetMin = Vector2.zero;
+                ibRT.offsetMax = Vector2.zero;
 
-                Image tutBg = tutGO.AddComponent<Image>();
-                tutBg.color = new Color(0.02f, 0.05f, 0.09f, 0.92f);
-                Outline tutOutline = tutGO.AddComponent<Outline>();
-                tutOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.7f);
-                tutOutline.effectDistance = new Vector2(1.5f, -1.5f);
+                Image ibBg = infoBtnGO.AddComponent<Image>();
+                ibBg.color = new Color(0.06f, 0.12f, 0.18f, 0.95f);
+                ibBg.raycastTarget = true;
 
-                tutorialText = CreateText(tutGO.transform, "TutorialText", "HOLD LEFT ALT + MOVE MOUSE — LOOK AROUND", 16, new Vector2(10f, -6f), new Vector2(980f, 32f), new Color(0.0f, 0.95f, 1.0f));
-                tutorialText.alignment = TextAlignmentOptions.Center;
-                tutorialPanel = tutGO;
+                Outline ibOutline = infoBtnGO.AddComponent<Outline>();
+                ibOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.8f);
+                ibOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+                Button infoBtn = infoBtnGO.AddComponent<Button>();
+                infoBtn.targetGraphic = ibBg;
+                infoBtn.onClick.AddListener(ToggleMissionInfo);
+
+                GameObject ibTextGO = new GameObject("Text");
+                ibTextGO.transform.SetParent(infoBtnGO.transform, false);
+                RectTransform ibtRT = ibTextGO.AddComponent<RectTransform>();
+                ibtRT.anchorMin = Vector2.zero;
+                ibtRT.anchorMax = Vector2.one;
+                ibtRT.offsetMin = Vector2.zero;
+                ibtRT.offsetMax = Vector2.zero;
+
+                TextMeshProUGUI ibTMP = ibTextGO.AddComponent<TextMeshProUGUI>();
+                ibTMP.font = GetDefaultFont();
+                ibTMP.text = "<b>[ MISSION INFO (I) ]</b>\n<size=12><color=#00E5FF>CLICK OR PRESS 'I'</color></size>";
+                ibTMP.fontSize = 15;
+                ibTMP.alignment = TextAlignmentOptions.Center;
+                ibTMP.color = Color.white;
+                ibTMP.raycastTarget = false;
 
                 // 3. Tactical Spotting Banner (Center High)
                 spottingBannerPanel = new GameObject("SpottingBannerPanel");
@@ -272,7 +284,7 @@ namespace DEADeye
                 rdOutline.effectColor = new Color(0.2f, 0.85f, 1.0f, 0.6f);
                 rdOutline.effectDistance = new Vector2(1.5f, -1.5f);
 
-                radioSenderText = CreateText(radioDialoguePanel.transform, "RadioSender", "â–¶ RADIO // CONTROL", 15, new Vector2(12f, -8f), new Vector2(400f, 22f), new Color(0.0f, 0.9f, 1.0f));
+                radioSenderText = CreateText(radioDialoguePanel.transform, "RadioSender", "▶ RADIO // CONTROL", 15, new Vector2(12f, -8f), new Vector2(400f, 22f), new Color(0.0f, 0.9f, 1.0f));
                 radioMessageText = CreateText(radioDialoguePanel.transform, "RadioMessage", "Overwatch, maintain surveillance on the district.", 14, new Vector2(12f, -32f), new Vector2(700f, 34f), Color.white);
                 radioDialoguePanel.SetActive(false);
 
@@ -294,7 +306,7 @@ namespace DEADeye
 
                 ammoText = CreateText(ammoBox.transform, "AmmoText", "AMMO: 5 / \u221E\n<size=15><color=#888888>[R] RELOAD</color></size>", 22, new Vector2(16f, -8f), new Vector2(260f, 60f), new Color(0.0f, 0.9f, 1.0f));
 
-                // 6. Center Optical Sniper Scope Overlay
+                // 6. Center Optical Sniper Scope Overlay (RAYCAST TRANSPARENT)
                 BuildScopeOverlay(canvasGO.transform);
 
                 // 7. Hit Feedback & Hitmarker (Center)
@@ -303,7 +315,10 @@ namespace DEADeye
                 // 8. Pause Panel
                 BuildPauseMenu(canvasGO.transform);
 
-                // 9. Results UI
+                // 9. Full-screen Mission Info Overlay
+                BuildMissionInfoOverlay(canvasGO.transform);
+
+                // 10. Results UI
                 GameObject resultsGO = new GameObject("ResultsUI");
                 resultsGO.transform.SetParent(canvasGO.transform, false);
                 resultsUI = resultsGO.AddComponent<DEADeyeResultsUI>();
@@ -328,9 +343,14 @@ namespace DEADeye
             soRT.offsetMin = Vector2.zero;
             soRT.offsetMax = Vector2.zero;
 
+            // CRITICAL: Scope overlay must never intercept mouse clicks!
+            CanvasGroup cg = scopeOverlay.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false;
+            cg.interactable = false;
+
             float scopeDiameter = 860f;
 
-            // 1. Center Magnified Optic Render (RawImage displaying ScopeCamera's RenderTexture)
+            // 1. Center Magnified Optic Render (RawImage)
             GameObject lensGO = new GameObject("ScopeMagnifiedLens");
             lensGO.transform.SetParent(scopeOverlay.transform, false);
             RectTransform lensRT = lensGO.AddComponent<RectTransform>();
@@ -340,8 +360,9 @@ namespace DEADeye
 
             scopeLensRawImage = lensGO.AddComponent<RawImage>();
             scopeLensRawImage.color = Color.white;
+            scopeLensRawImage.raycastTarget = false;
 
-            // 2. Circular Vignette / Bezel Mask Texture over the lens
+            // 2. Circular Vignette / Bezel Mask Texture over lens
             GameObject vignetteGO = new GameObject("ScopeCircularVignette");
             vignetteGO.transform.SetParent(scopeOverlay.transform, false);
             RectTransform vigRT = vignetteGO.AddComponent<RectTransform>();
@@ -352,8 +373,9 @@ namespace DEADeye
             Image vigImg = vignetteGO.AddComponent<Image>();
             vigImg.sprite = CreateCircularVignetteSprite(512);
             vigImg.color = Color.white;
+            vigImg.raycastTarget = false;
 
-            // 3. Peripheral Black Housing Panels (Covers screen edges outside circular scope)
+            // 3. Peripheral Black Housing Panels
             CreateVignetteBorder(scopeOverlay.transform, new Vector2(0f, 0f), new Vector2(0.5f, 1f), new Vector2(-scopeDiameter * 0.5f, 0f), isLeftRight: true);
             CreateVignetteBorder(scopeOverlay.transform, new Vector2(0.5f, 0f), new Vector2(1f, 1f), new Vector2(scopeDiameter * 0.5f, 0f), isLeftRight: true);
             CreateVignetteBorder(scopeOverlay.transform, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(0f, scopeDiameter * 0.5f), isLeftRight: false);
@@ -374,6 +396,7 @@ namespace DEADeye
             chHRT.sizeDelta = new Vector2(scopeDiameter * 0.92f, 2.5f);
             Image chHImg = chH.AddComponent<Image>();
             chHImg.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+            chHImg.raycastTarget = false;
 
             // Vertical crosshair line
             GameObject chV = new GameObject("Crosshair_V");
@@ -382,6 +405,7 @@ namespace DEADeye
             chVRT.sizeDelta = new Vector2(2.5f, scopeDiameter * 0.92f);
             Image chVImg = chV.AddComponent<Image>();
             chVImg.color = new Color(0.1f, 0.1f, 0.1f, 0.9f);
+            chVImg.raycastTarget = false;
 
             // Mil-dot hash tick marks along axes
             for (int i = 1; i <= 5; i++)
@@ -400,6 +424,7 @@ namespace DEADeye
             pipRT.sizeDelta = new Vector2(6f, 6f);
             Image pipImg = centerPip.AddComponent<Image>();
             pipImg.color = new Color(1.0f, 0.1f, 0.1f, 0.95f);
+            pipImg.raycastTarget = false;
 
             // Tactical Telemetry within Scope
             CreateScopeLabel(reticleRoot.transform, "Scope_Mag", "MAG 5.0X", new Vector2(-220f, 240f));
@@ -418,6 +443,7 @@ namespace DEADeye
             rt.sizeDelta = isVertical ? new Vector2(2f, 10f) : new Vector2(10f, 2f);
             Image img = tick.AddComponent<Image>();
             img.color = new Color(0.1f, 0.1f, 0.1f, 0.85f);
+            img.raycastTarget = false;
         }
 
         private void CreateScopeLabel(Transform parent, string name, string text, Vector2 pos, float fontSize = 15f)
@@ -435,6 +461,7 @@ namespace DEADeye
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = new Color(0.0f, 0.9f, 1.0f, 0.85f);
             tmp.fontStyle = FontStyles.Bold;
+            tmp.raycastTarget = false;
         }
 
         private void CreateVignetteBorder(Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 edgeOffset, bool isLeftRight)
@@ -471,35 +498,38 @@ namespace DEADeye
                 }
             }
             Image img = border.AddComponent<Image>();
-            img.color = new Color(0.02f, 0.02f, 0.03f, 1.0f);
+            img.color = new Color(0.015f, 0.015f, 0.02f, 1.0f);
+            img.raycastTarget = false;
         }
 
         private Sprite CreateCircularVignetteSprite(int size)
         {
             Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
             Color[] colors = new Color[size * size];
-            float center = size * 0.5f;
-            float innerRadius = size * 0.465f;
+            Vector2 center = new Vector2(size * 0.5f, size * 0.5f);
+            float innerRadius = size * 0.44f;
             float outerRadius = size * 0.495f;
-            Color dark = new Color(0.02f, 0.02f, 0.03f, 1.0f);
+
+            Color transparent = new Color(0f, 0f, 0f, 0f);
+            Color dark = new Color(0.015f, 0.015f, 0.02f, 1.0f);
 
             for (int y = 0; y < size; y++)
             {
                 for (int x = 0; x < size; x++)
                 {
-                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                    float dist = Vector2.Distance(new Vector2(x, y), center);
                     if (dist < innerRadius)
                     {
-                        colors[y * size + x] = new Color(0f, 0f, 0f, 0f); // Clear lens
+                        colors[y * size + x] = transparent;
                     }
                     else if (dist < outerRadius)
                     {
-                        float t = (dist - innerRadius) / (outerRadius - innerRadius);
-                        colors[y * size + x] = new Color(dark.r, dark.g, dark.b, t);
+                        float alpha = Mathf.SmoothStep(0f, 1f, (dist - innerRadius) / (outerRadius - innerRadius));
+                        colors[y * size + x] = Color.Lerp(transparent, dark, alpha);
                     }
                     else
                     {
-                        colors[y * size + x] = dark; // Solid housing
+                        colors[y * size + x] = dark;
                     }
                 }
             }
@@ -511,7 +541,6 @@ namespace DEADeye
 
         private void BuildHitFeedback(Transform parent)
         {
-            // Hit feedback text ("+100 BODY HIT", "+300 HEADSHOT")
             GameObject textGO = new GameObject("HitFeedbackText");
             textGO.transform.SetParent(parent, false);
             RectTransform rt = textGO.AddComponent<RectTransform>();
@@ -526,8 +555,8 @@ namespace DEADeye
             hitFeedbackText.alignment = TextAlignmentOptions.Center;
             hitFeedbackText.fontStyle = FontStyles.Bold;
             hitFeedbackText.text = "";
+            hitFeedbackText.raycastTarget = false;
 
-            // Hitmarker icon (Classic X)
             hitmarkerObject = new GameObject("Hitmarker");
             hitmarkerObject.transform.SetParent(parent, false);
             RectTransform hmRT = hitmarkerObject.AddComponent<RectTransform>();
@@ -535,7 +564,6 @@ namespace DEADeye
             hmRT.anchorMax = new Vector2(0.5f, 0.5f);
             hmRT.sizeDelta = new Vector2(30f, 30f);
 
-            // 4 diagonals forming X
             CreateHitmarkerLine(hitmarkerObject.transform, 45f);
             CreateHitmarkerLine(hitmarkerObject.transform, -45f);
 
@@ -551,6 +579,7 @@ namespace DEADeye
             rt.localRotation = Quaternion.Euler(0f, 0f, angle);
             Image img = line.AddComponent<Image>();
             img.color = new Color(1.0f, 1.0f, 1.0f, 0.95f);
+            img.raycastTarget = false;
         }
 
         private void BuildPauseMenu(Transform parent)
@@ -572,11 +601,168 @@ namespace DEADeye
 
             CreateText(pausePanel.transform, "PauseTitle", "MISSION PAUSED", 28, new Vector2(140f, -25f), new Vector2(300f, 40f), new Color(0.0f, 0.9f, 1.0f));
 
-            CreateMenuButton(pausePanel.transform, "Btn_Resume", "â–¶  RESUME MISSION", new Vector2(0f, 45f), OnResumeClicked);
-            CreateMenuButton(pausePanel.transform, "Btn_Restart", "â†º  RESTART MISSION", new Vector2(0f, -25f), OnRestartClicked);
-            CreateMenuButton(pausePanel.transform, "Btn_Quit", "âœ•  QUIT GAME", new Vector2(0f, -95f), OnQuitClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Resume", "▶  RESUME MISSION", new Vector2(0f, 45f), OnResumeClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Restart", "↺  RESTART MISSION", new Vector2(0f, -25f), OnRestartClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Quit", "✕  QUIT GAME", new Vector2(0f, -95f), OnQuitClicked);
 
             pausePanel.SetActive(false);
+        }
+
+        private void BuildMissionInfoOverlay(Transform parent)
+        {
+            missionInfoPanel = new GameObject("MissionInfoOverlayPanel");
+            missionInfoPanel.transform.SetParent(parent, false);
+            RectTransform miRT = missionInfoPanel.AddComponent<RectTransform>();
+            miRT.anchorMin = new Vector2(0.05f, 0.05f);
+            miRT.anchorMax = new Vector2(0.95f, 0.95f);
+            miRT.offsetMin = Vector2.zero;
+            miRT.offsetMax = Vector2.zero;
+
+            Image bg = missionInfoPanel.AddComponent<Image>();
+            bg.color = new Color(0.03f, 0.06f, 0.10f, 0.98f);
+
+            Outline ol = missionInfoPanel.AddComponent<Outline>();
+            ol.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.9f);
+            ol.effectDistance = new Vector2(2.5f, -2.5f);
+
+            // Top Header
+            CreateText(missionInfoPanel.transform, "MITitle", "OPERATION BRIEFING & TACTICAL INTEL", 26, new Vector2(30f, -20f), new Vector2(800f, 35f), new Color(0.0f, 0.9f, 1.0f));
+            CreateText(missionInfoPanel.transform, "MISub", "OPERATION 01: DEAD AIR // CENTRAL COMMERCIAL PLAZA", 16, new Vector2(30f, -56f), new Vector2(800f, 25f), new Color(0.4f, 0.8f, 1.0f));
+
+            // Close / Resume button top right
+            GameObject closeBtnGO = new GameObject("Btn_CloseInfo");
+            closeBtnGO.transform.SetParent(missionInfoPanel.transform, false);
+            RectTransform cbRT = closeBtnGO.AddComponent<RectTransform>();
+            cbRT.anchorMin = new Vector2(1f, 1f);
+            cbRT.anchorMax = new Vector2(1f, 1f);
+            cbRT.pivot = new Vector2(1f, 1f);
+            cbRT.anchoredPosition = new Vector2(-25f, -20f);
+            cbRT.sizeDelta = new Vector2(220f, 50f);
+
+            Image cbBg = closeBtnGO.AddComponent<Image>();
+            cbBg.color = new Color(0.0f, 0.55f, 0.85f, 1.0f);
+            Button cbBtn = closeBtnGO.AddComponent<Button>();
+            cbBtn.targetGraphic = cbBg;
+            cbBtn.onClick.AddListener(ToggleMissionInfo);
+
+            GameObject cbText = new GameObject("Text");
+            cbText.transform.SetParent(closeBtnGO.transform, false);
+            RectTransform cbtRT = cbText.AddComponent<RectTransform>();
+            cbtRT.anchorMin = Vector2.zero;
+            cbtRT.anchorMax = Vector2.one;
+            cbtRT.offsetMin = Vector2.zero;
+            cbtRT.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI cbTMP = cbText.AddComponent<TextMeshProUGUI>();
+            cbTMP.font = GetDefaultFont();
+            cbTMP.text = "<b>RESUME (I / ESC)</b>";
+            cbTMP.fontSize = 16;
+            cbTMP.alignment = TextAlignmentOptions.Center;
+            cbTMP.color = Color.white;
+            cbTMP.raycastTarget = false;
+
+            // Narrative Story Box (Left column)
+            GameObject storyBox = new GameObject("StoryBox");
+            storyBox.transform.SetParent(missionInfoPanel.transform, false);
+            RectTransform sbRT = storyBox.AddComponent<RectTransform>();
+            sbRT.anchorMin = new Vector2(0.02f, 0.10f);
+            sbRT.anchorMax = new Vector2(0.50f, 0.88f);
+            sbRT.offsetMin = Vector2.zero;
+            sbRT.offsetMax = Vector2.zero;
+
+            Image sbg = storyBox.AddComponent<Image>();
+            sbg.color = new Color(0.05f, 0.08f, 0.12f, 0.85f);
+
+            CreateText(storyBox.transform, "SBHeader", "MISSION OVERVIEW & BACKGROUND", 19, new Vector2(18f, -14f), new Vector2(500f, 26f), new Color(0.0f, 0.9f, 1.0f));
+            CreateText(storyBox.transform, "SBContent",
+                "A hostile syndicate strike team has deployed a high-frequency communications jammer to hijack the city relay tower, plunging the metropolitan district into a radio blackout.\n\n" +
+                "Two civilian communications engineers—Elena and Marcus—have slipped into the plaza below under cover to access the municipal broadcast relay tower console and restore emergency transmission.\n\n" +
+                "Your role as Overwatch Sniper:\n" +
+                "• Maintain rooftop surveillance and positively identify tactical assets.\n" +
+                "• Cut power to the syndicate jammer by sniping the high-voltage power junction on the utility pole.\n" +
+                "• Shield Elena and Marcus from advancing syndicate assault teams.\n" +
+                "• Spot and eliminate Commander Vance before his armored exfil departs.\n" +
+                "• Escort the team's extraction across the boulevard.",
+                14, new Vector2(18f, -50f), new Vector2(820f, 420f), new Color(0.88f, 0.92f, 0.98f));
+
+            // Personnel Dossiers (Right column)
+            GameObject dossierBox = new GameObject("DossierBox");
+            dossierBox.transform.SetParent(missionInfoPanel.transform, false);
+            RectTransform dbRT = dossierBox.AddComponent<RectTransform>();
+            dbRT.anchorMin = new Vector2(0.52f, 0.10f);
+            dbRT.anchorMax = new Vector2(0.98f, 0.88f);
+            dbRT.offsetMin = Vector2.zero;
+            dbRT.offsetMax = Vector2.zero;
+
+            Image dbg = dossierBox.AddComponent<Image>();
+            dbg.color = new Color(0.05f, 0.08f, 0.12f, 0.85f);
+
+            CreateText(dossierBox.transform, "DBHeader", "TACTICAL DOSSIERS & KEY TARGETS", 19, new Vector2(18f, -14f), new Vector2(500f, 26f), new Color(0.0f, 0.9f, 1.0f));
+
+            // Card 1: Elena
+            BuildDossierCard(dossierBox.transform, "ElenaCard", "ELENA // LEAD COMMS ENGINEER", "FRIENDLY [MUST PROTECT]", new Color(0f, 1f, 0.4f),
+                "Civilian field jacket, radio harness. Interfacing directly with the municipal relay tower console.", new Vector2(18f, -48f), new Vector2(780f, 110f));
+
+            // Card 2: Marcus
+            BuildDossierCard(dossierBox.transform, "MarcusCard", "MARCUS // FIELD TECHNICIAN", "FRIENDLY [MUST PROTECT]", new Color(0f, 1f, 0.4f),
+                "Civilian cargo attire, cable spool. Routing fiber conduit connections. If either technician falls, mission fails.", new Vector2(18f, -170f), new Vector2(780f, 110f));
+
+            // Card 3: Commander Vance
+            BuildDossierCard(dossierBox.transform, "VanceCard", "COMMANDER VANCE // SYNDICATE LEADER", "HOSTILE [MUST ELIMINATE]", new Color(1f, 0.25f, 0.25f),
+                "Heavy tactical plate carrier, radio headset, sidearm. Coordinating the syndicate assault waves.", new Vector2(18f, -292f), new Vector2(780f, 110f));
+
+            missionInfoPanel.SetActive(false);
+        }
+
+        private void BuildDossierCard(Transform parent, string name, string title, string badge, Color badgeColor, string desc, Vector2 pos, Vector2 size)
+        {
+            GameObject cardGO = new GameObject(name);
+            cardGO.transform.SetParent(parent, false);
+            RectTransform rt = cardGO.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            Image bg = cardGO.AddComponent<Image>();
+            bg.color = new Color(0.03f, 0.05f, 0.08f, 0.95f);
+
+            Outline ol = cardGO.AddComponent<Outline>();
+            ol.effectColor = badgeColor * 0.7f;
+            ol.effectDistance = new Vector2(1.5f, -1.5f);
+
+            CreateText(cardGO.transform, "Title", title, 16, new Vector2(12f, -10f), new Vector2(480f, 24f), Color.white);
+
+            GameObject badgeGO = new GameObject("Badge");
+            badgeGO.transform.SetParent(cardGO.transform, false);
+            RectTransform bRT = badgeGO.AddComponent<RectTransform>();
+            bRT.anchorMin = new Vector2(1f, 1f);
+            bRT.anchorMax = new Vector2(1f, 1f);
+            bRT.pivot = new Vector2(1f, 1f);
+            bRT.anchoredPosition = new Vector2(-12f, -10f);
+            bRT.sizeDelta = new Vector2(250f, 26f);
+
+            Image bImg = badgeGO.AddComponent<Image>();
+            bImg.color = badgeColor * 0.2f;
+
+            GameObject badgeTextGO = new GameObject("BadgeText");
+            badgeTextGO.transform.SetParent(badgeGO.transform, false);
+            RectTransform btRT = badgeTextGO.AddComponent<RectTransform>();
+            btRT.anchorMin = Vector2.zero;
+            btRT.anchorMax = Vector2.one;
+            btRT.offsetMin = Vector2.zero;
+            btRT.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI bTMP = badgeTextGO.AddComponent<TextMeshProUGUI>();
+            bTMP.font = GetDefaultFont();
+            bTMP.text = badge;
+            bTMP.fontSize = 13;
+            bTMP.alignment = TextAlignmentOptions.Center;
+            bTMP.color = badgeColor;
+            bTMP.fontStyle = FontStyles.Bold;
+
+            CreateText(cardGO.transform, "Desc", desc, 13, new Vector2(12f, -44f), new Vector2(750f, 55f), new Color(0.85f, 0.88f, 0.92f));
         }
 
         private void CreateMenuButton(Transform parent, string name, string label, Vector2 anchoredPos, UnityEngine.Events.UnityAction onClick)
@@ -610,7 +796,7 @@ namespace DEADeye
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
             tmp.fontStyle = FontStyles.Bold;
-            tmp.raycastTarget = false; // Never block button click events
+            tmp.raycastTarget = false;
 
             btn.onClick.AddListener(() =>
             {
@@ -674,7 +860,7 @@ namespace DEADeye
             }
         }
 
-                private void HandleReloadStarted()
+        private void HandleReloadStarted()
         {
             if (ammoText != null)
             {
@@ -703,114 +889,6 @@ namespace DEADeye
                 string colTag = current == 0 ? "<color=red>" : "<color=#00E5FF>";
                 string prompt = current == 0 ? "<color=#FF5555>[R] RELOAD REQUIRED</color>" : "<color=#888888>[R] RELOAD</color>";
                 ammoText.text = $"AMMO: {colTag}{current}</color> / \u221E\n<size=15>{prompt}</size>";
-            }
-        }
-
-        private void Update()
-        {
-            UpdateTutorial();
-        }
-
-        private void UpdateTutorial()
-        {
-            if (tutorialPanel == null) return;
-
-            // Only show tutorial when mission is active and not in terminal/pause
-            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState != DEADeyeGameState.MissionActive)
-            {
-                if (tutorialPanel.activeSelf) tutorialPanel.SetActive(false);
-                return;
-            }
-
-            if (currentTutorialStep > 4)
-            {
-                if (tutorialPanel.activeSelf) tutorialPanel.SetActive(false);
-                return;
-            }
-
-            if (!tutorialPanel.activeSelf) tutorialPanel.SetActive(true);
-
-            switch (currentTutorialStep)
-            {
-                case 0: // Free look
-                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFreeLookHeld())
-                    {
-                        Vector2 look = UnityEngine.InputSystem.Mouse.current != null ? UnityEngine.InputSystem.Mouse.current.delta.ReadValue() : Vector2.zero;
-                        if (look.sqrMagnitude > 0.5f) hasLooked = true;
-                    }
-                    if (hasLooked)
-                    {
-                        currentTutorialStep = 1;
-                        SetTutorialPrompt("WASD — MOVE BETWEEN OVERWATCH PERCHES");
-                    }
-                    break;
-
-                case 1: // WASD move
-                    if (DEADeyeInputRouter.Instance != null)
-                    {
-                        Vector2 move = DEADeyeInputRouter.Instance.GetMoveInput();
-                        if (move.sqrMagnitude > 0.05f) hasMoved = true;
-                    }
-                    if (hasMoved)
-                    {
-                        currentTutorialStep = 2;
-                        SetTutorialPrompt("HOLD RMB — OPTICAL SCOPE ZOOM");
-                    }
-                    break;
-
-                case 2: // RMB Zoom
-                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetAimHeld())
-                    {
-                        hasScoped = true;
-                    }
-                    if (hasScoped)
-                    {
-                        currentTutorialStep = 3;
-                        SetTutorialPrompt("DWELL RETICLE ON TARGETS — RECON SPOTTING");
-                    }
-                    break;
-
-                case 3: // Spotting
-                    if (hasSpotted)
-                    {
-                        currentTutorialStep = 4;
-                        SetTutorialPrompt("LMB — FIRE  |  R — RELOAD");
-                    }
-                    break;
-
-                case 4: // Fire and Reload
-                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())
-                    {
-                        hasFired = true;
-                    }
-                    if (DEADeyeWeaponManager.Instance != null && DEADeyeWeaponManager.Instance.IsReloading)
-                    {
-                        hasReloaded = true;
-                    }
-                    if (hasFired && hasReloaded)
-                    {
-                        currentTutorialStep = 5;
-                        tutorialPanel.SetActive(false);
-                    }
-                    break;
-            }
-        }
-
-        public void NotifyTargetSpotted()
-        {
-            hasSpotted = true;
-            if (currentTutorialStep == 3)
-            {
-                currentTutorialStep = 4;
-                SetTutorialPrompt("LMB — FIRE  |  R — RELOAD");
-            }
-        }
-
-        private void SetTutorialPrompt(string text)
-        {
-            if (tutorialText != null)
-            {
-                tutorialText.text = text;
             }
         }
 
@@ -881,6 +959,14 @@ namespace DEADeye
                 yield return null;
             }
             objectiveOutline.effectColor = original;
+        }
+
+        public void NotifyTargetSpotted()
+        {
+            if (DEADeyeAudioManager.Instance != null)
+            {
+                DEADeyeAudioManager.Instance.PlaySpottingChirp();
+            }
         }
 
         public void ShowSpottingBanner(DEADeyeSpotable target)
@@ -1009,6 +1095,12 @@ namespace DEADeye
 
         public void TogglePause()
         {
+            if (isMissionInfoActive)
+            {
+                ToggleMissionInfo(); // Close mission info first
+                return;
+            }
+
             isPaused = !isPaused;
             if (pausePanel != null)
             {
@@ -1018,6 +1110,24 @@ namespace DEADeye
             Time.timeScale = isPaused ? 0f : 1f;
             Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = isPaused;
+        }
+
+        public void ToggleMissionInfo()
+        {
+            isMissionInfoActive = !isMissionInfoActive;
+            if (missionInfoPanel != null)
+            {
+                missionInfoPanel.SetActive(isMissionInfoActive);
+            }
+
+            if (DEADeyeAudioManager.Instance != null)
+            {
+                DEADeyeAudioManager.Instance.PlayButtonClick();
+            }
+
+            Time.timeScale = isMissionInfoActive ? 0f : (isPaused ? 0f : 1f);
+            Cursor.lockState = isMissionInfoActive ? CursorLockMode.None : (isPaused ? CursorLockMode.None : CursorLockMode.Locked);
+            Cursor.visible = isMissionInfoActive || isPaused;
         }
 
         private void OnResumeClicked()

@@ -4,7 +4,8 @@ namespace DEADeye
 {
     /// <summary>
     /// Dedicated First-Person Desktop Controller for keyboard & mouse gameplay.
-    /// Provides smooth WASD locomotion, sprint modifier, clamped mouse look, weapon holding, and interaction.
+    /// Provides natural FPS mouse look (locked cursor during gameplay, zero stationary drift),
+    /// WASD locomotion, jumping, sprint modifier, weapon handling, and scoped shooting.
     /// Mutually exclusive with the XR Origin rig.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
@@ -37,6 +38,32 @@ namespace DEADeye
         public DEADeyeSniperWeapon EquippedWeapon => equippedWeapon;
         public bool IsAiming => isAiming;
 
+        public bool IsGameplayInputActive()
+        {
+            // If in Mission Briefing / Terminal, menus are active
+            if (DEADeyeTacticalTerminalUI.Instance != null && DEADeyeTacticalTerminalUI.Instance.IsTerminalActive)
+            {
+                return false;
+            }
+
+            // If Mission HUD is paused or Mission Info is open
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                if (DEADeyeMissionHUD.Instance.IsPaused || DEADeyeMissionHUD.Instance.IsMissionInfoActive)
+                {
+                    return false;
+                }
+            }
+
+            // If Game State is not MissionActive
+            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState != DEADeyeGameState.MissionActive)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
@@ -55,6 +82,7 @@ namespace DEADeye
             if (desktopCamera != null)
             {
                 desktopCamera.tag = "MainCamera";
+                desktopCamera.nearClipPlane = 0.05f; // Prevent rifle mesh clipping in first person
             }
 
             if (cameraPivot == null && desktopCamera != null)
@@ -80,10 +108,6 @@ namespace DEADeye
 
         private void Start()
         {
-            // Desktop Mode: Start with cursor unlocked and visible so player can interact with UI
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-
             if (equippedWeapon == null)
             {
                 equippedWeapon = FindFirstObjectByType<DEADeyeSniperWeapon>();
@@ -93,49 +117,62 @@ namespace DEADeye
             {
                 AttachWeapon(equippedWeapon.transform);
             }
+
+            UpdateCursorState();
         }
 
         private void Update()
         {
-            HandleAiming();
-            HandleMouseLook();
-            HandleMovement();
+            UpdateCursorState();
+
+            bool canControl = IsGameplayInputActive();
+
+            if (canControl)
+            {
+                HandleAiming();
+                HandleMouseLook();
+                HandleMovement();
+            }
+            else
+            {
+                // Force scope closed if menu is opened while aiming
+                if (isAiming)
+                {
+                    SetAiming(false);
+                }
+            }
+
             HandleWeaponInput();
         }
 
-        private void HandleMouseLook()
+        private CursorLockMode desiredLockMode = CursorLockMode.Locked;
+        public CursorLockMode DesiredLockMode => desiredLockMode;
+
+        public void UpdateCursorState()
         {
-            // CRITICAL REQUIREMENT: Camera look / aiming is ONLY enabled while Left Alt is held!
-            // When Left Alt is pressed / held:
-            // - Hide and lock cursor.
-            // - Enable camera rotation (yaw & pitch).
-            // - Does NOT change zoom state.
-            // - Does NOT fire the weapon.
-            // - Does NOT trigger UI buttons.
-            // When Left Alt is released:
-            // - Immediately stop camera rotation.
-            // - Unlock and show the cursor.
-            // - Allow normal UI interaction.
-            // RMB controls scope zoom only, completely independent of camera look.
+            bool gameplayActive = IsGameplayInputActive();
+            desiredLockMode = gameplayActive ? CursorLockMode.Locked : CursorLockMode.None;
 
-            bool isFreeLooking = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFreeLookHeld();
-
-            if (!isFreeLooking)
+            if (gameplayActive)
+            {
+                if (Cursor.lockState != CursorLockMode.Locked)
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            }
+            else
             {
                 if (Cursor.lockState != CursorLockMode.None)
                 {
                     Cursor.lockState = CursorLockMode.None;
                     Cursor.visible = true;
                 }
-                return;
             }
+        }
 
-            if (Cursor.lockState != CursorLockMode.Locked)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-
+        private void HandleMouseLook()
+        {
             Vector2 lookInput = Vector2.zero;
             if (DEADeyeInputRouter.Instance != null)
             {
@@ -242,6 +279,8 @@ namespace DEADeye
 
         private void HandleAiming()
         {
+            bool previousAiming = isAiming;
+
             if (overrideAiming)
             {
                 isAiming = forcedAimState;
@@ -249,6 +288,14 @@ namespace DEADeye
             else
             {
                 isAiming = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetAimHeld();
+            }
+
+            if (previousAiming != isAiming)
+            {
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayScopeToggle(isAiming);
+                }
             }
 
             if (equippedWeapon != null && equippedWeapon.ScopeOptic != null)
@@ -286,6 +333,16 @@ namespace DEADeye
                 return;
             }
 
+            // Mission Info toggle on 'I' key
+            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetMissionInfoToggleDown())
+            {
+                if (DEADeyeMissionHUD.Instance != null)
+                {
+                    DEADeyeMissionHUD.Instance.ToggleMissionInfo();
+                }
+                return;
+            }
+
             // Tactical Terminal toggle on Y key
             if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetTerminalToggleDown())
             {
@@ -293,9 +350,10 @@ namespace DEADeye
                 {
                     DEADeyeTacticalTerminalUI.Instance.ToggleTerminal();
                 }
+                return;
             }
 
-            // Reload key (R) - Always responsive in desktop mode, regardless of aiming or cursor lock state!
+            // Reload key (R) - Always responsive in desktop mode
             if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetReloadDown())
             {
                 if (DEADeyeWeaponManager.Instance != null)
@@ -304,15 +362,20 @@ namespace DEADeye
                 }
             }
 
-            // Fire on LMB - Only fire if NOT holding Left Alt (free look) and NOT clicking on UI
-            bool isFreeLooking = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFreeLookHeld();
-            if (!isFreeLooking)
+            // FIRE ON LMB — ONLY WHEN SCOPED (Aiming)
+            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())
             {
-                if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())
+                if (isAiming && equippedWeapon != null)
                 {
-                    if (equippedWeapon != null)
+                    equippedWeapon.TryFire();
+                }
+                else if (!isAiming)
+                {
+                    // Unscoped click: strictly forbidden from firing!
+                    // Optionally play dry click if player tries to fire unscoped
+                    if (DEADeyeAudioManager.Instance != null)
                     {
-                        equippedWeapon.TryFire();
+                        DEADeyeAudioManager.Instance.PlayDryFire();
                     }
                 }
             }

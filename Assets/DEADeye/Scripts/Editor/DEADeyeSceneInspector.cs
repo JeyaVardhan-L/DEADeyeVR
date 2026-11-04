@@ -14,11 +14,23 @@ namespace DEADeye.Editor
             Debug.Log($"Opened scene: {scene.name}, Root count: {scene.rootCount}");
             foreach (var root in scene.GetRootGameObjects())
             {
-                Debug.Log($"Root GO: {root.name}, Active: {root.activeSelf}");
-                foreach (Transform child in root.transform)
+                if (root.name.Contains("Sniper") || root.GetComponentInChildren<DEADeyeSniperWeapon>() != null)
                 {
-                    Debug.Log($"  Child: {child.name}");
+                    DumpHierarchy(root.transform, "");
                 }
+            }
+        }
+
+        private static void DumpHierarchy(Transform t, string indent)
+        {
+            var mf = t.GetComponent<MeshFilter>();
+            var mr = t.GetComponent<MeshRenderer>();
+            string meshName = mf != null && mf.sharedMesh != null ? mf.sharedMesh.name : "none";
+            string matName = mr != null && mr.sharedMaterial != null ? mr.sharedMaterial.name : "none";
+            Debug.Log($"{indent}[{t.name}] pos={t.localPosition}, rot={t.localEulerAngles}, scale={t.localScale}, mesh={meshName}, mat={matName}");
+            foreach (Transform c in t)
+            {
+                DumpHierarchy(c, indent + "  ");
             }
         }
     }

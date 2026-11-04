@@ -20,15 +20,16 @@ namespace DEADeye.Editor
                 AssetDatabase.CreateFolder("Assets/DEADeye/Data", "Missions");
             }
 
-            // Mission 01: BROKEN SIGNAL
+            // Operation 01: DEAD AIR (Available / Playable)
             CreateMissionAsset(
-                "Mission_01_BrokenSignal.asset",
-                MissionId.BrokenSignal,
+                "Mission_01_DeadAir.asset",
+                MissionId.DeadAir,
                 "OP-01",
-                "BROKEN SIGNAL",
-                "COMMERCIAL DISTRICT & COMMUNICATIONS PLAZA",
-                "Syndicate hostiles have sabotaged the municipal relay tower and pinned down our two-man comms engineering team in the commercial plaza.\n\n" +
-                "Provide precision sniper overwatch from the rooftop perch. Protect both technicians while they restore the transmission array, and eliminate all advancing hostile elements before they compromise the site.",
+                "DEAD AIR",
+                "CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE",
+                "A hostile syndicate strike team has deployed an emergency frequency jammer to hijack the municipal communication grid, plunging the entire metropolitan district into a radio blackout.\n\n" +
+                "You are positioned in high-angle rooftop overwatch above the Central Commercial Plaza. Two unarmed civilian field technicians—Elena and Marcus—have slipped into the plaza under cover to access the broadcast relay tower.\n\n" +
+                "Cut power to the syndicate jammer by sniping its high-voltage power junction on the utility pole, protect Elena and Marcus from advancing assault waves, neutralize Commander Vance, and cover their extraction.",
                 "Protect 2 Comms Technicians & Neutralize all 6 Hostiles",
                 "Achieve at least 2 Headshots without friendly casualties",
                 120f,
@@ -38,18 +39,21 @@ namespace DEADeye.Editor
                 hasCivs: false,
                 spawnInterval: 6.5f,
                 threat: "HIGH (HEAVILY ARMED SYNDICATE STRIKE SQUAD)",
-                weather: "OVERCAST / CLEAR SIGHTLINES"
+                weather: "OVERCAST / CLEAR SIGHTLINES",
+                locked: false,
+                status: "AVAILABLE",
+                difficulty: "MODERATE (HIGH CALIBER SMALL ARMS)"
             );
 
-            // Mission 02: MOVING TARGET
+            // Operation 02: THE LAST STOP (Locked)
             CreateMissionAsset(
-                "Mission_02_MovingTarget.asset",
-                MissionId.MovingTarget,
+                "Mission_02_TheLastStop.asset",
+                MissionId.TheLastStop,
                 "OP-02",
-                "MOVING TARGET",
-                "CENTRAL TRANSPORT CORRIDOR",
-                "A syndicate motor convoy transporting prototype military decryption hardware is attempting a high-speed transit through the central boulevard toward the north highway tunnel.\n\n" +
-                "Interdict the convoy. Neutralize the lead vehicle drivers and armed escort foot patrols before any target vehicle reaches the extraction tunnel.",
+                "THE LAST STOP",
+                "TRANSPORT INTERCHANGE & BUS TERMINAL DEPOT",
+                "A syndicate motor convoy transporting prototype military decryption hardware is staging a high-speed breakout through the central transport terminal toward the highway tunnel.\n\n" +
+                "Interdict the convoy before they escape. Neutralize armed escort foot patrols and courier vehicles before any target vehicle reaches the extraction tunnel.",
                 "Intercept Transport Convoy & Neutralize 7 Syndicate Couriers",
                 "Eliminate Lead Driver before crossing the central intersection",
                 90f,
@@ -59,18 +63,21 @@ namespace DEADeye.Editor
                 hasCivs: false,
                 spawnInterval: 4.5f,
                 threat: "CRITICAL (RAPID ESCAPE VEHICLES & ARMORED ESCORT)",
-                weather: "MIDDAY HEAT / HEAT SHIMMER"
+                weather: "MIDDAY HEAT / HEAT SHIMMER",
+                locked: true,
+                status: "LOCKED [COMPLETE OP-01]",
+                difficulty: "HARD (ARMORED CONVOY & RAPID TRANSIT)"
             );
 
-            // Mission 03: NO CLEAR SHOT
+            // Operation 03: SILENT ENTRY (Locked)
             CreateMissionAsset(
-                "Mission_03_NoClearShot.asset",
-                MissionId.NoClearShot,
+                "Mission_03_SilentEntry.asset",
+                MissionId.SilentEntry,
                 "OP-03",
-                "NO CLEAR SHOT",
+                "SILENT ENTRY",
                 "RESIDENTIAL DISTRICT & BROWNSTONE COURTYARD",
-                "Syndicate enforcers have taken defensive positions in the residential district, using civilian pedestrians and apartment alleyways as human shielding.\n\n" +
-                "ROE STRICTLY ENFORCED: Zero civilian collateral permitted. Positively identify armed hostiles before breaking trigger pressure. One civilian casualty results in mission compromise.",
+                "Syndicate enforcers have fortified defensive positions throughout the residential district, using civilian pedestrians and narrow brownstone alleyways as human shielding.\n\n" +
+                "ROE STRICTLY ENFORCED: Zero civilian collateral permitted. Positively identify armed hostiles before breaking trigger pressure. One civilian casualty results in immediate mission failure.",
                 "Eliminate 8 Fortified Hostiles without Civilian Casualties",
                 "Neutralize all hostiles in under 75 seconds",
                 100f,
@@ -80,18 +87,21 @@ namespace DEADeye.Editor
                 hasCivs: true,
                 spawnInterval: 6.0f,
                 threat: "HIGH (DENSE CIVILIAN POPULATION / HOSTAGES)",
-                weather: "DUSK / LOW ANGLE SHADOWS"
+                weather: "DUSK / LOW ANGLE SHADOWS",
+                locked: true,
+                status: "LOCKED [COMPLETE OP-02]",
+                difficulty: "EXPERT (CIVILIAN HOSTAGES & STRICT ROE)"
             );
 
-            // Mission 04: DEAD GROUND
+            // Operation 04: DEAD GROUND (Locked)
             CreateMissionAsset(
                 "Mission_04_DeadGround.asset",
                 MissionId.DeadGround,
                 "OP-04",
                 "DEAD GROUND",
-                "UNFINISHED HIGH-RISE CONSTRUCTION SITE",
-                "Syndicate leadership has established a high-ground tactical command post inside an unfinished high-rise skyscraper skeleton. An enemy sniper is positioned on the high crane platform providing cross-fire over the entire sector.\n\n" +
-                "Eliminate the crane sniper immediately to suppress incoming fire, then systematically eliminate the ground security squad and Syndicate Commander.",
+                "UNFINISHED HIGH-RISE CONSTRUCTION SITE & CRANE",
+                "Syndicate leadership has established a high-ground tactical command post inside an unfinished high-rise skyscraper skeleton. An enemy sniper is positioned on the 28m tower crane platform providing cross-fire over the sector.\n\n" +
+                "Eliminate the crane marksman immediately to suppress incoming fire, then systematically neutralize the ground security assault squad and the Syndicate Commander.",
                 "Eliminate Crane Sniper & Neutralize Syndicate Commander + Squad",
                 "Eliminate Crane Sniper within the first 30 seconds",
                 120f,
@@ -101,12 +111,15 @@ namespace DEADeye.Editor
                 hasCivs: false,
                 spawnInterval: 5.5f,
                 threat: "MAXIMUM (COUNTER-SNIPER POSITION & HEAVY ASSAULT)",
-                weather: "FOG DRIFT / ELEVATED WIND GUSTS"
+                weather: "FOG DRIFT / ELEVATED WIND GUSTS",
+                locked: true,
+                status: "LOCKED [COMPLETE OP-03]",
+                difficulty: "MAXIMUM (HIGH-GROUND COUNTER-SNIPER)"
             );
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("Successfully created all 4 campaign mission assets!");
+            Debug.Log("[DEADeyeMissionSetupUtility] Successfully created all 4 campaign mission assets!");
         }
 
         private static void CreateMissionAsset(
@@ -125,7 +138,10 @@ namespace DEADeye.Editor
             bool hasCivs,
             float spawnInterval,
             string threat,
-            string weather)
+            string weather,
+            bool locked,
+            string status,
+            string difficulty)
         {
             string path = $"{MissionsFolder}/{filename}";
             var asset = AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>(path);
@@ -151,6 +167,9 @@ namespace DEADeye.Editor
             asset.threatLevel = threat;
             asset.weatherCondition = weather;
             asset.recommendedZoom = 8.0f;
+            asset.isLocked = locked;
+            asset.statusText = status;
+            asset.difficulty = difficulty;
 
             EditorUtility.SetDirty(asset);
         }

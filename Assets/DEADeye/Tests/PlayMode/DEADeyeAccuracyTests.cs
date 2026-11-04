@@ -23,6 +23,7 @@ namespace DEADeye.Tests
         [UnitySetUp]
         public IEnumerator Setup()
         {
+            Time.timeScale = 1f;
             SceneManager.LoadScene("RooftopMission");
             yield return new WaitForSeconds(0.6f);
 
@@ -39,6 +40,31 @@ namespace DEADeye.Tests
             {
                 DEADeyeWeaponManager.Instance.ResetAmmo();
             }
+
+            // Sniper rifle requires scope active to fire
+            var rig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (rig != null)
+            {
+                rig.SetAiming(true);
+            }
+            var weapon = Object.FindFirstObjectByType<DEADeyeSniperWeapon>();
+            if (weapon != null && weapon.ScopeOptic != null)
+            {
+                weapon.ScopeOptic.SetScopeActive(true);
+            }
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            Time.timeScale = 1f;
+            var rig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (rig != null)
+            {
+                rig.ClearAimOverride();
+                rig.SetAiming(false);
+            }
+            yield return null;
         }
 
         private DEADeyeSniperWeapon GetWeapon()

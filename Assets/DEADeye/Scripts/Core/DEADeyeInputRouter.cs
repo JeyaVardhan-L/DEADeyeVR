@@ -6,7 +6,12 @@ namespace DEADeye
 {
     /// <summary>
     /// Authoritative input router providing unified desktop and VR input queries.
-    /// Ensures UI clicks never bleed into weapon fire.
+    /// Standard PC FPS control scheme:
+    /// - Natural mouse movement controls camera yaw & pitch (locked cursor; zero drift when stationary).
+    /// - LMB fires weapon ONLY when scoped.
+    /// - RMB holds optical scope zoom.
+    /// - WASD moves, Space jumps, Left Shift sprints.
+    /// - R reloads, I opens Mission Info, Escape pauses, Y/T opens Tactical Terminal.
     /// </summary>
     public class DEADeyeInputRouter : MonoBehaviour
     {
@@ -42,25 +47,17 @@ namespace DEADeye
 
         public bool IsPointerOverUI()
         {
+            // When cursor is locked into the game viewport, mouse clicks are in-game actions, not UI clicks
+            if (Cursor.lockState == CursorLockMode.Locked) return false;
             if (EventSystem.current == null) return false;
             return EventSystem.current.IsPointerOverGameObject();
         }
 
-        public bool GetFreeLookHeld()
-        {
-            if (Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed))
-            {
-                return true;
-            }
-            return false;
-        }
-
         public bool GetFireDown()
         {
-            // Do not fire if pointer is over UI or if player is holding Left Alt for mouse look
-            if (IsPointerOverUI() || GetFreeLookHeld()) return false;
+            // Never fire if clicking on an interactive UI element
+            if (IsPointerOverUI()) return false;
 
-            // Desktop Left Click
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
             {
                 return true;
@@ -119,6 +116,16 @@ namespace DEADeye
             return false;
         }
 
+        public bool GetMissionInfoToggleDown()
+        {
+            if (Keyboard.current != null && Keyboard.current.iKey.wasPressedThisFrame)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public bool GetSprintHeld()
         {
             if (Keyboard.current != null && (Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed))
@@ -163,7 +170,7 @@ namespace DEADeye
         {
             if (Mouse.current != null)
             {
-                // Raw pixel delta - frame-rate independent degrees per pixel rotation
+                // Raw pixel delta - zero when mouse does not move (zero drift guaranteed)
                 Vector2 delta = Mouse.current.delta.ReadValue();
                 return new Vector2(delta.x * horizontalSensitivity, delta.y * verticalSensitivity);
             }

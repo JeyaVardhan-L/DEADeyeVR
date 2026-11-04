@@ -31,6 +31,20 @@ namespace DEADeye.Tests
             artifactDir = @"C:\Users\user\.gemini\antigravity\brain\33cf68df-a5d2-459f-bdb6-bf1d6e253a59";
         }
 
+        [UnitySetUp]
+        public IEnumerator SetUp()
+        {
+            Time.timeScale = 1f;
+            yield return null;
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            Time.timeScale = 1f;
+            yield return null;
+        }
+
         private void SaveScreenshot(string filename, Camera cam)
         {
             if (cam == null) cam = Camera.main;

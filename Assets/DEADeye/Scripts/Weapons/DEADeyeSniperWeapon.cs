@@ -11,7 +11,7 @@ namespace DEADeye
     /// <summary>
     /// Authoritative sniper rifle supporting two-handed VR stabilization,
     /// Desktop FPS aiming, hitscan precision ballistics, muzzle flash, procedural recoil, and audio.
-    /// Strictly blocks firing in lobby or when interacting with UI.
+    /// Strictly fires ONLY when zoomed into optical scope (IsScoped == true).
     /// </summary>
     public class DEADeyeSniperWeapon : XRGrabInteractable
     {
@@ -47,8 +47,36 @@ namespace DEADeye
         private IXRSelectInteractor secondaryInteractor;
 
         public bool IsReadyToFire => Time.time >= nextFireTime;
-        public DEADeyeScopeOptic ScopeOptic => scopeOptic;
+        public DEADeyeScopeOptic ScopeOptic
+        {
+            get
+            {
+                if (scopeOptic == null) scopeOptic = GetComponentInChildren<DEADeyeScopeOptic>();
+                return scopeOptic;
+            }
+        }
         public bool EnableDebugDiagnostics { get => enableDebugDiagnostics; set => enableDebugDiagnostics = value; }
+
+        /// <summary>
+        /// True if player is looking through the optical scope.
+        /// Mandatory prerequisite for firing the sniper rifle!
+        /// </summary>
+        public bool IsScoped
+        {
+            get
+            {
+                if (scopeOptic == null) scopeOptic = GetComponentInChildren<DEADeyeScopeOptic>();
+                if (scopeOptic != null) return scopeOptic.IsAiming;
+
+                if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.DesktopRig != null)
+                {
+                    if (DEADeyePlayerController.Instance.DesktopRig.IsAiming) return true;
+                }
+                var rig = UnityEngine.Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+                if (rig != null && rig.IsAiming) return true;
+                return false;
+            }
+        }
 
         protected override void Awake()
         {
@@ -143,13 +171,14 @@ namespace DEADeye
 
         private void Update()
         {
-            // Note: Desktop firing is handled solely by DEADeyeDesktopRig.HandleWeaponInput()
+            // Desktop firing is handled solely by DEADeyeDesktopRig.HandleWeaponInput()
             // to strictly prevent double-firing on a single click.
 
-            // Scope optic activation on RMB when in desktop mode
+            // Scope optic activation on RMB when in desktop mode without a desktop rig
             if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.Desktop)
             {
-                if (DEADeyeInputRouter.Instance != null && scopeOptic != null)
+                var desktopRig = UnityEngine.Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+                if (desktopRig == null && DEADeyeInputRouter.Instance != null && scopeOptic != null)
                 {
                     scopeOptic.SetScopeActive(DEADeyeInputRouter.Instance.GetAimHeld());
                 }
@@ -171,7 +200,7 @@ namespace DEADeye
 
         public bool TryFire()
         {
-            // 1. Enforce Mission State (Never fire in Dojo Lobby, Results, or without MissionActive)
+            // 1. Enforce Mission State (Never fire in Briefing, Results, or without MissionActive)
             if (DEADeyeGameManager.Instance == null || DEADeyeGameManager.Instance.CurrentState != DEADeyeGameState.MissionActive)
             {
                 return false;
@@ -183,15 +212,25 @@ namespace DEADeye
                 return false;
             }
 
-            // 3. Fire rate cooldown
+            // 3. MANDATORY CRITICAL RULE: Firing requires optical scope zoom (IsScoped == true)
+            if (!IsScoped)
+            {
+                return false;
+            }
+
+            // 4. Fire rate cooldown
             if (Time.time < nextFireTime)
             {
                 return false;
             }
 
-            // 4. Weapon Ammo Check
+            // 5. Weapon Ammo Check
             if (DEADeyeWeaponManager.Instance != null && !DEADeyeWeaponManager.Instance.CanFire())
             {
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayDryFire();
+                }
                 return false;
             }
 
@@ -255,7 +294,7 @@ namespace DEADeye
                 DEADeyeScoreManager.Instance.RegisterShotFired();
             }
 
-            // Audio
+            // Audio: High-caliber gunshot
             if (DEADeyeAudioManager.Instance != null)
             {
                 DEADeyeAudioManager.Instance.PlayGunshot(muzzlePoint.position);
@@ -272,10 +311,9 @@ namespace DEADeye
             recoilRotation = Quaternion.Euler(-recoilKickPitch, Random.Range(-0.4f, 0.4f), 0f);
 
             // =========================================================================
-            // REQUIRED AIMING ARCHITECTURE (Camera-Centre Targeting & Muzzle Obstruction)
+            // CAMERA-CENTRE TARGETING & MUZZLE OBSTRUCTION
             // =========================================================================
 
-            // 1. Obtain current active aiming camera
             Camera activeAimingCam = null;
             if (scopeOptic != null && scopeOptic.IsAiming && scopeOptic.ScopeCamera != null && scopeOptic.ScopeCamera.enabled)
             {
@@ -290,12 +328,10 @@ namespace DEADeye
                 activeAimingCam = Camera.main;
             }
 
-            // 2. Cast a ray through the exact screen centre
             Ray cameraAimRay = (activeAimingCam != null)
                 ? activeAimingCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))
                 : new Ray(muzzlePoint.position, muzzlePoint.forward);
 
-            // 3 & 4. Determine intended aim point (or max range if empty)
             RaycastHit[] cameraHits = Physics.RaycastAll(cameraAimRay, maxRange, hitLayers, QueryTriggerInteraction.Collide);
             System.Array.Sort(cameraHits, (a, b) => a.distance.CompareTo(b.distance));
 
@@ -314,12 +350,10 @@ namespace DEADeye
                 }
             }
 
-            // 5. Calculate direction from actual rifle muzzle to intended aim point
             Vector3 muzzlePos = (muzzlePoint != null) ? muzzlePoint.position : cameraAimRay.origin;
             Vector3 muzzleDir = (intendedAimPoint - muzzlePos).normalized;
             float muzzleToAimDist = Vector3.Distance(muzzlePos, intendedAimPoint);
 
-            // 6. Perform muzzle-origin obstruction check
             RaycastHit[] muzzleHits = Physics.RaycastAll(new Ray(muzzlePos, muzzleDir), muzzleToAimDist + 0.15f, hitLayers, QueryTriggerInteraction.Collide);
             System.Array.Sort(muzzleHits, (a, b) => a.distance.CompareTo(b.distance));
 
@@ -335,7 +369,6 @@ namespace DEADeye
 
                 DEADeyeHostileAI hitHostile = hit.collider.GetComponentInParent<DEADeyeHostileAI>();
 
-                // Did we hit the intended hostile?
                 if (intendedHostile != null && hitHostile == intendedHostile)
                 {
                     effectiveHit = hit;
@@ -343,7 +376,6 @@ namespace DEADeye
                     break;
                 }
 
-                // Did we reach the exact intended target collider?
                 if (hasValidCameraHit && hit.collider == firstValidCameraHit.collider)
                 {
                     effectiveHit = hit;
@@ -351,7 +383,6 @@ namespace DEADeye
                     break;
                 }
 
-                // Did an obstacle (wall, parapet, building) obstruct the bullet path earlier?
                 if (hit.distance < muzzleToAimDist - 0.2f)
                 {
                     shotBlockedByObstacle = true;
@@ -369,18 +400,21 @@ namespace DEADeye
 
             Vector3 actualImpactPoint = intendedAimPoint;
 
-            // 7, 8 & 9. Register hit or register miss with full diagnostic feedback
             if (hasEffectiveHit)
             {
                 actualImpactPoint = effectiveHit.point;
 
                 if (shotBlockedByObstacle)
                 {
-                    // Shot blocked by a wall or building
                     if (enableDebugDiagnostics)
                     {
-                        Debug.Log($"[DEADeyeSniperWeapon] BLOCKED: Shot blocked by obstacle '{effectiveHit.collider.name}' at {effectiveHit.distance:F1}m (Intended aim target distance: {muzzleToAimDist:F1}m)");
+                        Debug.Log($"[DEADeyeSniperWeapon] BLOCKED: Shot blocked by obstacle '{effectiveHit.collider.name}' at {effectiveHit.distance:F1}m (Intended target distance: {muzzleToAimDist:F1}m)");
                         Debug.DrawRay(effectiveHit.point, Vector3.up * 0.4f, Color.red, 2.0f);
+                    }
+
+                    if (DEADeyeAudioManager.Instance != null)
+                    {
+                        DEADeyeAudioManager.Instance.PlayConcreteImpact(effectiveHit.point);
                     }
 
                     if (DEADeyeScoreManager.Instance != null)
@@ -390,19 +424,16 @@ namespace DEADeye
                 }
                 else
                 {
-                    // Unobstructed hit on target or surface
                     ProcessHit(effectiveHit);
                 }
             }
             else if (hasValidCameraHit)
             {
-                // Muzzle had an unhindered direct line of sight to the camera target
                 ProcessHit(firstValidCameraHit);
                 actualImpactPoint = firstValidCameraHit.point;
             }
             else
             {
-                // Complete miss into open sky
                 if (enableDebugDiagnostics)
                 {
                     Debug.Log("[DEADeyeSniperWeapon] MISS: Aimed into open air, no target hit.");
@@ -414,16 +445,12 @@ namespace DEADeye
                 }
             }
 
-            // Diagnostics visualization
             if (enableDebugDiagnostics)
             {
-                // Blue line: Camera aim ray
                 Debug.DrawLine(cameraAimRay.origin, intendedAimPoint, Color.blue, 2.0f);
-                // Yellow line: Muzzle-to-aim trajectory
                 Debug.DrawLine(muzzlePos, actualImpactPoint, Color.yellow, 2.0f);
             }
 
-            // Show Tracer & Bolt Cycle (Only when playing)
             if (Application.isPlaying)
             {
                 StartCoroutine(DisplayTracerRoutine(muzzlePos, actualImpactPoint));
@@ -450,34 +477,48 @@ namespace DEADeye
 
         private void ProcessHit(RaycastHit hit)
         {
-            // Check Headshot Trigger (+300 pts)
+            // 1. Check Headshot Trigger (+300 pts)
             DEADeyeHeadshotTrigger headshot = hit.collider.GetComponent<DEADeyeHeadshotTrigger>();
             if (headshot != null)
             {
                 if (enableDebugDiagnostics)
                 {
                     string targetName = headshot.ParentHostile != null ? headshot.ParentHostile.ClassificationName : hit.collider.name;
-                    Debug.Log($"[DEADeyeSniperWeapon] HEADSHOT: Target={targetName}, Collider={hit.collider.name}, Distance={hit.distance:F1}m, Damage={baseDamage * 3}, Blocked=False");
+                    Debug.Log($"[DEADeyeSniperWeapon] HEADSHOT: Target={targetName}, Collider={hit.collider.name}, Distance={hit.distance:F1}m, Damage={baseDamage * 3}");
                     Debug.DrawRay(hit.point, Vector3.up * 0.6f, Color.green, 2.0f);
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayHeadshotConfirm();
+                    DEADeyeAudioManager.Instance.PlayFleshImpact(hit.point);
+                }
+
                 headshot.RegisterHeadshot(baseDamage, hit.point, hit.normal);
                 return;
             }
 
-            // Check General Hostile AI (+100 pts)
+            // 2. Check General Hostile AI (+100 pts)
             DEADeyeHostileAI hostile = hit.collider.GetComponentInParent<DEADeyeHostileAI>();
             if (hostile != null)
             {
                 if (enableDebugDiagnostics)
                 {
-                    Debug.Log($"[DEADeyeSniperWeapon] BODY HIT: Target={hostile.ClassificationName}, Collider={hit.collider.name}, Distance={hit.distance:F1}m, Damage={baseDamage}, Blocked=False");
+                    Debug.Log($"[DEADeyeSniperWeapon] BODY HIT: Target={hostile.ClassificationName}, Collider={hit.collider.name}, Distance={hit.distance:F1}m, Damage={baseDamage}");
                     Debug.DrawRay(hit.point, Vector3.up * 0.6f, Color.green, 2.0f);
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayHitConfirm();
+                    DEADeyeAudioManager.Instance.PlayFleshImpact(hit.point);
+                }
+
                 hostile.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
                 return;
             }
 
-            // Check Civilian AI
+            // 3. Check Civilian AI
             DEADeyeCivilianAI civilian = hit.collider.GetComponentInParent<DEADeyeCivilianAI>();
             if (civilian != null)
             {
@@ -485,11 +526,17 @@ namespace DEADeye
                 {
                     Debug.LogWarning($"[DEADeyeSniperWeapon] CIVILIAN HIT: Target={civilian.ClassificationName}, Distance={hit.distance:F1}m");
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayFleshImpact(hit.point);
+                }
+
                 civilian.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
                 return;
             }
 
-            // Check Friendly VIP AI
+            // 4. Check Friendly VIP AI (Elena, Marcus)
             DEADeyeFriendlyAI friendly = hit.collider.GetComponentInParent<DEADeyeFriendlyAI>();
             if (friendly != null)
             {
@@ -497,11 +544,17 @@ namespace DEADeye
                 {
                     Debug.LogWarning($"[DEADeyeSniperWeapon] FRIENDLY HIT: Target={friendly.ClassificationName}, Distance={hit.distance:F1}m");
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayFleshImpact(hit.point);
+                }
+
                 friendly.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
                 return;
             }
 
-            // Check Environmental Interaction Prop (Power junction, alarm bell, transformer, gate)
+            // 5. Check Environmental Interaction Prop (Power junction, alarm bell, transformer)
             DEADeyeEnvironmentalProp prop = hit.collider.GetComponentInParent<DEADeyeEnvironmentalProp>();
             if (prop != null)
             {
@@ -509,17 +562,29 @@ namespace DEADeye
                 {
                     Debug.Log($"[DEADeyeSniperWeapon] ENVIRONMENTAL PROP HIT: Prop={prop.PropTitle}, Distance={hit.distance:F1}m");
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayMetalImpact(hit.point);
+                }
+
                 prop.TakeDamage(baseDamage, hit.point, hit.normal);
                 return;
             }
 
-            // Check Communications Jammer Device Direct Hit
+            // 6. Check Communications Jammer Device
             if (hit.collider.name.IndexOf("Jammer", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 if (enableDebugDiagnostics)
                 {
                     Debug.Log($"[DEADeyeSniperWeapon] JAMMER DISH HIT: Object={hit.collider.name}, Distance={hit.distance:F1}m");
                 }
+
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayMetalImpact(hit.point);
+                }
+
                 if (DEADeyeMissionDirector.Instance != null)
                 {
                     DEADeyeMissionDirector.Instance.HandleJammerDishHit();
@@ -527,11 +592,16 @@ namespace DEADeye
                 return;
             }
 
-            // Hit environment (building, wall, road)
+            // 7. Hit environment (concrete building, sidewalk, asphalt)
             if (enableDebugDiagnostics)
             {
-                Debug.Log($"[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object={hit.collider.name}, Distance={hit.distance:F1}m, Blocked=False");
+                Debug.Log($"[DEADeyeSniperWeapon] ENVIRONMENT HIT: Object={hit.collider.name}, Distance={hit.distance:F1}m");
                 Debug.DrawRay(hit.point, Vector3.up * 0.3f, Color.red, 2.0f);
+            }
+
+            if (DEADeyeAudioManager.Instance != null)
+            {
+                DEADeyeAudioManager.Instance.PlayConcreteImpact(hit.point);
             }
 
             if (DEADeyeScoreManager.Instance != null)

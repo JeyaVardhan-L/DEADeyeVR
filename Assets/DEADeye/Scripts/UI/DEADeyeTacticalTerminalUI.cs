@@ -10,10 +10,14 @@ using UnityEngine.InputSystem.UI;
 namespace DEADeye
 {
     /// <summary>
-    /// Full-screen high-contrast Tactical Mission Briefing & Terminal UI.
-    /// Provides clear mission narrative, dossier cards for friendly and hostile personnel,
-    /// an explicit 6-step objective sequence, interactive mission tabs, and a prominent
-    /// "DEPLOY INTO MISSION" button that must be clicked before the mission begins.
+    /// Full-screen high-contrast Tactical Mission Selection Hub & Briefing Terminal.
+    /// Provides 4 distinct Mission Cards:
+    /// - Op 01: DEAD AIR (Available / Playable)
+    /// - Op 02: THE LAST STOP (Locked)
+    /// - Op 03: SILENT ENTRY (Locked)
+    /// - Op 04: DEAD GROUND (Locked)
+    /// Displays story background, key personnel dossier cards, sequential objective flow,
+    /// and a prominent "DEPLOY INTO MISSION" button that launches the active operation.
     /// </summary>
     public class DEADeyeTacticalTerminalUI : MonoBehaviour
     {
@@ -29,8 +33,6 @@ namespace DEADeye
         [SerializeField] private Text districtText;
         [SerializeField] private Text threatText;
         [SerializeField] private Text briefingText;
-        [SerializeField] private Text primaryObjText;
-        [SerializeField] private Text secondaryObjText;
         [SerializeField] private Text deployPromptText;
 
         [Header("Panels & Interactive Controls")]
@@ -46,9 +48,21 @@ namespace DEADeye
         private bool isTerminalActive = true;
 
         public bool IsTerminalActive => isTerminalActive;
-        public DEADeyeMissionDefinition SelectedMission => (missions != null && missions.Length > 0 && selectedMissionIndex >= 0 && selectedMissionIndex < missions.Length) 
-            ? missions[selectedMissionIndex] 
-            : null;
+        public DEADeyeMissionDefinition SelectedMission
+        {
+            get
+            {
+                if (missions != null && missions.Length > 0 && selectedMissionIndex >= 0 && selectedMissionIndex < missions.Length)
+                {
+                    return missions[selectedMissionIndex];
+                }
+                if (DEADeyeMissionDirector.Instance != null && DEADeyeMissionDirector.Instance.ActiveMission != null)
+                {
+                    return DEADeyeMissionDirector.Instance.ActiveMission;
+                }
+                return null;
+            }
+        }
 
         public static void EnsureEventSystem()
         {
@@ -107,7 +121,7 @@ namespace DEADeye
                 GameObject cGO = new GameObject("TerminalCanvas");
                 Canvas c = cGO.AddComponent<Canvas>();
                 c.renderMode = RenderMode.ScreenSpaceOverlay;
-                c.sortingOrder = 50; // Above regular HUD
+                c.sortingOrder = 50;
                 CanvasScaler cs = cGO.AddComponent<CanvasScaler>();
                 cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
                 cs.referenceResolution = new Vector2(1920, 1080);
@@ -162,7 +176,6 @@ namespace DEADeye
             ShowTerminal(true);
             if (debriefPanel != null) debriefPanel.SetActive(false);
 
-            // Set game state to MissionBriefing initially
             if (DEADeyeGameManager.Instance != null)
             {
                 DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionBriefing);
@@ -194,7 +207,7 @@ namespace DEADeye
                 }
                 else
                 {
-                    if (kb.yKey.wasPressedThisFrame || kb.mKey.wasPressedThisFrame)
+                    if (kb.yKey.wasPressedThisFrame || kb.tKey.wasPressedThisFrame)
                     {
                         ToggleTerminal();
                     }
@@ -217,6 +230,7 @@ namespace DEADeye
                     var m = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>(path);
                     if (m != null) list.Add(m);
                 }
+                list.Sort((a, b) => string.Compare(a.operationCode, b.operationCode, StringComparison.Ordinal));
                 missions = list.ToArray();
 #endif
             }
@@ -226,7 +240,6 @@ namespace DEADeye
         {
             EnsureEventSystem();
 
-            // Clear any old children
             List<GameObject> toDestroy = new List<GameObject>();
             foreach (Transform child in parent)
             {
@@ -239,7 +252,7 @@ namespace DEADeye
             }
 
             // =========================================================================
-            // TOP HEADER BAR (Y: 1000 - 1080)
+            // TOP HEADER BAR (Y: 92% to 100%)
             // =========================================================================
             GameObject topBar = new GameObject("TopHeaderBar");
             topBar.transform.SetParent(parent, false);
@@ -252,12 +265,12 @@ namespace DEADeye
             Image tbBg = topBar.AddComponent<Image>();
             tbBg.color = new Color(0.04f, 0.08f, 0.14f, 0.95f);
 
-            headerOperationText = CreateText(topBar.transform, "Header", "DEADEYE OPERATIONS // CLASSIFIED INTEL BRIEFING", 22, new Vector2(30f, -12f), new Vector2(800f, 32f), new Color(0f, 0.9f, 1f));
-            CreateText(topBar.transform, "HeaderSub", "OPERATION 01: DEAD AIR // THE BLACKOUT PROTOCOL", 15, new Vector2(30f, -44f), new Vector2(800f, 24f), new Color(0.3f, 0.75f, 0.9f));
+            headerOperationText = CreateText(topBar.transform, "Header", "DEADEYE OPERATIONS // CLASSIFIED MISSION SELECTION HUB", 22, new Vector2(30f, -12f), new Vector2(800f, 32f), new Color(0f, 0.9f, 1f));
+            CreateText(topBar.transform, "HeaderSub", "SELECT OPERATION [1-4] TO INSPECT TACTICAL INTEL & DEPLOY", 15, new Vector2(30f, -44f), new Vector2(800f, 24f), new Color(0.3f, 0.75f, 0.9f));
 
-            // Mission selection tabs (OP-01 to OP-04)
+            // Mission Selection Tabs (OP-01 to OP-04)
             missionTabButtons.Clear();
-            string[] tabLabels = new string[] { "[1] OP-01: DEAD AIR", "[2] OP-02: MOVING TARGET", "[3] OP-03: NO CLEAR SHOT", "[4] OP-04: DEAD GROUND" };
+            string[] tabLabels = new string[] { "[1] OP-01: DEAD AIR", "[2] OP-02: THE LAST STOP", "[3] OP-03: SILENT ENTRY", "[4] OP-04: DEAD GROUND" };
             float tabStartX = 780f;
             float tabWidth = 220f;
             for (int i = 0; i < tabLabels.Length; i++)
@@ -267,11 +280,11 @@ namespace DEADeye
                 missionTabButtons.Add(tabBtn);
             }
 
-            // Close button in top-right
+            // Close button top-right
             closeButton = CreateButton(topBar.transform, "Btn_Close", "[ X ]", new Vector2(-30f, -16f), new Vector2(70f, 42f), () => ShowTerminal(false), isTopRight: true);
 
             // =========================================================================
-            // LEFT COLUMN: THE STORY / BACKGROUND (X: 30 to 930, Y: 280 to 960)
+            // LEFT COLUMN: THE STORY / BACKGROUND (X: 2% to 49%, Y: 32% to 90%)
             // =========================================================================
             GameObject leftCol = new GameObject("LeftColumn_Story");
             leftCol.transform.SetParent(parent, false);
@@ -289,23 +302,23 @@ namespace DEADeye
 
             CreateText(leftCol.transform, "StoryHeader", "THE SITUATION & MISSION BACKGROUND", 20, new Vector2(20f, -16f), new Vector2(600f, 28f), new Color(0.0f, 0.9f, 1.0f));
 
-            titleText = CreateText(leftCol.transform, "OpTitle", "OPERATION: DEAD AIR", 24, new Vector2(20f, -50f), new Vector2(700f, 32f), Color.white);
+            titleText = CreateText(leftCol.transform, "OpTitle", "OPERATION 01: DEAD AIR", 24, new Vector2(20f, -50f), new Vector2(700f, 32f), Color.white);
             districtText = CreateText(leftCol.transform, "Sector", "SECTOR: CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE", 15, new Vector2(20f, -84f), new Vector2(750f, 24f), new Color(0.2f, 0.85f, 1f));
-            threatText = CreateText(leftCol.transform, "Threat", "THREAT LEVEL: CRITICAL | TIME LIMIT: 150 SECONDS", 15, new Vector2(20f, -110f), new Vector2(750f, 24f), new Color(1f, 0.8f, 0.2f));
+            threatText = CreateText(leftCol.transform, "Threat", "STATUS: AVAILABLE | DIFFICULTY: MODERATE | TIME: 120s", 15, new Vector2(20f, -110f), new Vector2(750f, 24f), new Color(1f, 0.8f, 0.2f));
 
             briefingText = CreateText(leftCol.transform, "StoryBody",
                 "A hostile syndicate strike team has deployed an emergency frequency jammer to hijack the municipal communication grid, plunging the entire metropolitan district into a radio blackout.\n\n" +
-                "You are positioned in high-angle rooftop overwatch above the Central Commercial Plaza. Two unarmed civilian field technicians—Elena and Marcus—have slipped into the plaza under heavy cover to access the municipal broadcast relay tower and restore emergency transmission.\n\n" +
+                "You are positioned in high-angle rooftop overwatch above the Central Commercial Plaza. Two unarmed civilian field technicians—Elena and Marcus—have slipped into the plaza under cover to access the municipal broadcast relay tower console and restore emergency transmission.\n\n" +
                 "Your role is absolute precision overwatch:\n" +
                 "• Surveil the plaza and identify all tactical assets.\n" +
                 "• Cut power to the syndicate jammer by sniping its high-voltage power junction.\n" +
                 "• Shield Elena and Marcus from advancing hostile assault squads while they work.\n" +
-                "• Intercept and neutralize Commander Vance before his armored exfil convoy departs.\n" +
+                "• Intercept and neutralize Commander Vance before his armored exfil departs.\n" +
                 "• Cover the team's extraction across the boulevard to the transit terminal.",
                 15, new Vector2(20f, -145f), new Vector2(850f, 340f), new Color(0.88f, 0.92f, 0.98f));
 
             // =========================================================================
-            // RIGHT COLUMN: PEOPLE INVOLVED / TARGET PROFILES (X: 960 to 1890, Y: 280 to 960)
+            // RIGHT COLUMN: PEOPLE INVOLVED / TARGET PROFILES (X: 51% to 98%, Y: 32% to 90%)
             // =========================================================================
             GameObject rightCol = new GameObject("RightColumn_Personnel");
             rightCol.transform.SetParent(parent, false);
@@ -350,15 +363,14 @@ namespace DEADeye
                 "Heavily armored tactical plate carrier, radio headset, sidearm. Coordinating the jammer deployment from the north perimeter and staging to escape via convoy.",
                 new Vector2(20f, -318f), new Vector2(840f, 120f));
 
-            // Rules of Engagement note
             CreateText(rightCol.transform, "ROEText", 
                 "RULES OF ENGAGEMENT: Zero civilian casualties permitted. Protect Elena & Marcus at all costs.", 
                 14, new Vector2(20f, -450f), new Vector2(840f, 26f), new Color(1.0f, 0.85f, 0.2f));
 
             // =========================================================================
-            // BOTTOM AREA: OBJECTIVE SEQUENCE (Y: 100 to 300)
+            // BOTTOM AREA: 4 OPERATION CARDS SUMMARY (X: 2% to 98%, Y: 11% to 30%)
             // =========================================================================
-            GameObject botArea = new GameObject("BottomArea_Objectives");
+            GameObject botArea = new GameObject("BottomArea_Operations");
             botArea.transform.SetParent(parent, false);
             RectTransform baRT = botArea.AddComponent<RectTransform>();
             baRT.anchorMin = new Vector2(0.02f, 0.11f);
@@ -372,30 +384,29 @@ namespace DEADeye
             baOutline.effectColor = new Color(0.0f, 0.75f, 0.95f, 0.5f);
             baOutline.effectDistance = new Vector2(1.5f, -1.5f);
 
-            CreateText(botArea.transform, "ObjHeader", "TACTICAL MISSION FLOW // SEQUENTIAL OBJECTIVES", 18, new Vector2(20f, -10f), new Vector2(600f, 24f), new Color(0.0f, 0.9f, 1.0f));
+            CreateText(botArea.transform, "ObjHeader", "CAMPAIGN OPERATIONS HUB // SELECT DESTINATION DISTRICT", 18, new Vector2(20f, -10f), new Vector2(600f, 24f), new Color(0.0f, 0.9f, 1.0f));
 
-            float cardW = 280f;
+            float cardW = 420f;
             float cardSpacing = 16f;
             float startX = 20f;
 
-            string[,] objCards = new string[,]
+            string[,] opCards = new string[,]
             {
-                { "1. RECON & SPOT", "Dwell optical scope on Elena, Marcus, and broadcast tower to verify tactical positions." },
-                { "2. DISRUPT COMMS", "Snipe high-voltage power junction on utility pole to cut power to syndicate jammer." },
-                { "3. OVERWATCH", "Defend technicians from advancing syndicate assault waves while array repair completes." },
-                { "4. NEUTRALIZE VANCE", "Spot and eliminate Commander Vance before his armored security detail reaches exfil." },
-                { "5. ESCORT EVAC", "Cover technicians' final withdrawal across the boulevard to the extraction vehicle." },
-                { "OPTIONAL // BONUS", "Snipe volatile power transformer or alarm siren to trigger environmental distractions." }
+                { "OP-01: DEAD AIR", "CENTRAL COMMERCIAL PLAZA\nStatus: AVAILABLE\nDifficulty: Moderate\nObjective: Protect 2 Techs & Destroy Jammer" },
+                { "OP-02: THE LAST STOP", "TRANSPORT INTERCHANGE DEPOT\nStatus: LOCKED [REQ OP-01]\nDifficulty: Hard\nObjective: Intercept Armored Convoy" },
+                { "OP-03: SILENT ENTRY", "RESIDENTIAL BROWNSTONES\nStatus: LOCKED [REQ OP-02]\nDifficulty: Expert\nObjective: Clear Fortified Alleyways (Zero Civ)" },
+                { "OP-04: DEAD GROUND", "CONSTRUCTION SITE & CRANE\nStatus: LOCKED [REQ OP-03]\nDifficulty: Maximum\nObjective: Counter-Snipe 28m Tower Crane" }
             };
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 4; i++)
             {
+                int index = i;
                 Vector2 pos = new Vector2(startX + (i * (cardW + cardSpacing)), -40f);
-                BuildObjectiveStepCard(botArea.transform, $"StepCard_{i + 1}", objCards[i, 0], objCards[i, 1], pos, new Vector2(cardW, 140f), i == 5);
+                BuildOperationCard(botArea.transform, $"OpCard_{i + 1}", opCards[i, 0], opCards[i, 1], pos, new Vector2(cardW, 140f), i == 0, () => SelectMission(index));
             }
 
             // =========================================================================
-            // FOOTER BAR: DEPLOY BUTTON & PROMPT (Y: 0 to 100)
+            // FOOTER BAR: DEPLOY BUTTON & PROMPT (Y: 0 to 10%)
             // =========================================================================
             GameObject footerBar = new GameObject("FooterBar");
             footerBar.transform.SetParent(parent, false);
@@ -408,7 +419,6 @@ namespace DEADeye
             Image fbBg = footerBar.AddComponent<Image>();
             fbBg.color = new Color(0.02f, 0.04f, 0.07f, 0.95f);
 
-            // Large prominent Deploy Button (Center)
             deployButton = CreateButton(footerBar.transform, "Btn_Deploy", "▶   DEPLOY INTO MISSION   ◀", new Vector2(710f, 14f), new Vector2(500f, 58f), DeploySelectedMission, isBottom: true);
             deployButton.GetComponentInChildren<Text>().fontSize = 20;
 
@@ -442,30 +452,41 @@ namespace DEADeye
             ol.effectColor = badgeCol * 0.6f;
             ol.effectDistance = new Vector2(1f, -1f);
 
-            // Person Name
             CreateText(cardGO.transform, "Name", personName, 17, new Vector2(14f, -10f), new Vector2(480f, 24f), Color.white);
 
-            // Badge
             GameObject badgeGO = new GameObject("Badge");
             badgeGO.transform.SetParent(cardGO.transform, false);
-            RectTransform brt = badgeGO.AddComponent<RectTransform>();
-            brt.anchorMin = new Vector2(1f, 1f);
-            brt.anchorMax = new Vector2(1f, 1f);
-            brt.pivot = new Vector2(1f, 1f);
-            brt.anchoredPosition = new Vector2(-14f, -10f);
-            brt.sizeDelta = new Vector2(250f, 24f);
+            RectTransform bRT = badgeGO.AddComponent<RectTransform>();
+            bRT.anchorMin = new Vector2(1f, 1f);
+            bRT.anchorMax = new Vector2(1f, 1f);
+            bRT.pivot = new Vector2(1f, 1f);
+            bRT.anchoredPosition = new Vector2(-14f, -10f);
+            bRT.sizeDelta = new Vector2(250f, 26f);
 
             Image bImg = badgeGO.AddComponent<Image>();
             bImg.color = badgeBgCol;
 
-            Text bTxt = CreateText(badgeGO.transform, "BadgeText", $"[ {badgeText} ]", 13, Vector2.zero, new Vector2(250f, 24f), badgeCol);
-            bTxt.alignment = TextAnchor.MiddleCenter;
+            GameObject badgeTextGO = new GameObject("BadgeText");
+            badgeTextGO.transform.SetParent(badgeGO.transform, false);
+            RectTransform btRT = badgeTextGO.AddComponent<RectTransform>();
+            btRT.anchorMin = Vector2.zero;
+            btRT.anchorMax = Vector2.one;
+            btRT.offsetMin = Vector2.zero;
+            btRT.offsetMax = Vector2.zero;
 
-            // Description
-            CreateText(cardGO.transform, "Desc", desc, 14, new Vector2(14f, -42f), new Vector2(810f, 65f), new Color(0.80f, 0.85f, 0.90f));
+            Text bTxt = badgeTextGO.AddComponent<Text>();
+            bTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (bTxt.font == null) bTxt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            bTxt.text = badgeText;
+            bTxt.fontSize = 13;
+            bTxt.alignment = TextAnchor.MiddleCenter;
+            bTxt.color = badgeCol;
+            bTxt.fontStyle = FontStyle.Bold;
+
+            CreateText(cardGO.transform, "Desc", desc, 13, new Vector2(14f, -44f), new Vector2(810f, 65f), new Color(0.85f, 0.88f, 0.92f));
         }
 
-        private void BuildObjectiveStepCard(Transform parent, string name, string stepTitle, string stepDesc, Vector2 pos, Vector2 size, bool isOptional)
+        private void BuildOperationCard(Transform parent, string name, string title, string content, Vector2 pos, Vector2 size, bool isAvailable, Action onClick)
         {
             GameObject cardGO = new GameObject(name);
             cardGO.transform.SetParent(parent, false);
@@ -477,14 +498,25 @@ namespace DEADeye
             rt.sizeDelta = size;
 
             Image bg = cardGO.AddComponent<Image>();
-            bg.color = new Color(0.04f, 0.07f, 0.11f, 0.85f);
+            bg.color = isAvailable ? new Color(0.06f, 0.12f, 0.18f, 0.95f) : new Color(0.03f, 0.05f, 0.07f, 0.80f);
+
             Outline ol = cardGO.AddComponent<Outline>();
-            ol.effectColor = isOptional ? new Color(1.0f, 0.8f, 0.2f, 0.5f) : new Color(0.0f, 0.75f, 0.95f, 0.5f);
+            ol.effectColor = isAvailable ? new Color(0.0f, 0.85f, 1.0f, 0.7f) : new Color(0.3f, 0.35f, 0.4f, 0.4f);
             ol.effectDistance = new Vector2(1f, -1f);
 
-            Color titleCol = isOptional ? new Color(1.0f, 0.85f, 0.3f) : new Color(0.0f, 0.9f, 1.0f);
-            CreateText(cardGO.transform, "StepTitle", stepTitle, 15, new Vector2(8f, -8f), new Vector2(size.x - 16f, 22f), titleCol);
-            CreateText(cardGO.transform, "StepDesc", stepDesc, 13, new Vector2(8f, -34f), new Vector2(size.x - 16f, 96f), new Color(0.82f, 0.88f, 0.92f));
+            Button btn = cardGO.AddComponent<Button>();
+            btn.targetGraphic = bg;
+            btn.onClick.AddListener(() =>
+            {
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayButtonClick();
+                }
+                onClick?.Invoke();
+            });
+
+            CreateText(cardGO.transform, "Title", title, 16, new Vector2(12f, -8f), new Vector2(size.x - 24f, 22f), isAvailable ? new Color(0f, 0.95f, 1f) : new Color(0.55f, 0.6f, 0.65f));
+            CreateText(cardGO.transform, "Content", content, 13, new Vector2(12f, -34f), new Vector2(size.x - 24f, 95f), isAvailable ? Color.white : new Color(0.5f, 0.55f, 0.6f));
         }
 
         private void BuildDebriefPanel(Transform parent)
@@ -505,7 +537,6 @@ namespace DEADeye
             debriefRankText = CreateText(debriefPanel.transform, "DebriefRank", "RANK: S", 56, new Vector2(1400f, -50f), new Vector2(400f, 70f), Color.yellow);
             debriefStatsText = CreateText(debriefPanel.transform, "DebriefStats", "SCORE: 0\nELIMS: 0\nHEADSHOTS: 0", 24, new Vector2(60f, -160f), new Vector2(1000f, 320f), Color.white);
 
-            // Clickable Restart and Return Buttons in Debrief
             CreateButton(debriefPanel.transform, "Btn_DebriefRestart", "↺   RESTART OPERATION", new Vector2(60f, 40f), new Vector2(340f, 56f), RestartCurrentMission, isBottom: true);
             CreateButton(debriefPanel.transform, "Btn_DebriefTerminal", "☰   RETURN TO TERMINAL", new Vector2(430f, 40f), new Vector2(340f, 56f), ReturnToTerminal, isBottom: true);
 
@@ -574,7 +605,7 @@ namespace DEADeye
             txt.alignment = TextAnchor.MiddleCenter;
             txt.color = Color.white;
             txt.fontStyle = FontStyle.Bold;
-            txt.raycastTarget = false; // Prevent child text from intercepting clicks
+            txt.raycastTarget = false;
 
             btn.onClick.AddListener(() =>
             {
@@ -638,21 +669,49 @@ namespace DEADeye
             }
         }
 
-        public void NextMission()
+        public void UpdateDisplay()
         {
-            if (missions == null || missions.Length == 0) return;
-            SelectMission((selectedMissionIndex + 1) % missions.Length);
-        }
+            if (SelectedMission == null) return;
 
-        public void PreviousMission()
-        {
-            if (missions == null || missions.Length == 0) return;
-            SelectMission((selectedMissionIndex - 1 + missions.Length) % missions.Length);
+            if (titleText != null)
+            {
+                titleText.text = $"OPERATION {SelectedMission.operationCode}: {SelectedMission.operationTitle}";
+            }
+            if (districtText != null)
+            {
+                districtText.text = $"SECTOR: {SelectedMission.districtName}";
+            }
+            if (threatText != null)
+            {
+                string statusCol = SelectedMission.isLocked ? "<color=red>[ LOCKED ]</color>" : "<color=#00FF99>[ AVAILABLE ]</color>";
+                threatText.text = $"STATUS: {statusCol} | THREAT: {SelectedMission.threatLevel} | TIME: {SelectedMission.timeLimitSeconds:F0}s";
+            }
+            if (briefingText != null)
+            {
+                briefingText.text = SelectedMission.tacticalBriefing;
+            }
+
+            if (deployButton != null)
+            {
+                Text btnText = deployButton.GetComponentInChildren<Text>();
+                if (SelectedMission.isLocked)
+                {
+                    deployButton.interactable = false;
+                    if (btnText != null) btnText.text = "OPERATION LOCKED [COMPLETE PRIOR OP]";
+                    if (deployPromptText != null) deployPromptText.text = "<color=#FF5555>[ COMPLETE PRIOR OPERATION TO UNLOCK ]</color>";
+                }
+                else
+                {
+                    deployButton.interactable = true;
+                    if (btnText != null) btnText.text = "▶   DEPLOY INTO MISSION   ◀";
+                    if (deployPromptText != null) deployPromptText.text = "[ CLICK DEPLOY OR PRESS SPACE / ENTER / E ]";
+                }
+            }
         }
 
         public void DeploySelectedMission()
         {
-            if (SelectedMission == null) return;
+            if (SelectedMission == null || SelectedMission.isLocked) return;
 
             ShowTerminal(false);
             if (debriefPanel != null) debriefPanel.SetActive(false);
@@ -682,6 +741,12 @@ namespace DEADeye
             }
         }
 
+        public void ReturnToTerminal()
+        {
+            if (debriefPanel != null) debriefPanel.SetActive(false);
+            ShowTerminal(true);
+        }
+
         public void ShowTerminal(bool show)
         {
             isTerminalActive = show;
@@ -690,11 +755,15 @@ namespace DEADeye
                 terminalCanvasRoot.SetActive(show);
             }
 
-            // Ensure cursor is released and visible when terminal is active
             if (show)
             {
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 
@@ -747,48 +816,6 @@ namespace DEADeye
                     $"ACCURACY RATING: {accuracy:F1}%\n" +
                     $"CIVILIAN CASUALTIES: {civs}\n" +
                     $"TARGETS ESCAPED: {escapes}";
-            }
-        }
-
-        public void ReturnToTerminal()
-        {
-            if (debriefPanel != null) debriefPanel.SetActive(false);
-            ShowTerminal(true);
-            UpdateDisplay();
-        }
-
-        private void UpdateDisplay()
-        {
-            var m = SelectedMission;
-            if (m == null) return;
-
-            if (headerOperationText != null) headerOperationText.text = $"DEADEYE OPERATIONS // {m.operationCode}";
-            if (titleText != null) titleText.text = $"OPERATION: {m.operationTitle.ToUpper()}";
-            if (districtText != null) districtText.text = $"SECTOR: {m.districtName.ToUpper()}";
-            if (threatText != null) threatText.text = $"THREAT LEVEL: {m.threatLevel} | TIME LIMIT: {m.timeLimitSeconds:0}s";
-            if (briefingText != null) briefingText.text = m.tacticalBriefing;
-            if (primaryObjText != null) primaryObjText.text = $"• PRIMARY: {m.primaryObjective}";
-            if (secondaryObjText != null) secondaryObjText.text = $"• SECONDARY: {m.secondaryObjective}";
-            if (deployPromptText != null) deployPromptText.text = "[ CLICK DEPLOY OR PRESS SPACE / ENTER / E ]";
-
-            // Highlight active tab button
-            for (int i = 0; i < missionTabButtons.Count; i++)
-            {
-                if (missionTabButtons[i] != null)
-                {
-                    ColorBlock cb = missionTabButtons[i].colors;
-                    if (i == selectedMissionIndex)
-                    {
-                        cb.normalColor = new Color(0.0f, 0.65f, 0.85f, 1.0f);
-                        cb.highlightedColor = new Color(0.2f, 0.85f, 1.0f, 1.0f);
-                    }
-                    else
-                    {
-                        cb.normalColor = new Color(0.08f, 0.16f, 0.24f, 0.95f);
-                        cb.highlightedColor = new Color(0.14f, 0.28f, 0.40f, 1.0f);
-                    }
-                    missionTabButtons[i].colors = cb;
-                }
             }
         }
     }

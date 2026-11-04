@@ -43,7 +43,11 @@ namespace DEADeye.Editor
                 var civ = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Civilian_Male_Casual.prefab");
                 var sec = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Friendly_Security_Escort.prefab");
 
-                var defaultMission = AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                var defaultMission = AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_DeadAir.asset");
+                if (defaultMission == null)
+                {
+                    defaultMission = AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                }
 
                 SerializedObject so = new SerializedObject(director);
                 so.FindProperty("activeMission").objectReferenceValue = defaultMission;

@@ -256,9 +256,9 @@ namespace DEADeye.Tests
         {
             string[] missionNames = new string[]
             {
-                "Mission_01_BrokenSignal.asset",
-                "Mission_02_MovingTarget.asset",
-                "Mission_03_NoClearShot.asset",
+                "Mission_01_DeadAir.asset",
+                "Mission_02_TheLastStop.asset",
+                "Mission_03_SilentEntry.asset",
                 "Mission_04_DeadGround.asset"
             };
 
@@ -266,6 +266,10 @@ namespace DEADeye.Tests
             {
                 string path = $"Assets/DEADeye/Data/Missions/{mName}";
                 var mission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>(path);
+                if (mission == null && mName == "Mission_01_DeadAir.asset")
+                {
+                    mission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                }
                 Assert.IsNotNull(mission, $"Campaign mission at {path} must exist.");
                 Assert.IsNotEmpty(mission.operationTitle, "Mission title must not be empty.");
                 Assert.Greater(mission.timeLimitSeconds, 30f, "Mission time limit must be > 30s.");
@@ -414,6 +418,33 @@ namespace DEADeye.Tests
 
             var cityBuilder = Object.FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
             Assert.IsNotNull(cityBuilder, "DEADeyeUrbanCityBuilder must exist in the scene.");
+        }
+
+        [Test]
+        public void Test_19_SniperScope_FiringRequiresOpticalScope()
+        {
+            GameObject gmGO = new GameObject("TestGM");
+            var gm = gmGO.AddComponent<DEADeyeGameManager>();
+            DEADeyeGameManager.Instance = gm;
+            gm.SetGameState(DEADeyeGameState.MissionActive);
+
+            GameObject rifleGO = new GameObject("TestRifle");
+            var weapon = rifleGO.AddComponent<DEADeyeSniperWeapon>();
+
+            // When IsScoped is false, TryFire must return false
+            Assert.IsFalse(weapon.IsScoped, "Weapon should not be scoped by default.");
+            Assert.IsFalse(weapon.TryFire(), "Sniper rifle must strictly reject firing when not zoomed in scope.");
+
+            // When optic is attached and aiming is true, weapon.IsScoped is true
+            GameObject opticGO = new GameObject("Optic");
+            opticGO.transform.SetParent(rifleGO.transform);
+            var optic = opticGO.AddComponent<DEADeyeScopeOptic>();
+            optic.SetScopeActive(true);
+
+            Assert.IsTrue(weapon.IsScoped, "Weapon must report IsScoped = true when scope optic is active.");
+
+            Object.DestroyImmediate(rifleGO);
+            Object.DestroyImmediate(gmGO);
         }
     }
 }

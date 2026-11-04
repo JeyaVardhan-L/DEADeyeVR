@@ -112,6 +112,20 @@ namespace DEADeye.Tests
             }
         }
 
+        [UnitySetUp]
+        public IEnumerator SetUp()
+        {
+            Time.timeScale = 1f;
+            yield return null;
+        }
+
+        [UnityTearDown]
+        public IEnumerator TearDown()
+        {
+            Time.timeScale = 1f;
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator PlayMode_01_Startup_DirectRooftopSniperPerch_InitialView()
         {
@@ -144,9 +158,26 @@ namespace DEADeye.Tests
             var hud = Object.FindFirstObjectByType<DEADeyeMissionHUD>();
             Assert.IsNotNull(hud, "Check 11: Mission HUD must be immediately readable.");
 
-            // Capture Screenshot: Initial Sniper View
+            // Capture Screenshot: Mission Selection Hub (Tactical Terminal)
+            if (DEADeyeTacticalTerminalUI.Instance != null && DEADeyeTacticalTerminalUI.Instance.IsTerminalActive)
+            {
+                CaptureScreenshot("MissionSelect_TacticalTerminal.png");
+                DEADeyeTacticalTerminalUI.Instance.DeploySelectedMission();
+                yield return new WaitForSeconds(0.3f);
+            }
+
+            // Capture Screenshot: Initial Gameplay Sniper View
             CaptureScreenshot("SniperView_Initial.png");
-            yield return new WaitForSeconds(0.3f);
+
+            // Capture Screenshot: Full-Screen Mission Info Overlay
+            if (hud != null)
+            {
+                hud.ToggleMissionInfo();
+                yield return new WaitForSecondsRealtime(0.2f);
+                CaptureScreenshot("MissionBriefing_DeadAir.png");
+                hud.ToggleMissionInfo();
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
         }
 
         [UnityTest]
@@ -236,9 +267,15 @@ namespace DEADeye.Tests
 
             int ammoBefore = weaponMgr.CurrentAmmo;
 
-            // 10 & 11. Weapon fires and ammo decreases (Check 10, 11)
+            // 10 & 11. Weapon fires and ammo decreases ONLY when scoped
+            weapon.ScopeOptic.SetScopeActive(false);
+            bool unscopedShot = weapon.TryFire();
+            Assert.IsFalse(unscopedShot, "Sniper rifle must strictly reject firing when not scoped.");
+            Assert.AreEqual(ammoBefore, weaponMgr.CurrentAmmo, "Ammo must not decrease when unscoped shot is attempted.");
+
+            weapon.ScopeOptic.SetScopeActive(true);
             bool shotFired = weapon.TryFire();
-            Assert.IsTrue(shotFired, "Check 10: Weapon must fire when triggered.");
+            Assert.IsTrue(shotFired, "Check 10: Weapon must fire when scoped and triggered.");
             Assert.AreEqual(ammoBefore - 1, weaponMgr.CurrentAmmo, "Check 11: Ammunition must decrease upon firing.");
 
             // 12. Reload works (Check 12)
@@ -274,9 +311,10 @@ namespace DEADeye.Tests
             buildingGO.transform.position = weapon.transform.position + weapon.transform.forward * 10f;
             buildingGO.transform.localScale = new Vector3(8f, 8f, 1f);
 
+            weapon.ScopeOptic.SetScopeActive(true);
             bool blockedShot = weapon.TryFire();
             // Bullet hit the building, did not pass through to targets beyond
-            Assert.IsTrue(blockedShot, "Check 14: Shot successfully fired into building surface.");
+            Assert.IsTrue(blockedShot, "Check 14: Shot successfully fired into building surface while scoped.");
 
             Object.Destroy(targetGO);
             Object.Destroy(buildingGO);
@@ -438,34 +476,70 @@ namespace DEADeye.Tests
         }
 
         [UnityTest]
-        public IEnumerator PlayMode_07_Controls_FreeLook_OpticalZoom_Decoupled()
+        public IEnumerator PlayMode_07_Controls_ConventionalMouseLook_And_ScopedShooting()
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene("RooftopMission");
             yield return new WaitForSecondsRealtime(0.8f);
 
             var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var hud = Object.FindFirstObjectByType<DEADeyeMissionHUD>();
+            var weapon = Object.FindFirstObjectByType<DEADeyeSniperWeapon>();
             Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(hud, "HUD must exist.");
+            Assert.IsNotNull(weapon, "Weapon must exist.");
 
-            // Close tactical terminal if open
+            // When tactical terminal is closed and state is MissionActive, cursor locks for natural mouse look
             if (DEADeyeTacticalTerminalUI.Instance != null && DEADeyeTacticalTerminalUI.Instance.IsTerminalActive)
+            {
+                DEADeyeTacticalTerminalUI.Instance.DeploySelectedMission();
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+            if (DEADeyeTacticalTerminalUI.Instance != null)
             {
                 DEADeyeTacticalTerminalUI.Instance.ShowTerminal(false);
             }
+            if (DEADeyeGameManager.Instance != null)
+            {
+                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
+            }
+            desktopRig.UpdateCursorState();
+            yield return null;
 
-            // Verify cursor is unlocked initially in desktop mode
-            Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "Cursor must remain unlocked when Left Alt is not held.");
+            Assert.AreEqual(CursorLockMode.Locked, Application.isBatchMode ? desktopRig.DesiredLockMode : Cursor.lockState, "Cursor must be captured and locked during active gameplay.");
 
-            // Verify RMB triggers optical scope zoom without locking cursor
+            // Verify RMB triggers optical scope zoom
             desktopRig.SetAiming(true);
             yield return new WaitForSecondsRealtime(0.1f);
             Assert.IsTrue(desktopRig.IsAiming, "RMB must activate sniper optical scope zoom.");
-            Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "Scope zoom must not conflict with mouse lock.");
+            Assert.IsTrue(weapon.IsScoped, "Weapon must report IsScoped = true when aimed.");
 
+            // Verify firing while scoped works
+            bool scopedFired = weapon.TryFire();
+            Assert.IsTrue(scopedFired, "Weapon must fire when optical scope is active.");
+
+            // Release scope
             desktopRig.SetAiming(false);
             yield return new WaitForSecondsRealtime(0.1f);
             Assert.IsFalse(desktopRig.IsAiming, "Releasing RMB must deactivate scope zoom.");
             desktopRig.ClearAimOverride();
+
+            // Verify firing while unscoped is strictly blocked
+            bool unscopedFired = weapon.TryFire();
+            Assert.IsFalse(unscopedFired, "Weapon must NOT fire when unscoped.");
+
+            // Test Mission Info overlay toggle ('I' key or button)
+            hud.ToggleMissionInfo();
+            desktopRig.UpdateCursorState();
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.IsTrue(hud.IsMissionInfoActive, "Mission Info overlay must open on toggle.");
+            Assert.AreEqual(CursorLockMode.None, Application.isBatchMode ? desktopRig.DesiredLockMode : Cursor.lockState, "Cursor must unlock when Mission Info is open.");
+
+            hud.ToggleMissionInfo();
+            desktopRig.UpdateCursorState();
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.IsFalse(hud.IsMissionInfoActive, "Mission Info overlay must close on second toggle.");
+            Assert.AreEqual(CursorLockMode.Locked, Application.isBatchMode ? desktopRig.DesiredLockMode : Cursor.lockState, "Cursor must lock back when Mission Info closes.");
         }
 
         [UnityTest]

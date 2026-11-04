@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 427473fff1f1069449396a0e1c34ec81, type: 3}
+  m_Name: Mission_01_DeadAir
+  m_EditorClassIdentifier: DEADeye.Runtime::DEADeye.DEADeyeMissionDefinition
+  missionId: 0
+  operationCode: OP-01
+  operationTitle: DEAD AIR
+  districtName: CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE
+  isLocked: 0
+  statusText: AVAILABLE
+  difficulty: MODERATE (HIGH CALIBER SMALL ARMS)
+  tacticalBriefing: "A hostile syndicate strike team has deployed an emergency frequency
+    jammer to hijack the municipal communication grid, plunging the entire metropolitan
+    district into a radio blackout.\n\nYou are positioned in high-angle rooftop overwatch
+    above the Central Commercial Plaza. Two unarmed civilian field technicians\u2014Elena
+    and Marcus\u2014have slipped into the plaza under cover to access the broadcast
+    relay tower.\n\nCut power to the syndicate jammer by sniping its high-voltage
+    power junction on the utility pole, protect Elena and Marcus from advancing assault
+    waves, neutralize Commander Vance, and cover their extraction."
+  primaryObjective: Protect 2 Comms Technicians & Neutralize all 6 Hostiles
+  secondaryObjective: Achieve at least 2 Headshots without friendly casualties
+  timeLimitSeconds: 120
+  hostileCount: 6
+  maxEscapesAllowed: 2
+  hasTechnicians: 1
+  hasCivilians: 0
+  hostileSpawnInterval: 6.5
+  threatLevel: HIGH (HEAVILY ARMED SYNDICATE STRIKE SQUAD)
+  weatherCondition: OVERCAST / CLEAR SIGHTLINES
+  recommendedZoom: 8
