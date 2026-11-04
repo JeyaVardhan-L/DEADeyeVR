@@ -272,6 +272,8 @@ namespace DEADeye
 
             // Transit Bus Stop Shelter at X = 8.5m, Z = 62m
             BuildTransitBusShelter(streetsRoot.transform, new Vector3(9.5f, 0.08f, 62f));
+            CreateBus(streetsRoot.transform, new Vector3(8.5f, 0f, 74f), new Color(0.12f, 0.42f, 0.85f));
+            CreateCrosswalk(streetsRoot.transform, new Vector3(0f, 0.03f, 68f), 14f, isNorthSouth: true);
         }
 
         private void BuildTransitBusShelter(Transform parent, Vector3 pos)
@@ -488,13 +490,68 @@ namespace DEADeye
             plazaPaving.transform.localScale = new Vector3(24f, 0.10f, 28f);
             plazaPaving.GetComponent<Renderer>().material = sidewalkMaterial;
 
-            // Plaza Fountain Monument (Tactical cover in center of plaza)
-            GameObject fountain = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            fountain.name = "PlazaFountainMonument";
-            fountain.transform.SetParent(plazaRoot.transform, false);
-            fountain.transform.position = new Vector3(22.5f, 0.65f, 28f);
-            fountain.transform.localScale = new Vector3(4.5f, 0.65f, 4.5f);
-            fountain.GetComponent<Renderer>().material = buildingConcreteMat;
+            // 3-Tier Landmark Fountain Monument (Tactical cover in center of plaza)
+            GameObject fountainRoot = new GameObject("PlazaFountainMonument");
+            fountainRoot.transform.SetParent(plazaRoot.transform, false);
+            fountainRoot.transform.position = new Vector3(22.5f, 0f, 28f);
+
+            // Tier 1 Base Basin (Outer rim)
+            GameObject tier1 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            tier1.name = "Fountain_Tier1_Basin";
+            tier1.transform.SetParent(fountainRoot.transform, false);
+            tier1.transform.localPosition = new Vector3(0f, 0.4f, 0f);
+            tier1.transform.localScale = new Vector3(6.5f, 0.4f, 6.5f);
+            tier1.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            // Water Surface inside Basin
+            GameObject water = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            water.name = "Fountain_Water";
+            water.transform.SetParent(fountainRoot.transform, false);
+            water.transform.localPosition = new Vector3(0f, 0.72f, 0f);
+            water.transform.localScale = new Vector3(5.8f, 0.05f, 5.8f);
+            Shader litSh = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            Material waterMat = new Material(litSh) { color = new Color(0.15f, 0.55f, 0.75f) };
+            water.GetComponent<Renderer>().material = waterMat;
+            SafeDestroy(water.GetComponent<Collider>());
+
+            // Tier 2 Middle Bowl
+            GameObject tier2 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            tier2.name = "Fountain_Tier2_Bowl";
+            tier2.transform.SetParent(fountainRoot.transform, false);
+            tier2.transform.localPosition = new Vector3(0f, 1.1f, 0f);
+            tier2.transform.localScale = new Vector3(3.8f, 0.35f, 3.8f);
+            tier2.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            // Tier 3 Upper Basin
+            GameObject tier3 = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            tier3.name = "Fountain_Tier3_Upper";
+            tier3.transform.SetParent(fountainRoot.transform, false);
+            tier3.transform.localPosition = new Vector3(0f, 1.7f, 0f);
+            tier3.transform.localScale = new Vector3(2.0f, 0.3f, 2.0f);
+            tier3.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            // Spire Finial
+            GameObject spire = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            spire.name = "Fountain_Spire";
+            spire.transform.SetParent(fountainRoot.transform, false);
+            spire.transform.localPosition = new Vector3(0f, 2.3f, 0f);
+            spire.transform.localScale = new Vector3(0.4f, 0.6f, 0.4f);
+            spire.GetComponent<Renderer>().material = metalRooftopMat;
+
+            // Park Benches around fountain
+            CreatePlazaBench(plazaRoot.transform, new Vector3(17.5f, 0f, 28f), 90f);
+            CreatePlazaBench(plazaRoot.transform, new Vector3(27.5f, 0f, 28f), -90f);
+            CreatePlazaBench(plazaRoot.transform, new Vector3(22.5f, 0f, 23f), 0f);
+            CreatePlazaBench(plazaRoot.transform, new Vector3(22.5f, 0f, 33f), 180f);
+
+            // Planters with Greenery
+            CreatePlazaPlanter(plazaRoot.transform, new Vector3(16f, 0f, 35f));
+            CreatePlazaPlanter(plazaRoot.transform, new Vector3(29f, 0f, 35f));
+
+            // Commercial Shopfronts with Awnings along Plaza border (X = 34m)
+            CreateShopfront(plazaRoot.transform, new Vector3(34.2f, 0f, 26f), "METRO DELI & BAKERY", new Color(0.85f, 0.25f, 0.2f));
+            CreateShopfront(plazaRoot.transform, new Vector3(34.2f, 0f, 36f), "CITY PHARMACY", new Color(0.2f, 0.65f, 0.85f));
+            CreateShopfront(plazaRoot.transform, new Vector3(34.2f, 0f, 46f), "TECH & COMMS REPAIR", new Color(0.2f, 0.75f, 0.35f));
 
             // 1. High-Tech Municipal Relay Comms Tower
             Vector3 towerBasePos = new Vector3(22.5f, 0f, 40f);
@@ -618,7 +675,7 @@ namespace DEADeye
             CreateMarketStall(plazaRoot.transform, new Vector3(28f, 0f, 46f), new Color(0.18f, 0.75f, 0.35f), "MarketStall_Textiles");
         }
 
-        private void CreateMarketStall(Transform parent, Vector3 pos, Color canopyColor, string name)
+        private void CreateMarketStall(Transform parent, Vector3 pos, Color stripeColor, string name)
         {
             GameObject stall = new GameObject(name);
             stall.transform.SetParent(parent, false);
@@ -631,17 +688,98 @@ namespace DEADeye
             table.transform.localScale = new Vector3(3.2f, 1.0f, 1.6f);
             table.GetComponent<Renderer>().material = buildingBrickMat;
 
+            // Striped Canopy
             GameObject canopy = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            canopy.name = "Canopy";
+            canopy.name = "Canopy_Base";
             canopy.transform.SetParent(stall.transform, false);
             canopy.transform.localPosition = new Vector3(0f, 2.4f, 0f);
-            canopy.transform.localScale = new Vector3(3.6f, 0.15f, 2.4f);
+            canopy.transform.localScale = new Vector3(3.6f, 0.12f, 2.4f);
 
-            Shader litShader = Shader.Find("Universal Render Pipeline/Lit");
-            if (litShader == null) litShader = Shader.Find("Standard");
-            Material mat = new Material(litShader) { color = canopyColor };
-            canopy.GetComponent<Renderer>().material = mat;
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            Material baseMat = new Material(litShader) { color = Color.white };
+            canopy.GetComponent<Renderer>().material = baseMat;
             SafeDestroy(canopy.GetComponent<Collider>());
+
+            // 3 Colored Stripes across canopy
+            for (int s = -1; s <= 1; s++)
+            {
+                GameObject stripe = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                stripe.name = $"Stripe_{s}";
+                stripe.transform.SetParent(canopy.transform, false);
+                stripe.transform.localPosition = new Vector3(s * 0.32f, 0.02f, 0f);
+                stripe.transform.localScale = new Vector3(0.25f, 1.1f, 1.02f);
+                stripe.GetComponent<Renderer>().material = new Material(litShader) { color = stripeColor };
+                SafeDestroy(stripe.GetComponent<Collider>());
+            }
+        }
+
+        private void CreatePlazaBench(Transform parent, Vector3 pos, float rotationY)
+        {
+            GameObject bench = new GameObject("PlazaBench");
+            bench.transform.SetParent(parent, false);
+            bench.transform.position = pos;
+            bench.transform.rotation = Quaternion.Euler(0f, rotationY, 0f);
+
+            GameObject seat = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            seat.name = "Seat";
+            seat.transform.SetParent(bench.transform, false);
+            seat.transform.localPosition = new Vector3(0f, 0.45f, 0f);
+            seat.transform.localScale = new Vector3(1.8f, 0.1f, 0.6f);
+            seat.GetComponent<Renderer>().material = buildingBrickMat;
+
+            GameObject back = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            back.name = "Backrest";
+            back.transform.SetParent(bench.transform, false);
+            back.transform.localPosition = new Vector3(0f, 0.85f, -0.28f);
+            back.transform.localScale = new Vector3(1.8f, 0.6f, 0.08f);
+            back.GetComponent<Renderer>().material = buildingBrickMat;
+            SafeDestroy(back.GetComponent<Collider>());
+        }
+
+        private void CreatePlazaPlanter(Transform parent, Vector3 pos)
+        {
+            GameObject planter = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            planter.name = "PlazaPlanter";
+            planter.transform.SetParent(parent, false);
+            planter.transform.position = pos + new Vector3(0f, 0.4f, 0f);
+            planter.transform.localScale = new Vector3(1.6f, 0.8f, 1.6f);
+            planter.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            GameObject bush = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            bush.name = "Foliage";
+            bush.transform.SetParent(planter.transform, false);
+            bush.transform.localPosition = new Vector3(0f, 0.7f, 0f);
+            bush.transform.localScale = new Vector3(1.4f, 0.9f, 1.4f);
+            bush.GetComponent<Renderer>().material = highwayGreenMat;
+            SafeDestroy(bush.GetComponent<Collider>());
+        }
+
+        private void CreateShopfront(Transform parent, Vector3 pos, string signName, Color awningCol)
+        {
+            GameObject shop = new GameObject($"Shopfront_{signName}");
+            shop.transform.SetParent(parent, false);
+            shop.transform.position = pos;
+
+            // Storefront Display Window
+            GameObject win = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            win.name = "StoreDisplayWindow";
+            win.transform.SetParent(shop.transform, false);
+            win.transform.localPosition = new Vector3(0f, 2.0f, 0f);
+            win.transform.localScale = new Vector3(0.1f, 3.2f, 7.0f);
+            win.GetComponent<Renderer>().material = windowGlassMat;
+            SafeDestroy(win.GetComponent<Collider>());
+
+            // Fabric Awning
+            GameObject awning = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            awning.name = "StoreAwning";
+            awning.transform.SetParent(shop.transform, false);
+            awning.transform.localPosition = new Vector3(-0.9f, 3.6f, 0f);
+            awning.transform.localScale = new Vector3(1.8f, 0.12f, 7.4f);
+            awning.transform.localRotation = Quaternion.Euler(0f, 0f, 15f);
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            Material awMat = new Material(litShader) { color = awningCol };
+            awning.GetComponent<Renderer>().material = awMat;
+            SafeDestroy(awning.GetComponent<Collider>());
         }
 
         private void BuildConstructionDistrict(Transform parent)
@@ -885,6 +1023,30 @@ namespace DEADeye
             }
         }
 
+        private void CreateBus(Transform parent, Vector3 pos, Color busColor)
+        {
+            GameObject bus = new GameObject("TransitBus");
+            bus.transform.SetParent(parent, false);
+            bus.transform.position = pos;
+
+            GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            body.name = "BusBody";
+            body.transform.SetParent(bus.transform, false);
+            body.transform.localPosition = new Vector3(0f, 1.4f, 0f);
+            body.transform.localScale = new Vector3(2.8f, 2.8f, 10.5f);
+            Shader litShader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            Material bMat = new Material(litShader) { color = busColor };
+            body.GetComponent<Renderer>().material = bMat;
+
+            GameObject windows = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            windows.name = "WindowsStrip";
+            windows.transform.SetParent(bus.transform, false);
+            windows.transform.localPosition = new Vector3(0f, 1.9f, 0.4f);
+            windows.transform.localScale = new Vector3(2.85f, 0.9f, 9.2f);
+            windows.GetComponent<Renderer>().material = windowGlassMat;
+            SafeDestroy(windows.GetComponent<Collider>());
+        }
+
         private void CreateJerseyBarrier(Transform parent, Vector3 pos)
         {
             GameObject barrier = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1008,12 +1170,12 @@ namespace DEADeye
             CreateParapetWall(perch1.transform, new Vector3(0f, rooftopHeight + 0.38f, -1.1f), new Vector3(4.0f, 0.76f, 0.4f), "FrontParapet_SniperNotch");
             CreateParapetWall(perch1.transform, new Vector3(0f, rooftopHeight + 0.55f, -11.9f), new Vector3(14f, 1.1f, 0.4f), "BackParapet");
 
-            // Side parapet walls with 2.8m WALKWAY PASSAGE OPENINGS to bridges!
-            CreateParapetWall(perch1.transform, new Vector3(-6.9f, rooftopHeight + 0.55f, -9.2f), new Vector3(0.4f, 1.1f, 5.4f), "LeftParapet_Rear");
-            CreateParapetWall(perch1.transform, new Vector3(-6.9f, rooftopHeight + 0.55f, -2.5f), new Vector3(0.4f, 1.1f, 2.8f), "LeftParapet_Front");
+            // Side parapet walls with 3.5m WALKWAY PASSAGE OPENINGS to bridges!
+            CreateParapetWall(perch1.transform, new Vector3(-6.9f, rooftopHeight + 0.55f, -9.5f), new Vector3(0.4f, 1.1f, 4.8f), "LeftParapet_Rear");
+            CreateParapetWall(perch1.transform, new Vector3(-6.9f, rooftopHeight + 0.55f, -2.0f), new Vector3(0.4f, 1.1f, 2.0f), "LeftParapet_Front");
 
-            CreateParapetWall(perch1.transform, new Vector3(6.9f, rooftopHeight + 0.55f, -9.2f), new Vector3(0.4f, 1.1f, 5.4f), "RightParapet_Rear");
-            CreateParapetWall(perch1.transform, new Vector3(6.9f, rooftopHeight + 0.55f, -2.5f), new Vector3(0.4f, 1.1f, 2.8f), "RightParapet_Front");
+            CreateParapetWall(perch1.transform, new Vector3(6.9f, rooftopHeight + 0.55f, -9.5f), new Vector3(0.4f, 1.1f, 4.8f), "RightParapet_Rear");
+            CreateParapetWall(perch1.transform, new Vector3(6.9f, rooftopHeight + 0.55f, -2.0f), new Vector3(0.4f, 1.1f, 2.0f), "RightParapet_Front");
 
             // Central Weapon Rest Sandbags
             GameObject sandbag = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1022,6 +1184,9 @@ namespace DEADeye
             sandbag.transform.position = new Vector3(0f, rooftopHeight + 0.82f, -1.1f);
             sandbag.transform.localScale = new Vector3(2.4f, 0.14f, 0.5f);
             sandbag.GetComponent<Renderer>().material = sidewalkMaterial;
+
+            // Authentic Military / Tactical Sniper Overwatch Nest details on Perch 1
+            BuildTacticalOverwatchNest(perch1.transform);
 
             // Tactical Mission Briefing Terminal Workstation on Perch 1
             BuildRooftopTacticalTerminal(perch1.transform);
@@ -1035,7 +1200,7 @@ namespace DEADeye
             GameObject floor2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor2.name = "EastPerchFloor";
             floor2.transform.SetParent(perch2.transform, false);
-            floor2.transform.position = new Vector3(18f, rooftopHeight - 0.25f, 4f);
+            floor2.transform.position = new Vector3(18f, rooftopHeight - 0.15f, 4f);
             floor2.transform.localScale = new Vector3(8f, 0.3f, 8f);
             floor2.GetComponent<Renderer>().material = metalRooftopMat;
 
@@ -1060,7 +1225,7 @@ namespace DEADeye
             GameObject floor3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor3.name = "WestPerchFloor";
             floor3.transform.SetParent(perch3.transform, false);
-            floor3.transform.position = new Vector3(-18f, rooftopHeight - 0.20f, 6f);
+            floor3.transform.position = new Vector3(-18f, rooftopHeight - 0.15f, 6f);
             floor3.transform.localScale = new Vector3(8f, 0.3f, 8f);
             floor3.GetComponent<Renderer>().material = metalRooftopMat;
 
@@ -1079,11 +1244,11 @@ namespace DEADeye
             // =========================================================================
             // WALKABLE SKYBRIDGES & CATWALKS (Connecting Perch 1 to Perch 2 & 3)
             // =========================================================================
-            // 1. East Catwalk Bridge from (7m, 26m, -5.5m) to (14m, 25.8m, 1.5m)
-            BuildWalkableBridge(networkRoot.transform, new Vector3(6.8f, rooftopHeight - 0.2f, -5.5f), new Vector3(14.2f, rooftopHeight - 0.25f, 1.5f), "Bridge_To_EastPlazaPerch");
+            // 1. East Catwalk Bridge (3.0m wide)
+            BuildWalkableBridge(networkRoot.transform, new Vector3(6.8f, rooftopHeight - 0.15f, -5.2f), new Vector3(14.0f, rooftopHeight - 0.15f, 2.0f), "Bridge_To_EastPlazaPerch");
 
-            // 2. West Skybridge from (-6.8m, 26m, -5.5m) to (-14.2m, rooftopHeight - 0.2f, 3.5f)
-            BuildWalkableBridge(networkRoot.transform, new Vector3(-6.8f, rooftopHeight - 0.2f, -5.5f), new Vector3(-14.2f, rooftopHeight - 0.20f, 3.5f), "Bridge_To_WestConstructionPerch");
+            // 2. West Skybridge (3.0m wide)
+            BuildWalkableBridge(networkRoot.transform, new Vector3(-6.8f, rooftopHeight - 0.15f, -5.2f), new Vector3(-14.0f, rooftopHeight - 0.15f, 4.0f), "Bridge_To_WestConstructionPerch");
 
             // Perimeter safety boundaries ensuring player cannot fall off outer edges
             CreateSafetyBoundary(networkRoot.transform, new Vector3(0f, rooftopHeight + 2.0f, -12.2f), new Vector3(14f, 4f, 0.3f));
@@ -1104,29 +1269,223 @@ namespace DEADeye
             bridge.transform.position = mid;
             bridge.transform.rotation = rot;
 
-            // Solid Floor (2.2m wide with BoxCollider)
+            // Solid Floor (3.0m wide with BoxCollider)
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "BridgeFloor";
             floor.transform.SetParent(bridge.transform, false);
             floor.transform.localPosition = Vector3.zero;
-            floor.transform.localScale = new Vector3(2.2f, 0.2f, length);
+            floor.transform.localScale = new Vector3(3.0f, 0.3f, length);
             floor.GetComponent<Renderer>().material = metalRooftopMat;
 
-            // Left Handrail
+            // Left Handrail (at ±1.45m)
             GameObject railL = GameObject.CreatePrimitive(PrimitiveType.Cube);
             railL.name = "Handrail_Left";
             railL.transform.SetParent(bridge.transform, false);
-            railL.transform.localPosition = new Vector3(-1.05f, 0.6f, 0f);
+            railL.transform.localPosition = new Vector3(-1.45f, 0.6f, 0f);
             railL.transform.localScale = new Vector3(0.1f, 1.1f, length);
             railL.GetComponent<Renderer>().material = facadeTrimMat;
+            BoxCollider colL = railL.GetComponent<BoxCollider>();
+            if (colL != null) colL.size = new Vector3(1f, 1f, 0.85f);
 
-            // Right Handrail
+            // Right Handrail (at ±1.45m)
             GameObject railR = GameObject.CreatePrimitive(PrimitiveType.Cube);
             railR.name = "Handrail_Right";
             railR.transform.SetParent(bridge.transform, false);
-            railR.transform.localPosition = new Vector3(1.05f, 0.6f, 0f);
+            railR.transform.localPosition = new Vector3(1.45f, 0.6f, 0f);
             railR.transform.localScale = new Vector3(0.1f, 1.1f, length);
             railR.GetComponent<Renderer>().material = facadeTrimMat;
+            BoxCollider colR = railR.GetComponent<BoxCollider>();
+            if (colR != null) colR.size = new Vector3(1f, 1f, 0.85f);
+        }
+
+        private void BuildTacticalOverwatchNest(Transform perch1)
+        {
+            GameObject nestRoot = new GameObject("TacticalOverwatchNest_Details");
+            nestRoot.transform.SetParent(perch1, false);
+
+            // 1. Access Stairwell Bulkhead Housing in Rear Right
+            GameObject stairHousing = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stairHousing.name = "StairwellBulkhead";
+            stairHousing.transform.SetParent(nestRoot.transform, false);
+            stairHousing.transform.position = new Vector3(3.8f, rooftopHeight + 1.4f, -9.5f);
+            stairHousing.transform.localScale = new Vector3(3.2f, 2.8f, 2.8f);
+            stairHousing.GetComponent<Renderer>().material = buildingConcreteMat;
+
+            // Stairwell Metal Door
+            GameObject door = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            door.name = "StairwellDoor";
+            door.transform.SetParent(nestRoot.transform, false);
+            door.transform.position = new Vector3(3.8f, rooftopHeight + 1.1f, -8.05f);
+            door.transform.localScale = new Vector3(1.1f, 2.2f, 0.08f);
+            door.GetComponent<Renderer>().material = facadeTrimMat;
+
+            // Hazard Warning Stripe Sign above door
+            GameObject hazardSign = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hazardSign.name = "HazardSign";
+            hazardSign.transform.SetParent(nestRoot.transform, false);
+            hazardSign.transform.position = new Vector3(3.8f, rooftopHeight + 2.45f, -8.05f);
+            hazardSign.transform.localScale = new Vector3(1.4f, 0.25f, 0.05f);
+            hazardSign.GetComponent<Renderer>().material = craneYellowMat;
+            SafeDestroy(hazardSign.GetComponent<Collider>());
+
+            // 2. Satellite / Comms Dish on Tripod
+            GameObject dishStand = new GameObject("TripodSatelliteDish");
+            dishStand.transform.SetParent(nestRoot.transform, false);
+            dishStand.transform.position = new Vector3(-3.8f, rooftopHeight, -8.5f);
+
+            for (int i = 0; i < 3; i++)
+            {
+                float ang = i * 120f * Mathf.Deg2Rad;
+                GameObject leg = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                leg.name = $"TripodLeg_{i}";
+                leg.transform.SetParent(dishStand.transform, false);
+                leg.transform.localPosition = new Vector3(Mathf.Sin(ang) * 0.45f, 0.6f, Mathf.Cos(ang) * 0.45f);
+                leg.transform.localScale = new Vector3(0.06f, 0.65f, 0.06f);
+                leg.transform.localRotation = Quaternion.Euler(Mathf.Cos(ang) * 20f, 0f, -Mathf.Sin(ang) * 20f);
+                leg.GetComponent<Renderer>().material = metalRooftopMat;
+                SafeDestroy(leg.GetComponent<Collider>());
+            }
+
+            GameObject dish = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            dish.name = "ParabolicDish";
+            dish.transform.SetParent(dishStand.transform, false);
+            dish.transform.localPosition = new Vector3(0f, 1.5f, 0f);
+            dish.transform.localScale = new Vector3(1.5f, 0.12f, 1.5f);
+            dish.transform.localRotation = Quaternion.Euler(45f, 25f, 0f);
+            dish.GetComponent<Renderer>().material = sidewalkMaterial;
+            SafeDestroy(dish.GetComponent<Collider>());
+
+            GameObject feedHorn = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            feedHorn.name = "FeedHorn";
+            feedHorn.transform.SetParent(dish.transform, false);
+            feedHorn.transform.localPosition = new Vector3(0f, 0.6f, 0f);
+            feedHorn.transform.localScale = new Vector3(0.1f, 0.6f, 0.1f);
+            feedHorn.GetComponent<Renderer>().material = metalRooftopMat;
+            SafeDestroy(feedHorn.GetComponent<Collider>());
+
+            // 3. Military Tactical Radio Rack (positioned against rear wall)
+            GameObject radioRack = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            radioRack.name = "MilitaryRadioRack";
+            radioRack.transform.SetParent(nestRoot.transform, false);
+            radioRack.transform.position = new Vector3(-4.8f, rooftopHeight + 0.75f, -10.5f);
+            radioRack.transform.localScale = new Vector3(0.7f, 1.5f, 0.55f);
+            radioRack.GetComponent<Renderer>().material = metalRooftopMat;
+
+            Color[] ledCols = new Color[] { Color.green, Color.green, Color.yellow, Color.red };
+            for (int i = 0; i < 4; i++)
+            {
+                GameObject led = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                led.name = $"RadioLED_{i}";
+                led.transform.SetParent(radioRack.transform, false);
+                led.transform.localPosition = new Vector3(0.52f, 0.35f - (i * 0.12f), -0.2f + (i * 0.12f));
+                led.transform.localScale = new Vector3(0.08f, 0.06f, 0.08f);
+                Shader unlit = Shader.Find("Universal Render Pipeline/Unlit") ?? Shader.Find("Unlit/Color");
+                led.GetComponent<Renderer>().material = new Material(unlit) { color = ledCols[i] };
+                SafeDestroy(led.GetComponent<Collider>());
+            }
+
+            GameObject whip = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            whip.name = "WhipAntenna";
+            whip.transform.SetParent(radioRack.transform, false);
+            whip.transform.localPosition = new Vector3(0f, 1.35f, 0f);
+            whip.transform.localScale = new Vector3(0.04f, 1.2f, 0.04f);
+            whip.GetComponent<Renderer>().material = metalRooftopMat;
+            SafeDestroy(whip.GetComponent<Collider>());
+
+            GameObject whipBeacon = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            whipBeacon.name = "TipBeacon";
+            whipBeacon.transform.SetParent(whip.transform, false);
+            whipBeacon.transform.localPosition = new Vector3(0f, 1.0f, 0f);
+            whipBeacon.transform.localScale = Vector3.one * 0.15f;
+            whipBeacon.GetComponent<Renderer>().material = beaconRedMat;
+            SafeDestroy(whipBeacon.GetComponent<Collider>());
+
+            // 4. Rugged Field Generator Pack (positioned against rear wall)
+            GameObject gen = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            gen.name = "FieldGeneratorPack";
+            gen.transform.SetParent(nestRoot.transform, false);
+            gen.transform.position = new Vector3(-2.8f, rooftopHeight + 0.35f, -10.5f);
+            gen.transform.localScale = new Vector3(0.85f, 0.7f, 0.65f);
+            gen.GetComponent<Renderer>().material = facadeTrimMat;
+
+            GameObject cable = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cable.name = "PowerCableFloor";
+            cable.transform.SetParent(nestRoot.transform, false);
+            cable.transform.position = new Vector3(-3.8f, rooftopHeight + 0.03f, -10.5f);
+            cable.transform.localScale = new Vector3(1.4f, 0.04f, 0.08f);
+            cable.GetComponent<Renderer>().material = asphaltMaterial;
+            SafeDestroy(cable.GetComponent<Collider>());
+
+            // 5. Emergency Work Floodlight on Tripod
+            GameObject floodlight = new GameObject("EmergencyWorkFloodlight");
+            floodlight.transform.SetParent(nestRoot.transform, false);
+            floodlight.transform.position = new Vector3(4.5f, rooftopHeight, -4.5f);
+
+            GameObject flStand = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            flStand.name = "FloodlightStand";
+            flStand.transform.SetParent(floodlight.transform, false);
+            flStand.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            flStand.transform.localScale = new Vector3(0.08f, 0.9f, 0.08f);
+            flStand.GetComponent<Renderer>().material = craneYellowMat;
+            SafeDestroy(flStand.GetComponent<Collider>());
+
+            GameObject flHead = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            flHead.name = "FloodlightLampHead";
+            flHead.transform.SetParent(floodlight.transform, false);
+            flHead.transform.localPosition = new Vector3(0f, 1.85f, 0f);
+            flHead.transform.localScale = new Vector3(0.35f, 0.25f, 0.2f);
+            flHead.transform.localRotation = Quaternion.Euler(30f, -40f, 0f);
+            flHead.GetComponent<Renderer>().material = craneYellowMat;
+            SafeDestroy(flHead.GetComponent<Collider>());
+
+            Light flLight = flHead.AddComponent<Light>();
+            flLight.type = LightType.Spot;
+            flLight.color = new Color(1.0f, 0.95f, 0.85f);
+            flLight.range = 18f;
+            flLight.spotAngle = 60f;
+            flLight.intensity = 2.2f;
+
+            // 6. Spent Brass Casings near sniper rest
+            Shader brassSh = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+            Material brassMat = new Material(brassSh) { color = new Color(0.85f, 0.72f, 0.25f) };
+            Vector3[] casingPositions = new Vector3[]
+            {
+                new Vector3(-0.4f, rooftopHeight + 0.02f, -1.6f),
+                new Vector3(-0.2f, rooftopHeight + 0.02f, -1.8f),
+                new Vector3(0.1f, rooftopHeight + 0.02f, -1.5f),
+                new Vector3(0.35f, rooftopHeight + 0.02f, -1.7f),
+                new Vector3(0.5f, rooftopHeight + 0.02f, -1.4f),
+                new Vector3(-0.6f, rooftopHeight + 0.02f, -1.9f)
+            };
+            for (int i = 0; i < casingPositions.Length; i++)
+            {
+                GameObject casing = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                casing.name = $"SpentBrass_{i}";
+                casing.transform.SetParent(nestRoot.transform, false);
+                casing.transform.position = casingPositions[i];
+                casing.transform.localScale = new Vector3(0.04f, 0.07f, 0.04f);
+                casing.transform.rotation = Quaternion.Euler(90f, (i * 53f) % 360f, 0f);
+                casing.GetComponent<Renderer>().material = brassMat;
+                SafeDestroy(casing.GetComponent<Collider>());
+            }
+
+            // 7. Layered Sandbags at Sniper Rest
+            Vector3[] sandbagOffsets = new Vector3[]
+            {
+                new Vector3(-1.0f, rooftopHeight + 0.82f, -1.1f),
+                new Vector3(1.0f, rooftopHeight + 0.82f, -1.1f),
+                new Vector3(-0.5f, rooftopHeight + 0.94f, -1.1f),
+                new Vector3(0.5f, rooftopHeight + 0.94f, -1.1f)
+            };
+            for (int i = 0; i < sandbagOffsets.Length; i++)
+            {
+                GameObject sb = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                sb.name = $"LayeredSandbag_{i}";
+                sb.transform.SetParent(nestRoot.transform, false);
+                sb.transform.position = sandbagOffsets[i];
+                sb.transform.localScale = new Vector3(0.95f, 0.13f, 0.45f);
+                sb.GetComponent<Renderer>().material = sidewalkMaterial;
+            }
         }
 
         private void BuildRooftopTacticalTerminal(Transform parent)

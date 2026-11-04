@@ -114,27 +114,36 @@ namespace DEADeye
         {
             CollectNavigationNodes();
 
-            if (DEADeyeGameManager.Instance != null)
+            if (activeMission == null)
             {
-                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
+                activeMission = Resources.Load<DEADeyeMissionDefinition>("Missions/Mission_01_BrokenSignal");
+#if UNITY_EDITOR
+                if (activeMission == null)
+                {
+                    activeMission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                }
+#endif
             }
 
-            if (activeMission != null)
+            bool terminalOpen = DEADeyeTacticalTerminalUI.Instance != null && DEADeyeTacticalTerminalUI.Instance.IsTerminalActive;
+            if (terminalOpen)
             {
-                LaunchMission(activeMission);
+                if (DEADeyeGameManager.Instance != null)
+                {
+                    DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionBriefing);
+                }
+                // Do not auto-launch in background! Wait until player clicks DEPLOY INTO MISSION
             }
             else
             {
-                var defaultMission = Resources.Load<DEADeyeMissionDefinition>("Missions/Mission_01_BrokenSignal");
-#if UNITY_EDITOR
-                if (defaultMission == null)
+                if (DEADeyeGameManager.Instance != null)
                 {
-                    defaultMission = UnityEditor.AssetDatabase.LoadAssetAtPath<DEADeyeMissionDefinition>("Assets/DEADeye/Data/Missions/Mission_01_BrokenSignal.asset");
+                    DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
                 }
-#endif
-                if (defaultMission != null)
+
+                if (activeMission != null)
                 {
-                    LaunchMission(defaultMission);
+                    LaunchMission(activeMission);
                 }
                 else
                 {
@@ -278,7 +287,12 @@ namespace DEADeye
 
             if (DEADeyeMissionHUD.Instance != null)
             {
-                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 1: RECONNAISSANCE - Identify Jammer & Friendly Team with Optical Scope");
+                DEADeyeMissionHUD.Instance.UpdateObjectiveTracker(
+                    1, 6,
+                    "RECON & SPOT",
+                    "Dwell optical scope reticle on Elena, Marcus, and the broadcast tower to confirm tactical status.",
+                    $"TARGETS SPOTTED: {spottedKeyTargetCount} / 3"
+                );
                 DEADeyeMissionHUD.Instance.ShowRadioDialogue(
                     "CONTROL",
                     "Overwatch, this is Control. Sector is dark. Hostiles have deployed a military jamming array in Central Plaza. Technicians Elena and Marcus are pinned near the fountain. Spot the jammer and team before engaging."
@@ -391,6 +405,15 @@ namespace DEADeye
             if (target == null) return;
             spottedKeyTargetCount++;
 
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.NotifyTargetSpotted();
+                if (currentPhase == OperationPhase.Reconnaissance)
+                {
+                    DEADeyeMissionHUD.Instance.UpdateObjectiveProgress($"TARGETS SPOTTED: {spottedKeyTargetCount} / 3");
+                }
+            }
+
             // If in Reconnaissance phase and key assets spotted, advise player to proceed to Disruption
             if (currentPhase == OperationPhase.Reconnaissance)
             {
@@ -414,7 +437,12 @@ namespace DEADeye
                 case OperationPhase.Disruption:
                     if (DEADeyeMissionHUD.Instance != null)
                     {
-                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 2: OPERATION DISRUPTION - Disable Jammer via Power Junction or Direct Hit");
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveTracker(
+                            2, 6,
+                            "DISRUPT COMMUNICATIONS",
+                            "Shoot high-voltage power junction on utility pole to cut power to syndicate jammer.",
+                            "JAMMER STATUS: ACTIVE [TARGET POWER JUNCTION]"
+                        );
                         DEADeyeMissionHUD.Instance.ShowRadioDialogue(
                             "CONTROL",
                             "Overwatch: Disrupt the jammer. Snipe the power junction on the tower, hit the jammer dish directly, or trigger the transformer distraction."
@@ -425,7 +453,12 @@ namespace DEADeye
                 case OperationPhase.TechnicianAdvance:
                     if (DEADeyeMissionHUD.Instance != null)
                     {
-                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 3: PROTECT TECHNICIANS - Cover Elena & Marcus during Comms Array Repair");
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveTracker(
+                            3, 6,
+                            "PROVIDE OVERWATCH",
+                            "Protect Elena and Marcus from hostile assault waves while they repair the broadcast array.",
+                            $"REPAIR PROGRESS: {commsRepairProgress:F0}% | HOSTILES: {HostilesRemaining}"
+                        );
                     }
 
                     // Command technicians to advance across plaza to the communications console
@@ -451,7 +484,12 @@ namespace DEADeye
                 case OperationPhase.NeutralizeCommander:
                     if (DEADeyeMissionHUD.Instance != null)
                     {
-                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 4: ELIMINATE COMMANDER - Neutralize Commander Vance Before Exfil");
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveTracker(
+                            4, 6,
+                            "NEUTRALIZE COMMANDER VANCE",
+                            "Identify and eliminate Commander Vance before his armored security detail reaches exfil.",
+                            "COMMANDER STATUS: ADVANCING TO EXFIL"
+                        );
                         DEADeyeMissionHUD.Instance.ShowRadioDialogue(
                             "CONTROL",
                             "Commander Vance has deployed to Sector 3 with an armed exfil escort! He's heading towards the transport interchange. Do not let him escape!"
@@ -464,7 +502,12 @@ namespace DEADeye
                 case OperationPhase.ConvoyExtraction:
                     if (DEADeyeMissionHUD.Instance != null)
                     {
-                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 5: EXTRACTION - Escort Elena & Marcus to the Transport Interchange Convoy");
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveTracker(
+                            5, 6,
+                            "ESCORT EVACUATION",
+                            "Cover the technicians' withdrawal across the boulevard to the extraction vehicle.",
+                            "EXTRACTION CONVOY: STAGING AT BUS TERMINAL"
+                        );
                         DEADeyeMissionHUD.Instance.ShowRadioDialogue(
                             "CONTROL",
                             "Hostile command neutralized! Extraction convoy is staging at the Transport Interchange bus terminal. Cover Elena and Marcus as they exfil!"
@@ -685,7 +728,7 @@ namespace DEADeye
             {
                 int barCount = (int)(progress / 10f);
                 string bar = new string('=', barCount).PadRight(10, ' ');
-                DEADeyeMissionHUD.Instance.UpdateObjectiveBar($"PHASE 3: PROTECT TECHNICIANS - Repair: [{bar}] {progress:F0}%");
+                DEADeyeMissionHUD.Instance.UpdateObjectiveProgress($"REPAIR: [{bar}] {progress:F0}% | HOSTILES: {HostilesRemaining}");
 
                 if (progress >= 50f && progress < 55f)
                 {

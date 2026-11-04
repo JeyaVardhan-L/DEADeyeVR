@@ -117,10 +117,12 @@ MonoBehaviour:
   classificationName: SECURITY OPERATIVE
   maxHealth: 120
   currentHealth: 120
-  performsObjectiveWork: 1
+  performsObjectiveWork: 0
   workProgress: 0
-  repairSpeedPerSecond: 2.5
+  repairSpeedPerSecond: 3.5
   currentState: 1
+  targetDestination: {x: 0, y: 0, z: 0}
+  isMovingToTarget: 0
 --- !u!1001 &8515312722990746416
 PrefabInstance:
   m_ObjectHideFlags: 0

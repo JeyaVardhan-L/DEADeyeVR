@@ -170,6 +170,19 @@ namespace DEADeye
                 sfxSource.PlayOneShot(missionStartClip, 0.6f);
         }
 
+        public void PlayObjectiveUpdate()
+        {
+            if (sfxSource != null)
+            {
+                if (!proceduralCache.TryGetValue("ObjectiveUpdate", out AudioClip clip))
+                {
+                    clip = SynthesizeChime(1046.5f, 0.35f);
+                    proceduralCache["ObjectiveUpdate"] = clip;
+                }
+                sfxSource.PlayOneShot(clip, 0.9f);
+            }
+        }
+
         public void StartAmbientCity()
         {
             if (ambientSource != null && ambientCityClip != null)

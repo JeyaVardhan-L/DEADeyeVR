@@ -46,9 +46,19 @@ namespace DEADeye
             return EventSystem.current.IsPointerOverGameObject();
         }
 
+        public bool GetFreeLookHeld()
+        {
+            if (Keyboard.current != null && (Keyboard.current.leftAltKey.isPressed || Keyboard.current.rightAltKey.isPressed))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool GetFireDown()
         {
-            if (IsPointerOverUI()) return false;
+            // Do not fire if pointer is over UI or if player is holding Left Alt for mouse look
+            if (IsPointerOverUI() || GetFreeLookHeld()) return false;
 
             // Desktop Left Click
             if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)

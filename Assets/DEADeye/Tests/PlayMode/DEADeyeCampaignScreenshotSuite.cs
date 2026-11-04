@@ -45,8 +45,28 @@ namespace DEADeye.Tests
             int height = 1080;
             RenderTexture rt = new RenderTexture(width, height, 24);
             RenderTexture prev = cam.targetTexture;
+
+            // Temporarily switch ScreenSpaceOverlay canvases to ScreenSpaceCamera so cam.Render captures UI
+            var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            var modifiedCanvases = new System.Collections.Generic.List<Canvas>();
+            foreach (var c in canvases)
+            {
+                if (c.gameObject.activeInHierarchy && c.renderMode == RenderMode.ScreenSpaceOverlay)
+                {
+                    c.renderMode = RenderMode.ScreenSpaceCamera;
+                    c.worldCamera = cam;
+                    c.planeDistance = 1.0f;
+                    modifiedCanvases.Add(c);
+                }
+            }
+
             cam.targetTexture = rt;
             cam.Render();
+
+            foreach (var c in modifiedCanvases)
+            {
+                c.renderMode = RenderMode.ScreenSpaceOverlay;
+            }
 
             RenderTexture.active = rt;
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGB24, false);

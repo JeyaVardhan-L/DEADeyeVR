@@ -45,12 +45,28 @@ namespace DEADeye
 
         [Header("Tactical Recon & Radio Elements")]
         [SerializeField] private TextMeshProUGUI objectiveText;
+        [SerializeField] private TextMeshProUGUI objectiveTitleText;
+        [SerializeField] private TextMeshProUGUI objectiveRationaleText;
+        [SerializeField] private TextMeshProUGUI objectiveProgressText;
+        [SerializeField] private Outline objectiveOutline;
+        [SerializeField] private GameObject tutorialPanel;
+        [SerializeField] private TextMeshProUGUI tutorialText;
         [SerializeField] private GameObject spottingBannerPanel;
         [SerializeField] private TextMeshProUGUI spottingTitleText;
         [SerializeField] private TextMeshProUGUI spottingDescText;
         [SerializeField] private GameObject radioDialoguePanel;
         [SerializeField] private TextMeshProUGUI radioSenderText;
         [SerializeField] private TextMeshProUGUI radioMessageText;
+
+        [Header("Tutorial State")]
+        private int currentTutorialStep = 0;
+        private bool hasLooked = false;
+        private bool hasMoved = false;
+        private bool hasScoped = false;
+        private bool hasSpotted = false;
+        private bool hasFired = false;
+        private bool hasReloaded = false;
+        private Coroutine objectiveFlashCoroutine;
 
         [Header("Feedback Elements")]
         [SerializeField] private TextMeshProUGUI hitFeedbackText;
@@ -72,6 +88,8 @@ namespace DEADeye
         private void Awake()
         {
             Instance = this;
+            Time.timeScale = 1f;
+            isPaused = false;
             EnsureHUDCanvas();
         }
 
@@ -96,6 +114,8 @@ namespace DEADeye
             if (DEADeyeWeaponManager.Instance != null)
             {
                 DEADeyeWeaponManager.Instance.OnAmmoChanged += UpdateAmmoDisplay;
+                DEADeyeWeaponManager.Instance.OnReloadStarted += HandleReloadStarted;
+                DEADeyeWeaponManager.Instance.OnReloadCompleted += HandleReloadCompleted;
             }
 
             // Find scope optic if available
@@ -131,6 +151,8 @@ namespace DEADeye
             if (DEADeyeWeaponManager.Instance != null)
             {
                 DEADeyeWeaponManager.Instance.OnAmmoChanged -= UpdateAmmoDisplay;
+                DEADeyeWeaponManager.Instance.OnReloadStarted -= HandleReloadStarted;
+                DEADeyeWeaponManager.Instance.OnReloadCompleted -= HandleReloadCompleted;
             }
         }
 
@@ -180,18 +202,41 @@ namespace DEADeye
                 GameObject objBar = new GameObject("ObjectiveBar");
                 objBar.transform.SetParent(canvasGO.transform, false);
                 RectTransform objRT = objBar.AddComponent<RectTransform>();
-                objRT.anchorMin = new Vector2(0.38f, 0.88f);
+                objRT.anchorMin = new Vector2(0.28f, 0.83f);
                 objRT.anchorMax = new Vector2(0.72f, 0.98f);
                 objRT.offsetMin = Vector2.zero;
                 objRT.offsetMax = Vector2.zero;
 
                 Image objBg = objBar.AddComponent<Image>();
-                objBg.color = new Color(0.03f, 0.06f, 0.10f, 0.88f);
+                objBg.color = new Color(0.03f, 0.06f, 0.10f, 0.92f);
                 Outline objOutline = objBar.AddComponent<Outline>();
                 objOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.6f);
                 objOutline.effectDistance = new Vector2(1.5f, -1.5f);
+                objectiveOutline = objOutline;
 
-                objectiveText = CreateText(objBar.transform, "ObjectiveText", "OPERATION DEAD AIR // RECONNAISSANCE", 16, new Vector2(14f, -10f), new Vector2(620f, 34f), new Color(0.0f, 1.0f, 0.65f));
+                objectiveTitleText = CreateText(objBar.transform, "ObjectiveTitleText", "OBJECTIVE 1 OF 6: RECON & SPOT", 17, new Vector2(16f, -6f), new Vector2(800f, 26f), new Color(0.0f, 0.95f, 1.0f));
+                objectiveRationaleText = CreateText(objBar.transform, "ObjectiveRationaleText", "Dwell optical scope reticle on Elena, Marcus, and the broadcast tower to confirm tactical status.", 13, new Vector2(16f, -34f), new Vector2(800f, 38f), new Color(0.85f, 0.90f, 0.95f));
+                objectiveProgressText = CreateText(objBar.transform, "ObjectiveProgressText", "TARGETS SPOTTED: 0 / 3", 13, new Vector2(16f, -74f), new Vector2(800f, 22f), new Color(0.0f, 1.0f, 0.5f));
+                objectiveText = objectiveTitleText; // Compatibility alias
+
+                // 2b. Contextual Tutorial Panel (Bottom Center)
+                GameObject tutGO = new GameObject("ContextualTutorialPanel");
+                tutGO.transform.SetParent(canvasGO.transform, false);
+                RectTransform tutRT = tutGO.AddComponent<RectTransform>();
+                tutRT.anchorMin = new Vector2(0.24f, 0.03f);
+                tutRT.anchorMax = new Vector2(0.76f, 0.09f);
+                tutRT.offsetMin = Vector2.zero;
+                tutRT.offsetMax = Vector2.zero;
+
+                Image tutBg = tutGO.AddComponent<Image>();
+                tutBg.color = new Color(0.02f, 0.05f, 0.09f, 0.92f);
+                Outline tutOutline = tutGO.AddComponent<Outline>();
+                tutOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.7f);
+                tutOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+                tutorialText = CreateText(tutGO.transform, "TutorialText", "HOLD LEFT ALT + MOVE MOUSE — LOOK AROUND", 16, new Vector2(10f, -6f), new Vector2(980f, 32f), new Color(0.0f, 0.95f, 1.0f));
+                tutorialText.alignment = TextAlignmentOptions.Center;
+                tutorialPanel = tutGO;
 
                 // 3. Tactical Spotting Banner (Center High)
                 spottingBannerPanel = new GameObject("SpottingBannerPanel");
@@ -629,18 +674,153 @@ namespace DEADeye
             }
         }
 
-                public void UpdateAmmoDisplay(int current, int max)
+                private void HandleReloadStarted()
         {
             if (ammoText != null)
             {
+                ammoText.text = "<color=#FFCC00>RELOADING...</color>\n<size=15><color=#888888>PLEASE WAIT</color></size>";
+            }
+        }
+
+        private void HandleReloadCompleted()
+        {
+            if (DEADeyeWeaponManager.Instance != null)
+            {
+                UpdateAmmoDisplay(DEADeyeWeaponManager.Instance.CurrentAmmo, DEADeyeWeaponManager.Instance.MagazineCapacity);
+            }
+        }
+
+        public void UpdateAmmoDisplay(int current, int max)
+        {
+            if (ammoText != null)
+            {
+                if (DEADeyeWeaponManager.Instance != null && DEADeyeWeaponManager.Instance.IsReloading)
+                {
+                    ammoText.text = "<color=#FFCC00>RELOADING...</color>\n<size=15><color=#888888>PLEASE WAIT</color></size>";
+                    return;
+                }
+
                 string colTag = current == 0 ? "<color=red>" : "<color=#00E5FF>";
-                ammoText.text = $"AMMO: {colTag}{current}</color> / \u221E\n<size=15><color=#888888>[R] RELOAD</color></size>";
+                string prompt = current == 0 ? "<color=#FF5555>[R] RELOAD REQUIRED</color>" : "<color=#888888>[R] RELOAD</color>";
+                ammoText.text = $"AMMO: {colTag}{current}</color> / \u221E\n<size=15>{prompt}</size>";
+            }
+        }
+
+        private void Update()
+        {
+            UpdateTutorial();
+        }
+
+        private void UpdateTutorial()
+        {
+            if (tutorialPanel == null) return;
+
+            // Only show tutorial when mission is active and not in terminal/pause
+            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState != DEADeyeGameState.MissionActive)
+            {
+                if (tutorialPanel.activeSelf) tutorialPanel.SetActive(false);
+                return;
+            }
+
+            if (currentTutorialStep > 4)
+            {
+                if (tutorialPanel.activeSelf) tutorialPanel.SetActive(false);
+                return;
+            }
+
+            if (!tutorialPanel.activeSelf) tutorialPanel.SetActive(true);
+
+            switch (currentTutorialStep)
+            {
+                case 0: // Free look
+                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFreeLookHeld())
+                    {
+                        Vector2 look = UnityEngine.InputSystem.Mouse.current != null ? UnityEngine.InputSystem.Mouse.current.delta.ReadValue() : Vector2.zero;
+                        if (look.sqrMagnitude > 0.5f) hasLooked = true;
+                    }
+                    if (hasLooked)
+                    {
+                        currentTutorialStep = 1;
+                        SetTutorialPrompt("WASD — MOVE BETWEEN OVERWATCH PERCHES");
+                    }
+                    break;
+
+                case 1: // WASD move
+                    if (DEADeyeInputRouter.Instance != null)
+                    {
+                        Vector2 move = DEADeyeInputRouter.Instance.GetMoveInput();
+                        if (move.sqrMagnitude > 0.05f) hasMoved = true;
+                    }
+                    if (hasMoved)
+                    {
+                        currentTutorialStep = 2;
+                        SetTutorialPrompt("HOLD RMB — OPTICAL SCOPE ZOOM");
+                    }
+                    break;
+
+                case 2: // RMB Zoom
+                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetAimHeld())
+                    {
+                        hasScoped = true;
+                    }
+                    if (hasScoped)
+                    {
+                        currentTutorialStep = 3;
+                        SetTutorialPrompt("DWELL RETICLE ON TARGETS — RECON SPOTTING");
+                    }
+                    break;
+
+                case 3: // Spotting
+                    if (hasSpotted)
+                    {
+                        currentTutorialStep = 4;
+                        SetTutorialPrompt("LMB — FIRE  |  R — RELOAD");
+                    }
+                    break;
+
+                case 4: // Fire and Reload
+                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())
+                    {
+                        hasFired = true;
+                    }
+                    if (DEADeyeWeaponManager.Instance != null && DEADeyeWeaponManager.Instance.IsReloading)
+                    {
+                        hasReloaded = true;
+                    }
+                    if (hasFired && hasReloaded)
+                    {
+                        currentTutorialStep = 5;
+                        tutorialPanel.SetActive(false);
+                    }
+                    break;
+            }
+        }
+
+        public void NotifyTargetSpotted()
+        {
+            hasSpotted = true;
+            if (currentTutorialStep == 3)
+            {
+                currentTutorialStep = 4;
+                SetTutorialPrompt("LMB — FIRE  |  R — RELOAD");
+            }
+        }
+
+        private void SetTutorialPrompt(string text)
+        {
+            if (tutorialText != null)
+            {
+                tutorialText.text = text;
             }
         }
 
         public void SetObjectiveDisplay(string objective)
         {
-            if (objectiveText != null)
+            if (objectiveTitleText != null)
+            {
+                objectiveTitleText.text = objective;
+            }
+            else if (objectiveText != null)
             {
                 objectiveText.text = objective;
             }
@@ -649,6 +829,58 @@ namespace DEADeye
         public void UpdateObjectiveBar(string objective)
         {
             SetObjectiveDisplay(objective);
+        }
+
+        public void UpdateObjectiveTracker(int stepNum, int totalSteps, string title, string rationale, string progress = null)
+        {
+            if (objectiveTitleText != null)
+            {
+                objectiveTitleText.text = $"OBJECTIVE {stepNum} OF {totalSteps}: {title.ToUpper()}";
+            }
+            else if (objectiveText != null)
+            {
+                objectiveText.text = $"OBJECTIVE {stepNum} OF {totalSteps}: {title.ToUpper()}";
+            }
+
+            if (objectiveRationaleText != null)
+            {
+                objectiveRationaleText.text = rationale;
+            }
+
+            if (objectiveProgressText != null)
+            {
+                objectiveProgressText.text = progress ?? "";
+            }
+
+            if (DEADeyeAudioManager.Instance != null)
+            {
+                DEADeyeAudioManager.Instance.PlayObjectiveUpdate();
+            }
+
+            if (objectiveFlashCoroutine != null) StopCoroutine(objectiveFlashCoroutine);
+            objectiveFlashCoroutine = StartCoroutine(FlashObjectiveOutline());
+        }
+
+        public void UpdateObjectiveProgress(string progress)
+        {
+            if (objectiveProgressText != null)
+            {
+                objectiveProgressText.text = progress;
+            }
+        }
+
+        private IEnumerator FlashObjectiveOutline()
+        {
+            if (objectiveOutline == null) yield break;
+            Color original = new Color(0.0f, 0.85f, 1.0f, 0.6f);
+            Color flash = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+
+            for (float t = 0f; t < 0.6f; t += Time.deltaTime)
+            {
+                objectiveOutline.effectColor = Color.Lerp(flash, original, t / 0.6f);
+                yield return null;
+            }
+            objectiveOutline.effectColor = original;
         }
 
         public void ShowSpottingBanner(DEADeyeSpotable target)

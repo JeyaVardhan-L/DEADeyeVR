@@ -10,9 +10,10 @@ using UnityEngine.InputSystem.UI;
 namespace DEADeye
 {
     /// <summary>
-    /// Interactive tactical terminal UI rendered on both the 3D rooftop terminal
-    /// and screen HUD, allowing mission selection, intel review, deployment, and debriefing.
-    /// Provides fully clickable UI buttons with Input System compatibility and tactile audio feedback.
+    /// Full-screen high-contrast Tactical Mission Briefing & Terminal UI.
+    /// Provides clear mission narrative, dossier cards for friendly and hostile personnel,
+    /// an explicit 6-step objective sequence, interactive mission tabs, and a prominent
+    /// "DEPLOY INTO MISSION" button that must be clicked before the mission begins.
     /// </summary>
     public class DEADeyeTacticalTerminalUI : MonoBehaviour
     {
@@ -106,7 +107,11 @@ namespace DEADeye
                 GameObject cGO = new GameObject("TerminalCanvas");
                 Canvas c = cGO.AddComponent<Canvas>();
                 c.renderMode = RenderMode.ScreenSpaceOverlay;
-                cGO.AddComponent<CanvasScaler>();
+                c.sortingOrder = 50; // Above regular HUD
+                CanvasScaler cs = cGO.AddComponent<CanvasScaler>();
+                cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                cs.referenceResolution = new Vector2(1920, 1080);
+                cs.matchWidthOrHeight = 0.5f;
                 cGO.AddComponent<GraphicRaycaster>();
                 canvasParent = cGO.transform;
             }
@@ -114,18 +119,14 @@ namespace DEADeye
             GameObject terminalGO = new GameObject("TacticalTerminalPanel");
             terminalGO.transform.SetParent(canvasParent, false);
             RectTransform rt = terminalGO.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.10f, 0.08f);
-            rt.anchorMax = new Vector2(0.90f, 0.92f);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
 
             Image bg = terminalGO.AddComponent<Image>();
-            bg.color = new Color(0.03f, 0.05f, 0.08f, 0.96f);
+            bg.color = new Color(0.02f, 0.04f, 0.07f, 0.98f);
             bg.raycastTarget = true;
-
-            Outline outline = terminalGO.AddComponent<Outline>();
-            outline.effectColor = new Color(0.0f, 0.8f, 1.0f, 0.7f);
-            outline.effectDistance = new Vector2(2f, -2f);
 
             var termUI = terminalGO.AddComponent<DEADeyeTacticalTerminalUI>();
             termUI.terminalCanvasRoot = terminalGO;
@@ -160,6 +161,12 @@ namespace DEADeye
             UpdateDisplay();
             ShowTerminal(true);
             if (debriefPanel != null) debriefPanel.SetActive(false);
+
+            // Set game state to MissionBriefing initially
+            if (DEADeyeGameManager.Instance != null)
+            {
+                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionBriefing);
+            }
         }
 
         private void Update()
@@ -175,12 +182,12 @@ namespace DEADeye
                     else if (kb.digit3Key.wasPressedThisFrame) SelectMission(2);
                     else if (kb.digit4Key.wasPressedThisFrame) SelectMission(3);
 
-                    if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame || kb.eKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
+                    if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame || kb.eKey.wasPressedThisFrame)
                     {
                         DeploySelectedMission();
                     }
 
-                    if (kb.yKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame)
+                    if (kb.escapeKey.wasPressedThisFrame || kb.yKey.wasPressedThisFrame)
                     {
                         ToggleTerminal();
                     }
@@ -219,62 +226,265 @@ namespace DEADeye
         {
             EnsureEventSystem();
 
-            // Header Title Bar
-            headerOperationText = CreateText(parent, "Header", "DEADeye TACTICAL OVERWATCH NETWORK // OPERATION BRIEFING", 22, new Vector2(24f, -14f), new Vector2(750f, 32f), new Color(0f, 0.9f, 1f));
-
-            // Close Button [X] in top-right
-            closeButton = CreateButton(parent, "Btn_Close", "[ CLOSE (Y) ]", new Vector2(-24f, -14f), new Vector2(150f, 32f), () => ShowTerminal(false), isTopRight: true);
-
-            // Tab Buttons for Operations [1] to [4]
-            missionTabButtons.Clear();
-            string[] tabLabels = new string[]
+            // Clear any old children
+            List<GameObject> toDestroy = new List<GameObject>();
+            foreach (Transform child in parent)
             {
-                "1. OP DEAD AIR",
-                "2. OP MOVING TARGET",
-                "3. OP NO CLEAR SHOT",
-                "4. OP DEAD GROUND"
-            };
+                toDestroy.Add(child.gameObject);
+            }
+            foreach (var go in toDestroy)
+            {
+                if (Application.isPlaying) Destroy(go);
+                else DestroyImmediate(go);
+            }
 
-            float tabStartX = 24f;
+            // =========================================================================
+            // TOP HEADER BAR (Y: 1000 - 1080)
+            // =========================================================================
+            GameObject topBar = new GameObject("TopHeaderBar");
+            topBar.transform.SetParent(parent, false);
+            RectTransform tbRT = topBar.AddComponent<RectTransform>();
+            tbRT.anchorMin = new Vector2(0f, 0.92f);
+            tbRT.anchorMax = new Vector2(1f, 1f);
+            tbRT.offsetMin = Vector2.zero;
+            tbRT.offsetMax = Vector2.zero;
+
+            Image tbBg = topBar.AddComponent<Image>();
+            tbBg.color = new Color(0.04f, 0.08f, 0.14f, 0.95f);
+
+            headerOperationText = CreateText(topBar.transform, "Header", "DEADEYE OPERATIONS // CLASSIFIED INTEL BRIEFING", 22, new Vector2(30f, -12f), new Vector2(800f, 32f), new Color(0f, 0.9f, 1f));
+            CreateText(topBar.transform, "HeaderSub", "OPERATION 01: DEAD AIR // THE BLACKOUT PROTOCOL", 15, new Vector2(30f, -44f), new Vector2(800f, 24f), new Color(0.3f, 0.75f, 0.9f));
+
+            // Mission selection tabs (OP-01 to OP-04)
+            missionTabButtons.Clear();
+            string[] tabLabels = new string[] { "[1] OP-01: DEAD AIR", "[2] OP-02: MOVING TARGET", "[3] OP-03: NO CLEAR SHOT", "[4] OP-04: DEAD GROUND" };
+            float tabStartX = 780f;
             float tabWidth = 220f;
-            float tabSpacing = 10f;
             for (int i = 0; i < tabLabels.Length; i++)
             {
                 int index = i;
-                Vector2 tabPos = new Vector2(tabStartX + (i * (tabWidth + tabSpacing)), -54f);
-                Button btn = CreateButton(parent, $"Btn_Tab_{i}", tabLabels[i], tabPos, new Vector2(tabWidth, 38f), () => SelectMission(index));
-                missionTabButtons.Add(btn);
+                Button tabBtn = CreateButton(topBar.transform, $"Tab_{i}", tabLabels[i], new Vector2(tabStartX + (i * (tabWidth + 8f)), -16f), new Vector2(tabWidth, 42f), () => SelectMission(index));
+                missionTabButtons.Add(tabBtn);
             }
 
-            // Central Dossier Content Panel
-            GameObject contentPanel = new GameObject("DossierContent");
-            contentPanel.transform.SetParent(parent, false);
-            RectTransform cpRT = contentPanel.AddComponent<RectTransform>();
-            cpRT.anchorMin = new Vector2(0.02f, 0.14f);
-            cpRT.anchorMax = new Vector2(0.98f, 0.85f);
-            cpRT.offsetMin = Vector2.zero;
-            cpRT.offsetMax = Vector2.zero;
+            // Close button in top-right
+            closeButton = CreateButton(topBar.transform, "Btn_Close", "[ X ]", new Vector2(-30f, -16f), new Vector2(70f, 42f), () => ShowTerminal(false), isTopRight: true);
 
-            Image cpBg = contentPanel.AddComponent<Image>();
-            cpBg.color = new Color(0.02f, 0.03f, 0.05f, 0.85f);
+            // =========================================================================
+            // LEFT COLUMN: THE STORY / BACKGROUND (X: 30 to 930, Y: 280 to 960)
+            // =========================================================================
+            GameObject leftCol = new GameObject("LeftColumn_Story");
+            leftCol.transform.SetParent(parent, false);
+            RectTransform lcRT = leftCol.AddComponent<RectTransform>();
+            lcRT.anchorMin = new Vector2(0.02f, 0.32f);
+            lcRT.anchorMax = new Vector2(0.49f, 0.90f);
+            lcRT.offsetMin = Vector2.zero;
+            lcRT.offsetMax = Vector2.zero;
 
-            titleText = CreateText(contentPanel.transform, "OpTitle", "OPERATION: DEAD AIR", 26, new Vector2(16f, -12f), new Vector2(850f, 36f), Color.white);
-            districtText = CreateText(contentPanel.transform, "Sector", "SECTOR: CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE", 17, new Vector2(16f, -48f), new Vector2(850f, 26f), new Color(0.2f, 0.85f, 1f));
-            threatText = CreateText(contentPanel.transform, "Threat", "THREAT LEVEL: CRITICAL | OPERATION: THE BLACKOUT PROTOCOL", 16, new Vector2(16f, -76f), new Vector2(850f, 24f), new Color(1f, 0.8f, 0.2f));
+            Image lcBg = leftCol.AddComponent<Image>();
+            lcBg.color = new Color(0.03f, 0.06f, 0.10f, 0.88f);
+            Outline lcOutline = leftCol.AddComponent<Outline>();
+            lcOutline.effectColor = new Color(0.0f, 0.75f, 0.95f, 0.5f);
+            lcOutline.effectDistance = new Vector2(1.5f, -1.5f);
 
-            briefingText = CreateText(contentPanel.transform, "Briefing", 
-                "A hostile syndicate has deployed an emergency frequency jammer to hijack the city grid. Two friendly technicians (Elena & Marcus) are moving under cover to restore the broadcast. Observe developing events, identify threats, disable the jammer, protect the technicians, eliminate the hostile commander, and secure the civilian evacuation convoy.", 
-                16, new Vector2(16f, -108f), new Vector2(1050f, 100f), new Color(0.85f, 0.9f, 0.95f));
+            CreateText(leftCol.transform, "StoryHeader", "THE SITUATION & MISSION BACKGROUND", 20, new Vector2(20f, -16f), new Vector2(600f, 28f), new Color(0.0f, 0.9f, 1.0f));
 
-            primaryObjText = CreateText(contentPanel.transform, "Primary", "• PRIMARY: Disrupt Jammer, Protect Technicians, Neutralize Commander & Escort Convoy", 17, new Vector2(16f, -220f), new Vector2(950f, 28f), new Color(0.2f, 1f, 0.4f));
-            secondaryObjText = CreateText(contentPanel.transform, "Secondary", "• SECONDARY: Complete Recon Spotting & Maintain Zero Civilian Collateral", 16, new Vector2(16f, -252f), new Vector2(950f, 26f), new Color(0.9f, 0.9f, 0.2f));
+            titleText = CreateText(leftCol.transform, "OpTitle", "OPERATION: DEAD AIR", 24, new Vector2(20f, -50f), new Vector2(700f, 32f), Color.white);
+            districtText = CreateText(leftCol.transform, "Sector", "SECTOR: CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE", 15, new Vector2(20f, -84f), new Vector2(750f, 24f), new Color(0.2f, 0.85f, 1f));
+            threatText = CreateText(leftCol.transform, "Threat", "THREAT LEVEL: CRITICAL | TIME LIMIT: 150 SECONDS", 15, new Vector2(20f, -110f), new Vector2(750f, 24f), new Color(1f, 0.8f, 0.2f));
 
-            // Prominent Clickable Deploy Button at Bottom
-            deployButton = CreateButton(parent, "Btn_Deploy", "▶   DEPLOY TO OVERWATCH   ◀", new Vector2(24f, 18f), new Vector2(400f, 52f), DeploySelectedMission, isBottom: true);
-            deployPromptText = CreateText(parent, "DeployPrompt", "[ CLICK BUTTON OR PRESS SPACE / ENTER / E TO DEPLOY ]", 15, new Vector2(440f, 32f), new Vector2(600f, 28f), new Color(0.5f, 0.7f, 0.8f), isBottom: true);
+            briefingText = CreateText(leftCol.transform, "StoryBody",
+                "A hostile syndicate strike team has deployed an emergency frequency jammer to hijack the municipal communication grid, plunging the entire metropolitan district into a radio blackout.\n\n" +
+                "You are positioned in high-angle rooftop overwatch above the Central Commercial Plaza. Two unarmed civilian field technicians—Elena and Marcus—have slipped into the plaza under heavy cover to access the municipal broadcast relay tower and restore emergency transmission.\n\n" +
+                "Your role is absolute precision overwatch:\n" +
+                "• Surveil the plaza and identify all tactical assets.\n" +
+                "• Cut power to the syndicate jammer by sniping its high-voltage power junction.\n" +
+                "• Shield Elena and Marcus from advancing hostile assault squads while they work.\n" +
+                "• Intercept and neutralize Commander Vance before his armored exfil convoy departs.\n" +
+                "• Cover the team's extraction across the boulevard to the transit terminal.",
+                15, new Vector2(20f, -145f), new Vector2(850f, 340f), new Color(0.88f, 0.92f, 0.98f));
+
+            // =========================================================================
+            // RIGHT COLUMN: PEOPLE INVOLVED / TARGET PROFILES (X: 960 to 1890, Y: 280 to 960)
+            // =========================================================================
+            GameObject rightCol = new GameObject("RightColumn_Personnel");
+            rightCol.transform.SetParent(parent, false);
+            RectTransform rcRT = rightCol.AddComponent<RectTransform>();
+            rcRT.anchorMin = new Vector2(0.51f, 0.32f);
+            rcRT.anchorMax = new Vector2(0.98f, 0.90f);
+            rcRT.offsetMin = Vector2.zero;
+            rcRT.offsetMax = Vector2.zero;
+
+            Image rcBg = rightCol.AddComponent<Image>();
+            rcBg.color = new Color(0.03f, 0.06f, 0.10f, 0.88f);
+            Outline rcOutline = rightCol.AddComponent<Outline>();
+            rcOutline.effectColor = new Color(0.0f, 0.75f, 0.95f, 0.5f);
+            rcOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+            CreateText(rightCol.transform, "PersonnelHeader", "KEY PERSONNEL & TARGET PROFILES", 20, new Vector2(20f, -16f), new Vector2(600f, 28f), new Color(0.0f, 0.9f, 1.0f));
+
+            // Card 1: Elena
+            BuildPersonnelCard(rightCol.transform, "Card_Elena", 
+                "ELENA // LEAD COMMS ENGINEER", 
+                "FRIENDLY // MUST PROTECT", 
+                new Color(0.0f, 0.95f, 0.4f), 
+                new Color(0.02f, 0.20f, 0.08f, 0.9f),
+                "Civilian field outfit with tool harness. She is advancing across the plaza to access the municipal relay tower console and restore the emergency broadcast array.",
+                new Vector2(20f, -54f), new Vector2(840f, 120f));
+
+            // Card 2: Marcus
+            BuildPersonnelCard(rightCol.transform, "Card_Marcus", 
+                "MARCUS // ASSISTANT FIELD TECHNICIAN", 
+                "FRIENDLY // MUST PROTECT", 
+                new Color(0.0f, 0.95f, 0.4f), 
+                new Color(0.02f, 0.20f, 0.08f, 0.9f),
+                "Civilian field attire with cable spool. Assisting Elena with ground cable conduits and power connections. If either technician is eliminated, the broadcast fails.",
+                new Vector2(20f, -186f), new Vector2(840f, 120f));
+
+            // Card 3: Commander Vance
+            BuildPersonnelCard(rightCol.transform, "Card_Vance", 
+                "COMMANDER VANCE // SYNDICATE STRIKE LEADER", 
+                "HOSTILE // MUST ELIMINATE", 
+                new Color(1.0f, 0.25f, 0.25f), 
+                new Color(0.25f, 0.03f, 0.03f, 0.9f),
+                "Heavily armored tactical plate carrier, radio headset, sidearm. Coordinating the jammer deployment from the north perimeter and staging to escape via convoy.",
+                new Vector2(20f, -318f), new Vector2(840f, 120f));
+
+            // Rules of Engagement note
+            CreateText(rightCol.transform, "ROEText", 
+                "RULES OF ENGAGEMENT: Zero civilian casualties permitted. Protect Elena & Marcus at all costs.", 
+                14, new Vector2(20f, -450f), new Vector2(840f, 26f), new Color(1.0f, 0.85f, 0.2f));
+
+            // =========================================================================
+            // BOTTOM AREA: OBJECTIVE SEQUENCE (Y: 100 to 300)
+            // =========================================================================
+            GameObject botArea = new GameObject("BottomArea_Objectives");
+            botArea.transform.SetParent(parent, false);
+            RectTransform baRT = botArea.AddComponent<RectTransform>();
+            baRT.anchorMin = new Vector2(0.02f, 0.11f);
+            baRT.anchorMax = new Vector2(0.98f, 0.30f);
+            baRT.offsetMin = Vector2.zero;
+            baRT.offsetMax = Vector2.zero;
+
+            Image baBg = botArea.AddComponent<Image>();
+            baBg.color = new Color(0.03f, 0.05f, 0.08f, 0.88f);
+            Outline baOutline = botArea.AddComponent<Outline>();
+            baOutline.effectColor = new Color(0.0f, 0.75f, 0.95f, 0.5f);
+            baOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+            CreateText(botArea.transform, "ObjHeader", "TACTICAL MISSION FLOW // SEQUENTIAL OBJECTIVES", 18, new Vector2(20f, -10f), new Vector2(600f, 24f), new Color(0.0f, 0.9f, 1.0f));
+
+            float cardW = 280f;
+            float cardSpacing = 16f;
+            float startX = 20f;
+
+            string[,] objCards = new string[,]
+            {
+                { "1. RECON & SPOT", "Dwell optical scope on Elena, Marcus, and broadcast tower to verify tactical positions." },
+                { "2. DISRUPT COMMS", "Snipe high-voltage power junction on utility pole to cut power to syndicate jammer." },
+                { "3. OVERWATCH", "Defend technicians from advancing syndicate assault waves while array repair completes." },
+                { "4. NEUTRALIZE VANCE", "Spot and eliminate Commander Vance before his armored security detail reaches exfil." },
+                { "5. ESCORT EVAC", "Cover technicians' final withdrawal across the boulevard to the extraction vehicle." },
+                { "OPTIONAL // BONUS", "Snipe volatile power transformer or alarm siren to trigger environmental distractions." }
+            };
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2 pos = new Vector2(startX + (i * (cardW + cardSpacing)), -40f);
+                BuildObjectiveStepCard(botArea.transform, $"StepCard_{i + 1}", objCards[i, 0], objCards[i, 1], pos, new Vector2(cardW, 140f), i == 5);
+            }
+
+            // =========================================================================
+            // FOOTER BAR: DEPLOY BUTTON & PROMPT (Y: 0 to 100)
+            // =========================================================================
+            GameObject footerBar = new GameObject("FooterBar");
+            footerBar.transform.SetParent(parent, false);
+            RectTransform fbRT = footerBar.AddComponent<RectTransform>();
+            fbRT.anchorMin = new Vector2(0f, 0f);
+            fbRT.anchorMax = new Vector2(1f, 0.10f);
+            fbRT.offsetMin = Vector2.zero;
+            fbRT.offsetMax = Vector2.zero;
+
+            Image fbBg = footerBar.AddComponent<Image>();
+            fbBg.color = new Color(0.02f, 0.04f, 0.07f, 0.95f);
+
+            // Large prominent Deploy Button (Center)
+            deployButton = CreateButton(footerBar.transform, "Btn_Deploy", "▶   DEPLOY INTO MISSION   ◀", new Vector2(710f, 14f), new Vector2(500f, 58f), DeploySelectedMission, isBottom: true);
+            deployButton.GetComponentInChildren<Text>().fontSize = 20;
+
+            ColorBlock dcb = deployButton.colors;
+            dcb.normalColor = new Color(0.0f, 0.55f, 0.85f, 1.0f);
+            dcb.highlightedColor = new Color(0.0f, 0.75f, 1.0f, 1.0f);
+            dcb.pressedColor = new Color(0.0f, 0.95f, 0.5f, 1.0f);
+            deployButton.colors = dcb;
+
+            deployPromptText = CreateText(footerBar.transform, "DeployPrompt", "[ CLICK DEPLOY OR PRESS SPACE / ENTER / E ]", 15, new Vector2(740f, 76f), new Vector2(440f, 22f), new Color(0.4f, 0.8f, 1.0f), isBottom: true);
+            deployPromptText.alignment = TextAnchor.MiddleCenter;
 
             // Debrief Panel
             BuildDebriefPanel(parent);
+        }
+
+        private void BuildPersonnelCard(Transform parent, string name, string personName, string badgeText, Color badgeCol, Color badgeBgCol, string desc, Vector2 pos, Vector2 size)
+        {
+            GameObject cardGO = new GameObject(name);
+            cardGO.transform.SetParent(parent, false);
+            RectTransform rt = cardGO.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            Image bg = cardGO.AddComponent<Image>();
+            bg.color = new Color(0.04f, 0.08f, 0.12f, 0.85f);
+            Outline ol = cardGO.AddComponent<Outline>();
+            ol.effectColor = badgeCol * 0.6f;
+            ol.effectDistance = new Vector2(1f, -1f);
+
+            // Person Name
+            CreateText(cardGO.transform, "Name", personName, 17, new Vector2(14f, -10f), new Vector2(480f, 24f), Color.white);
+
+            // Badge
+            GameObject badgeGO = new GameObject("Badge");
+            badgeGO.transform.SetParent(cardGO.transform, false);
+            RectTransform brt = badgeGO.AddComponent<RectTransform>();
+            brt.anchorMin = new Vector2(1f, 1f);
+            brt.anchorMax = new Vector2(1f, 1f);
+            brt.pivot = new Vector2(1f, 1f);
+            brt.anchoredPosition = new Vector2(-14f, -10f);
+            brt.sizeDelta = new Vector2(250f, 24f);
+
+            Image bImg = badgeGO.AddComponent<Image>();
+            bImg.color = badgeBgCol;
+
+            Text bTxt = CreateText(badgeGO.transform, "BadgeText", $"[ {badgeText} ]", 13, Vector2.zero, new Vector2(250f, 24f), badgeCol);
+            bTxt.alignment = TextAnchor.MiddleCenter;
+
+            // Description
+            CreateText(cardGO.transform, "Desc", desc, 14, new Vector2(14f, -42f), new Vector2(810f, 65f), new Color(0.80f, 0.85f, 0.90f));
+        }
+
+        private void BuildObjectiveStepCard(Transform parent, string name, string stepTitle, string stepDesc, Vector2 pos, Vector2 size, bool isOptional)
+        {
+            GameObject cardGO = new GameObject(name);
+            cardGO.transform.SetParent(parent, false);
+            RectTransform rt = cardGO.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            Image bg = cardGO.AddComponent<Image>();
+            bg.color = new Color(0.04f, 0.07f, 0.11f, 0.85f);
+            Outline ol = cardGO.AddComponent<Outline>();
+            ol.effectColor = isOptional ? new Color(1.0f, 0.8f, 0.2f, 0.5f) : new Color(0.0f, 0.75f, 0.95f, 0.5f);
+            ol.effectDistance = new Vector2(1f, -1f);
+
+            Color titleCol = isOptional ? new Color(1.0f, 0.85f, 0.3f) : new Color(0.0f, 0.9f, 1.0f);
+            CreateText(cardGO.transform, "StepTitle", stepTitle, 15, new Vector2(8f, -8f), new Vector2(size.x - 16f, 22f), titleCol);
+            CreateText(cardGO.transform, "StepDesc", stepDesc, 13, new Vector2(8f, -34f), new Vector2(size.x - 16f, 96f), new Color(0.82f, 0.88f, 0.92f));
         }
 
         private void BuildDebriefPanel(Transform parent)
@@ -291,13 +501,13 @@ namespace DEADeye
             dbBg.color = new Color(0.02f, 0.04f, 0.07f, 0.98f);
             dbBg.raycastTarget = true;
 
-            debriefStatusText = CreateText(debriefPanel.transform, "DebriefStatus", "OPERATION ACCOMPLISHED", 36, new Vector2(40f, -40f), new Vector2(800f, 50f), new Color(0.2f, 0.95f, 0.4f));
-            debriefRankText = CreateText(debriefPanel.transform, "DebriefRank", "RANK: S", 52, new Vector2(850f, -35f), new Vector2(300f, 65f), Color.yellow);
-            debriefStatsText = CreateText(debriefPanel.transform, "DebriefStats", "SCORE: 0\nELIMS: 0\nHEADSHOTS: 0", 22, new Vector2(40f, -120f), new Vector2(800f, 260f), Color.white);
+            debriefStatusText = CreateText(debriefPanel.transform, "DebriefStatus", "OPERATION ACCOMPLISHED", 36, new Vector2(60f, -60f), new Vector2(900f, 50f), new Color(0.2f, 0.95f, 0.4f));
+            debriefRankText = CreateText(debriefPanel.transform, "DebriefRank", "RANK: S", 56, new Vector2(1400f, -50f), new Vector2(400f, 70f), Color.yellow);
+            debriefStatsText = CreateText(debriefPanel.transform, "DebriefStats", "SCORE: 0\nELIMS: 0\nHEADSHOTS: 0", 24, new Vector2(60f, -160f), new Vector2(1000f, 320f), Color.white);
 
             // Clickable Restart and Return Buttons in Debrief
-            CreateButton(debriefPanel.transform, "Btn_DebriefRestart", "↺   RESTART OPERATION", new Vector2(40f, 30f), new Vector2(300f, 48f), RestartCurrentMission, isBottom: true);
-            CreateButton(debriefPanel.transform, "Btn_DebriefTerminal", "☰   RETURN TO TERMINAL", new Vector2(360f, 30f), new Vector2(300f, 48f), ReturnToTerminal, isBottom: true);
+            CreateButton(debriefPanel.transform, "Btn_DebriefRestart", "↺   RESTART OPERATION", new Vector2(60f, 40f), new Vector2(340f, 56f), RestartCurrentMission, isBottom: true);
+            CreateButton(debriefPanel.transform, "Btn_DebriefTerminal", "☰   RETURN TO TERMINAL", new Vector2(430f, 40f), new Vector2(340f, 56f), ReturnToTerminal, isBottom: true);
 
             debriefPanel.SetActive(false);
         }
@@ -452,6 +662,11 @@ namespace DEADeye
                 DEADeyeAudioManager.Instance.PlayMissionStart();
             }
 
+            if (DEADeyeGameManager.Instance != null)
+            {
+                DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
+            }
+
             if (DEADeyeMissionDirector.Instance != null)
             {
                 DEADeyeMissionDirector.Instance.LaunchMission(SelectedMission);
@@ -547,7 +762,7 @@ namespace DEADeye
             var m = SelectedMission;
             if (m == null) return;
 
-            if (headerOperationText != null) headerOperationText.text = $"TACTICAL TERMINAL // {m.operationCode}";
+            if (headerOperationText != null) headerOperationText.text = $"DEADEYE OPERATIONS // {m.operationCode}";
             if (titleText != null) titleText.text = $"OPERATION: {m.operationTitle.ToUpper()}";
             if (districtText != null) districtText.text = $"SECTOR: {m.districtName.ToUpper()}";
             if (threatText != null) threatText.text = $"THREAT LEVEL: {m.threatLevel} | TIME LIMIT: {m.timeLimitSeconds:0}s";

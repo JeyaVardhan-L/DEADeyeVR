@@ -229,7 +229,7 @@ PrefabInstance:
       addedObject: {fileID: 6707024665720286357}
     - targetCorrespondingSourceObject: {fileID: -3932949460547484478, guid: 431e2b187a8448d45b8f7684ec97a51f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2572353794617368862}
+      addedObject: {fileID: 242853320314852029}
   m_SourcePrefab: {fileID: 6008300521503602845, guid: 431e2b187a8448d45b8f7684ec97a51f, type: 3}
 --- !u!4 &593893795725866563 stripped
 Transform:
@@ -262,7 +262,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.22
   m_Center: {x: 0, y: 4, z: 0}
---- !u!114 &2572353794617368862
+--- !u!114 &242853320314852029
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

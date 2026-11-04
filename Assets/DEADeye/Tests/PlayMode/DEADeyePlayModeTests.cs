@@ -63,8 +63,28 @@ namespace DEADeye.Tests
                 int height = 1080;
                 RenderTexture rt = new RenderTexture(width, height, 24);
                 RenderTexture prev = cam.targetTexture;
+
+                // Temporarily switch ScreenSpaceOverlay canvases to ScreenSpaceCamera so cam.Render captures UI
+                var canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+                var modifiedCanvases = new System.Collections.Generic.List<Canvas>();
+                foreach (var c in canvases)
+                {
+                    if (c.gameObject.activeInHierarchy && c.renderMode == RenderMode.ScreenSpaceOverlay)
+                    {
+                        c.renderMode = RenderMode.ScreenSpaceCamera;
+                        c.worldCamera = cam;
+                        c.planeDistance = 1.0f;
+                        modifiedCanvases.Add(c);
+                    }
+                }
+
                 cam.targetTexture = rt;
                 cam.Render();
+
+                foreach (var c in modifiedCanvases)
+                {
+                    c.renderMode = RenderMode.ScreenSpaceOverlay;
+                }
 
                 RenderTexture.active = rt;
                 Texture2D tex = new Texture2D(width, height, TextureFormat.RGB24, false);
@@ -295,6 +315,195 @@ namespace DEADeye.Tests
             resultsUI.OnRestartClicked();
             yield return new WaitForSeconds(0.5f);
             Assert.AreEqual("RooftopMission", SceneManager.GetActiveScene().name, "Check 19: Restart must reload the authoritative RooftopMission scene.");
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_06_BridgeNavigation_EastAndWest_ZeroTeleportResets()
+        {
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSeconds(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "Rooftop boundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            Assert.IsNotNull(cc, "CharacterController must exist on desktop rig.");
+
+            // 1. Initial position on Perch 1
+            desktopRig.transform.position = new Vector3(0f, 26f, -3f);
+            yield return new WaitForFixedUpdate();
+
+            // 2. Walk across East Catwalk Bridge towards Perch 2 (18m, 26m, 4m)
+            Vector3[] eastPath = new Vector3[]
+            {
+                new Vector3(4f, 26f, -4f),
+                new Vector3(6.8f, 26f, -5.2f), // East bridge entrance
+                new Vector3(10.5f, 26f, -1.6f), // Mid-bridge
+                new Vector3(14.0f, 26f, 2.0f),  // East perch entrance
+                new Vector3(18.0f, 26f, 4.0f)   // Center of Perch 2
+            };
+
+            foreach (var waypoint in eastPath)
+            {
+                for (int step = 0; step < 30; step++)
+                {
+                    Vector3 delta = (waypoint - desktopRig.transform.position);
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+            Assert.GreaterOrEqual(desktopRig.transform.position.x, 14f, "Player must successfully walk onto East Perch across the bridge.");
+            Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, "Player must remain elevated at rooftop level without falling.");
+
+            // Walk back from Perch 2 to Perch 1
+            Vector3[] returnPathEast = new Vector3[]
+            {
+                new Vector3(14.0f, 26f, 2.0f),
+                new Vector3(10.5f, 26f, -1.6f),
+                new Vector3(6.8f, 26f, -5.2f),
+                new Vector3(0f, 26f, -3f)
+            };
+
+            foreach (var waypoint in returnPathEast)
+            {
+                for (int step = 0; step < 30; step++)
+                {
+                    Vector3 delta = (waypoint - desktopRig.transform.position);
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+            Assert.LessOrEqual(desktopRig.transform.position.x, 4f, "Player must successfully return to Perch 1 from East Perch.");
+
+            // 3. Walk across West Bridge towards Perch 3 (-18m, 26m, 6m)
+            Vector3[] westPath = new Vector3[]
+            {
+                new Vector3(-4f, 26f, -4f),
+                new Vector3(-6.8f, 26f, -5.2f), // West bridge entrance
+                new Vector3(-10.5f, 26f, -0.6f), // Mid-bridge
+                new Vector3(-14.0f, 26f, 4.0f),  // West perch entrance
+                new Vector3(-18.0f, 26f, 6.0f)   // Center of Perch 3
+            };
+
+            foreach (var waypoint in westPath)
+            {
+                for (int step = 0; step < 30; step++)
+                {
+                    Vector3 delta = (waypoint - desktopRig.transform.position);
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+            Assert.LessOrEqual(desktopRig.transform.position.x, -14f, "Player must successfully walk onto West Perch across the bridge.");
+            Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, "Player must remain elevated at rooftop level without falling.");
+
+            // Walk back from Perch 3 to Perch 1
+            Vector3[] returnPathWest = new Vector3[]
+            {
+                new Vector3(-14.0f, 26f, 4.0f),
+                new Vector3(-10.5f, 26f, -0.6f),
+                new Vector3(-6.8f, 26f, -5.2f),
+                new Vector3(0f, 26f, -3f)
+            };
+
+            foreach (var waypoint in returnPathWest)
+            {
+                for (int step = 0; step < 30; step++)
+                {
+                    Vector3 delta = (waypoint - desktopRig.transform.position);
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+            }
+
+            Assert.GreaterOrEqual(desktopRig.transform.position.x, -4f, "Player must successfully return to Perch 1 from West Perch.");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_07_Controls_FreeLook_OpticalZoom_Decoupled()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+
+            // Close tactical terminal if open
+            if (DEADeyeTacticalTerminalUI.Instance != null && DEADeyeTacticalTerminalUI.Instance.IsTerminalActive)
+            {
+                DEADeyeTacticalTerminalUI.Instance.ShowTerminal(false);
+            }
+
+            // Verify cursor is unlocked initially in desktop mode
+            Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "Cursor must remain unlocked when Left Alt is not held.");
+
+            // Verify RMB triggers optical scope zoom without locking cursor
+            desktopRig.SetAiming(true);
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.IsTrue(desktopRig.IsAiming, "RMB must activate sniper optical scope zoom.");
+            Assert.AreEqual(CursorLockMode.None, Cursor.lockState, "Scope zoom must not conflict with mouse lock.");
+
+            desktopRig.SetAiming(false);
+            yield return new WaitForSecondsRealtime(0.1f);
+            Assert.IsFalse(desktopRig.IsAiming, "Releasing RMB must deactivate scope zoom.");
+            desktopRig.ClearAimOverride();
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_08_ReloadCycle_FiveRounds_InfiniteReserve()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var weaponMgr = DEADeyeWeaponManager.Instance;
+            Assert.IsNotNull(weaponMgr, "DEADeyeWeaponManager must exist.");
+
+            // Ensure magazine capacity is 5
+            Assert.AreEqual(5, weaponMgr.MagazineCapacity, "Magazine capacity must be exactly 5 rounds.");
+
+            // Consume rounds
+            weaponMgr.ConsumeAmmo();
+            weaponMgr.ConsumeAmmo();
+            Assert.AreEqual(3, weaponMgr.CurrentAmmo, "Ammo should decrease to 3 rounds.");
+
+            // Start reload
+            bool reloadCompleted = false;
+            weaponMgr.OnReloadCompleted += () => reloadCompleted = true;
+
+            weaponMgr.StartReload();
+            Assert.IsTrue(weaponMgr.IsReloading, "Reload must be active.");
+
+            // Wait for reload duration (1.8s)
+            float timer = 0f;
+            while (!reloadCompleted && timer < 5.0f)
+            {
+                timer += Time.unscaledDeltaTime > 0f ? Time.unscaledDeltaTime : 0.02f;
+                yield return null;
+            }
+
+            Assert.IsTrue(reloadCompleted, "Reload completed event must fire.");
+            Assert.IsFalse(weaponMgr.IsReloading, "Reload state must conclude.");
+            Assert.AreEqual(5, weaponMgr.CurrentAmmo, "Magazine must be fully replenished to 5 rounds.");
         }
     }
 }

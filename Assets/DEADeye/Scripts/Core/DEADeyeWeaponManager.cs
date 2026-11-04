@@ -70,6 +70,11 @@ namespace DEADeye
             StartCoroutine(ReloadRoutine());
         }
 
+        public void StartReload()
+        {
+            Reload();
+        }
+
         private System.Collections.IEnumerator ReloadRoutine()
         {
             isReloading = true;
@@ -80,7 +85,12 @@ namespace DEADeye
                 DEADeyeAudioManager.Instance.PlayReload(transform.position);
             }
 
-            yield return new WaitForSeconds(reloadTime);
+            float elapsed = 0f;
+            while (elapsed < reloadTime)
+            {
+                elapsed += Time.deltaTime > 0f ? Time.deltaTime : 0.02f;
+                yield return null;
+            }
 
             currentAmmo = magazineCapacity;
             isReloading = false;
