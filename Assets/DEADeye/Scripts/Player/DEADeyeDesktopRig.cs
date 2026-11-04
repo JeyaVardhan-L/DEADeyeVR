@@ -74,8 +74,9 @@ namespace DEADeye
 
         private void Start()
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            // Desktop Mode: Start with cursor unlocked and visible so player can interact with UI
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
 
             if (equippedWeapon == null)
             {
@@ -90,29 +91,38 @@ namespace DEADeye
 
         private void Update()
         {
+            HandleAiming();
             HandleMouseLook();
             HandleMovement();
-            HandleAiming();
             HandleWeaponInput();
         }
 
         private void HandleMouseLook()
         {
-            // Re-capture cursor if user clicks on the game view during active gameplay
-            if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+            // CRITICAL REQUIREMENT: Camera must NOT rotate at all unless player is actively holding RMB!
+            // When RMB is released:
+            // - Cursor is visible and unlocked.
+            // - Camera look input is disabled.
+            // - UI buttons can receive normal clicks.
+            // When RMB is held:
+            // - Cursor is captured (locked & hidden).
+            // - Camera look is enabled.
+            // - Weapon optic / scope is active.
+            if (!isAiming)
             {
-                bool isPaused = DEADeyeMissionHUD.Instance != null && DEADeyeMissionHUD.Instance.IsPaused;
-                bool isMissionActive = DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.CurrentState == DEADeyeGameState.MissionActive;
-                bool isOverUI = DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.IsPointerOverUI();
-
-                if (isMissionActive && !isPaused && !isOverUI && Cursor.lockState != CursorLockMode.Locked)
+                if (Cursor.lockState != CursorLockMode.None)
                 {
-                    Cursor.lockState = CursorLockMode.Locked;
-                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
                 }
+                return;
             }
 
-            if (Cursor.lockState != CursorLockMode.Locked) return;
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
 
             Vector2 lookInput = Vector2.zero;
             if (DEADeyeInputRouter.Instance != null)
@@ -126,7 +136,7 @@ namespace DEADeye
             }
 
             // Lower sensitivity when zoomed in scope (proportional to FOV magnification)
-            float sensMultiplier = isAiming ? 0.35f : 1.0f;
+            float sensMultiplier = 0.35f;
             yaw = Mathf.Repeat(yaw + lookInput.x * sensMultiplier, 360f);
             pitch -= lookInput.y * sensMultiplier;
             pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
@@ -180,9 +190,13 @@ namespace DEADeye
                 Vector3 moveDirection = (transform.right * moveInput.x + transform.forward * moveInput.y).normalized;
                 Vector3 horizontalMove = moveDirection * currentSpeed;
 
-                if (characterController.isGrounded && velocity.y < 0f)
+                if (characterController.isGrounded)
                 {
-                    velocity.y = -2f;
+                    if (velocity.y < 0f) velocity.y = -2f;
+                    if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetJumpDown())
+                    {
+                        velocity.y = 4.8f; // Smooth jump impulse
+                    }
                 }
                 velocity.y += gravity * Time.deltaTime;
 
@@ -230,7 +244,17 @@ namespace DEADeye
                 return;
             }
 
-            if (Cursor.lockState != CursorLockMode.Locked) return;
+            // Tactical Terminal toggle on Y key
+            if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetTerminalToggleDown())
+            {
+                if (DEADeyeTacticalTerminalUI.Instance != null)
+                {
+                    DEADeyeTacticalTerminalUI.Instance.ToggleTerminal();
+                }
+            }
+
+            // Only fire weapon if actively aiming or cursor is locked (not clicking UI)
+            if (Cursor.lockState != CursorLockMode.Locked && !isAiming) return;
 
             // Fire on LMB
             if (DEADeyeInputRouter.Instance != null && DEADeyeInputRouter.Instance.GetFireDown())

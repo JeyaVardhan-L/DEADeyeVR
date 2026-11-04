@@ -5,10 +5,20 @@ using UnityEngine;
 
 namespace DEADeye
 {
+    public enum OperationPhase
+    {
+        Reconnaissance,     // Phase 1: Reticle dwell spotting jammer, Elena, Marcus, Commander
+        Disruption,         // Phase 2: Disable jammer via power junction, direct shot, or distraction
+        TechnicianAdvance,  // Phase 3: Elena & Marcus move to console, repair 0-100%, take cover under fire
+        NeutralizeCommander,// Phase 4: Commander Vance arrives with security detail, heading for exfil
+        ConvoyExtraction,   // Phase 5: Clear final ambush at Transport Interchange, convoy extracts team
+        Debriefing          // Debriefing screen with S/A/B/C/F grade
+    }
+
     /// <summary>
     /// Authoritative mission controller managing hostile waves, timer countdown,
     /// dynamic tactical objectives, VIP protection, civilian presence, and mission completion.
-    /// Supports the full 4-operation urban campaign.
+    /// Drives the 5 sequential phases of OPERATION DEAD AIR (The Blackout Protocol).
     /// </summary>
     public class DEADeyeMissionDirector : MonoBehaviour
     {
@@ -16,13 +26,23 @@ namespace DEADeye
 
         [Header("Active Mission Definition")]
         [SerializeField] private DEADeyeMissionDefinition activeMission;
-        [SerializeField] private float missionDuration = 120f;
+        [SerializeField] private float missionDuration = 150f;
         [SerializeField] private int maxEscapesAllowed = 2;
-        [SerializeField] private int totalHostilesToSpawn = 6;
-        [SerializeField] private float spawnInterval = 6.5f;
+        [SerializeField] private int totalHostilesToSpawn = 7;
+        [SerializeField] private float spawnInterval = 6.0f;
+
+        [Header("Operation DEAD AIR State")]
+        [SerializeField] private OperationPhase currentPhase = OperationPhase.Reconnaissance;
+        [SerializeField] private bool disabledViaPowerJunction = false;
+        [SerializeField] private bool alarmSilenced = false;
+        [SerializeField] private bool securityGateOpened = false;
+        [SerializeField] private bool isCommanderSpawned = false;
+        [SerializeField] private bool isCommanderEliminated = false;
+        [SerializeField] private int spottedKeyTargetCount = 0;
 
         [Header("Character Prefabs")]
         [SerializeField] private GameObject[] hostilePrefabs;
+        [SerializeField] private GameObject commanderPrefab;
         [SerializeField] private GameObject technicianPrefab;
         [SerializeField] private GameObject civilianPrefab;
         [SerializeField] private GameObject securityEscortPrefab;
@@ -33,7 +53,7 @@ namespace DEADeye
         [SerializeField] private List<Transform> escapePoints = new List<Transform>();
 
         [Header("Runtime State")]
-        [SerializeField] private float timeRemaining = 120f;
+        [SerializeField] private float timeRemaining = 150f;
         [SerializeField] private bool isMissionActive = false;
         [SerializeField] private int hostilesSpawnedCount = 0;
         [SerializeField] private int hostilesEliminatedCount = 0;
@@ -43,8 +63,12 @@ namespace DEADeye
         private List<GameObject> activeSpawnedEntities = new List<GameObject>();
         private List<DEADeyeFriendlyAI> activeTechnicians = new List<DEADeyeFriendlyAI>();
         private List<DEADeyeCivilianAI> activeCivilians = new List<DEADeyeCivilianAI>();
+        private DEADeyeFriendlyAI techMarcus;
+        private DEADeyeFriendlyAI techElena;
+        private DEADeyeHostileAI commanderVance;
 
         public DEADeyeMissionDefinition ActiveMission => activeMission;
+        public OperationPhase CurrentPhase => currentPhase;
         public float TimeRemaining => timeRemaining;
         public float MissionDuration => missionDuration;
         public bool IsMissionActive => isMissionActive;
@@ -53,19 +77,29 @@ namespace DEADeye
         public int HostilesEscaped => hostilesEscapedCount;
         public int MaxEscapesAllowed => maxEscapesAllowed;
         public float CommsRepairProgress => commsRepairProgress;
+        public bool DisabledViaPowerJunction => disabledViaPowerJunction;
+        public bool AlarmSilenced => alarmSilenced;
+        public bool SecurityGateOpened => securityGateOpened;
 
         public event Action OnMissionStarted;
         public event Action<bool> OnMissionEnded; // true = victory, false = defeat
         public event Action<float> OnTimerTick;
         public event Action<float> OnCommsProgressUpdated;
+        public event Action<OperationPhase> OnPhaseChanged;
 
         private Coroutine missionLoopCoroutine;
-        private Coroutine spawnLoopCoroutine;
+        private Coroutine phaseCheckCoroutine;
 
         private void Awake()
         {
             Instance = this;
             LoadPrefabsIfMissing();
+
+            if (DEADeyeSpottingSystem.Instance == null && FindFirstObjectByType<DEADeyeSpottingSystem>() == null)
+            {
+                GameObject spotSysGO = new GameObject("DEADeyeSpottingSystem");
+                spotSysGO.AddComponent<DEADeyeSpottingSystem>();
+            }
         }
 
         private void OnDestroy()
@@ -85,8 +119,6 @@ namespace DEADeye
                 DEADeyeGameManager.Instance.SetGameState(DEADeyeGameState.MissionActive);
             }
 
-            // If an active mission is assigned, launch it.
-            // Otherwise, load default Mission 01: BROKEN SIGNAL.
             if (activeMission != null)
             {
                 LaunchMission(activeMission);
@@ -122,8 +154,8 @@ namespace DEADeye
                 List<GameObject> list = new List<GameObject>();
                 if (h1 != null) list.Add(h1);
                 if (h2 != null) list.Add(h2);
-                if (h3 != null) list.Add(h3);
                 if (list.Count > 0) hostilePrefabs = list.ToArray();
+                if (h3 != null) commanderPrefab = h3;
 
                 if (technicianPrefab == null)
                     technicianPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DEADeye/Prefabs/Characters/Friendly_Technician.prefab");
@@ -181,9 +213,8 @@ namespace DEADeye
         public void StartMission()
         {
             if (missionLoopCoroutine != null) StopCoroutine(missionLoopCoroutine);
-            if (spawnLoopCoroutine != null) StopCoroutine(spawnLoopCoroutine);
+            if (phaseCheckCoroutine != null) StopCoroutine(phaseCheckCoroutine);
 
-            // Clean up previous mission entities
             ClearActiveEntities();
 
             isMissionActive = true;
@@ -192,6 +223,13 @@ namespace DEADeye
             hostilesEliminatedCount = 0;
             hostilesEscapedCount = 0;
             commsRepairProgress = 0f;
+            disabledViaPowerJunction = false;
+            alarmSilenced = false;
+            securityGateOpened = false;
+            isCommanderSpawned = false;
+            isCommanderEliminated = false;
+            spottedKeyTargetCount = 0;
+            currentPhase = OperationPhase.Reconnaissance;
 
             if (DEADeyeScoreManager.Instance != null)
             {
@@ -214,22 +252,47 @@ namespace DEADeye
             // Spawn Mission-specific assets
             SpawnMissionSpecificEntities();
 
-            // Spawn initial hostile wave immediately
-            int initialWave = Mathf.Min(3, totalHostilesToSpawn);
-            for (int i = 0; i < initialWave; i++)
+            // Spawn initial hostile patrol in Commercial Plaza
+            SpawnNextHostile(new Vector3(18f, 0.15f, 32f));
+            SpawnNextHostile(new Vector3(25f, 0.15f, 42f));
+
+            // Hook Spotting System for reconnaissance phase
+            if (DEADeyeSpottingSystem.Instance != null)
             {
-                SpawnNextHostile();
+                DEADeyeSpottingSystem.Instance.OnTargetSpotted += HandleTargetSpotted;
             }
 
             OnMissionStarted?.Invoke();
             missionLoopCoroutine = StartCoroutine(MissionTimerRoutine());
-            spawnLoopCoroutine = StartCoroutine(HostileSpawnerRoutine());
+            phaseCheckCoroutine = StartCoroutine(PhaseManagementRoutine());
 
-            Debug.Log($"[DEADeyeMissionDirector] Mission '{ (activeMission != null ? activeMission.operationTitle : "OPERATION") }' started! Duration: {missionDuration}s, Hostiles: {totalHostilesToSpawn}");
+            // Initial Phase 1 Briefing
+            StartCoroutine(InitialRadioBriefingRoutine());
+
+            Debug.Log($"[DEADeyeMissionDirector] OPERATION DEAD AIR started! Duration: {missionDuration}s, Hostiles: {totalHostilesToSpawn}");
+        }
+
+        private IEnumerator InitialRadioBriefingRoutine()
+        {
+            yield return new WaitForSeconds(1.0f);
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 1: RECONNAISSANCE - Identify Jammer & Friendly Team with Optical Scope");
+                DEADeyeMissionHUD.Instance.ShowRadioDialogue(
+                    "CONTROL",
+                    "Overwatch, this is Control. Sector is dark. Hostiles have deployed a military jamming array in Central Plaza. Technicians Elena and Marcus are pinned near the fountain. Spot the jammer and team before engaging."
+                );
+            }
         }
 
         private void ClearActiveEntities()
         {
+            if (DEADeyeSpottingSystem.Instance != null)
+            {
+                DEADeyeSpottingSystem.Instance.OnTargetSpotted -= HandleTargetSpotted;
+            }
+
             foreach (var go in activeSpawnedEntities)
             {
                 if (go != null) Destroy(go);
@@ -237,28 +300,27 @@ namespace DEADeye
             activeSpawnedEntities.Clear();
             activeTechnicians.Clear();
             activeCivilians.Clear();
+            techMarcus = null;
+            techElena = null;
+            commanderVance = null;
         }
 
         private void SpawnMissionSpecificEntities()
         {
-            // 1. Mission 01: BROKEN SIGNAL -> Spawn 2 Friendly Comms Technicians at the Comms Tower in East Plaza
-            if (activeMission == null || activeMission.hasTechnicians)
-            {
-                Vector3 tech1Pos = new Vector3(21.5f, 0.15f, 37.5f);
-                Vector3 tech2Pos = new Vector3(23.2f, 0.15f, 38.5f);
+            // Spawn 2 Friendly Comms Technicians at initial fountain cover in Central Plaza
+            Vector3 tech1Pos = new Vector3(12.5f, 0.15f, 26f);
+            Vector3 tech2Pos = new Vector3(14.0f, 0.15f, 25.5f);
 
-                SpawnTechnician(tech1Pos, "Lead Technician Marcus");
-                SpawnTechnician(tech2Pos, "Systems Tech Elena");
-            }
+            techMarcus = SpawnTechnician(tech1Pos, "Lead Technician Marcus");
+            techElena = SpawnTechnician(tech2Pos, "Systems Tech Elena");
 
-            // 2. Mission 03: NO CLEAR SHOT -> Spawn Civilians walking sidewalks
+            // Civilians in residential district if configured
             if (activeMission != null && activeMission.hasCivilians)
             {
                 Vector3[] civSpawns = new Vector3[]
                 {
                     new Vector3(-8.5f, 0.15f, 22f),
                     new Vector3(-8.5f, 0.15f, 35f),
-                    new Vector3(-8.5f, 0.15f, 52f),
                     new Vector3(-20f, 0.15f, 38f)
                 };
 
@@ -269,7 +331,7 @@ namespace DEADeye
             }
         }
 
-        private void SpawnTechnician(Vector3 pos, string techName)
+        private DEADeyeFriendlyAI SpawnTechnician(Vector3 pos, string techName)
         {
             GameObject go = null;
             if (technicianPrefab != null)
@@ -291,10 +353,12 @@ namespace DEADeye
             {
                 activeTechnicians.Add(friendlyAI);
                 friendlyAI.SetClassification(techName, 100);
-                friendlyAI.SetPerformsWork(true, 2.5f); // ~40s total work
+                friendlyAI.SetPerformsWork(false, 3.5f);
                 friendlyAI.OnProgressUpdated += HandleCommsProgress;
                 friendlyAI.OnVipKilled += HandleTechnicianKilled;
             }
+
+            return friendlyAI;
         }
 
         private void SpawnCivilian(Vector3 pos, string civName)
@@ -322,15 +386,321 @@ namespace DEADeye
             }
         }
 
+        public void HandleTargetSpotted(DEADeyeSpotable target)
+        {
+            if (target == null) return;
+            spottedKeyTargetCount++;
+
+            // If in Reconnaissance phase and key assets spotted, advise player to proceed to Disruption
+            if (currentPhase == OperationPhase.Reconnaissance)
+            {
+                if (target.Classification == SpotClassification.Objective || target.Classification == SpotClassification.Environmental || spottedKeyTargetCount >= 2)
+                {
+                    TransitionToPhase(OperationPhase.Disruption);
+                }
+            }
+        }
+
+        public void TransitionToPhase(OperationPhase newPhase)
+        {
+            if (currentPhase == newPhase) return;
+            currentPhase = newPhase;
+            OnPhaseChanged?.Invoke(newPhase);
+
+            Debug.Log($"[DEADeyeMissionDirector] Transitioning to {newPhase}");
+
+            switch (newPhase)
+            {
+                case OperationPhase.Disruption:
+                    if (DEADeyeMissionHUD.Instance != null)
+                    {
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 2: OPERATION DISRUPTION - Disable Jammer via Power Junction or Direct Hit");
+                        DEADeyeMissionHUD.Instance.ShowRadioDialogue(
+                            "CONTROL",
+                            "Overwatch: Disrupt the jammer. Snipe the power junction on the tower, hit the jammer dish directly, or trigger the transformer distraction."
+                        );
+                    }
+                    break;
+
+                case OperationPhase.TechnicianAdvance:
+                    if (DEADeyeMissionHUD.Instance != null)
+                    {
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 3: PROTECT TECHNICIANS - Cover Elena & Marcus during Comms Array Repair");
+                    }
+
+                    // Command technicians to advance across plaza to the communications console
+                    Vector3 marcusConsole = new Vector3(21.0f, 0.15f, 37.0f);
+                    Vector3 elenaConsole = new Vector3(22.5f, 0.15f, 38.0f);
+
+                    if (techMarcus != null)
+                    {
+                        techMarcus.SetPerformsWork(true, 3.5f);
+                        techMarcus.MoveToDestination(marcusConsole);
+                    }
+                    if (techElena != null)
+                    {
+                        techElena.SetPerformsWork(true, 3.5f);
+                        techElena.MoveToDestination(elenaConsole);
+                    }
+
+                    // Spawn hostile reinforcement patrol moving towards plaza
+                    SpawnNextHostile(new Vector3(0f, 0.15f, 50f));
+                    SpawnNextHostile(new Vector3(-12f, 0.15f, 42f));
+                    break;
+
+                case OperationPhase.NeutralizeCommander:
+                    if (DEADeyeMissionHUD.Instance != null)
+                    {
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 4: ELIMINATE COMMANDER - Neutralize Commander Vance Before Exfil");
+                        DEADeyeMissionHUD.Instance.ShowRadioDialogue(
+                            "CONTROL",
+                            "Commander Vance has deployed to Sector 3 with an armed exfil escort! He's heading towards the transport interchange. Do not let him escape!"
+                        );
+                    }
+
+                    SpawnCommanderVance();
+                    break;
+
+                case OperationPhase.ConvoyExtraction:
+                    if (DEADeyeMissionHUD.Instance != null)
+                    {
+                        DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 5: EXTRACTION - Escort Elena & Marcus to the Transport Interchange Convoy");
+                        DEADeyeMissionHUD.Instance.ShowRadioDialogue(
+                            "CONTROL",
+                            "Hostile command neutralized! Extraction convoy is staging at the Transport Interchange bus terminal. Cover Elena and Marcus as they exfil!"
+                        );
+                    }
+
+                    // Technicians move north towards Transport Interchange extraction zone
+                    Vector3 evacZone = new Vector3(3f, 0.15f, 75f);
+                    if (techMarcus != null)
+                    {
+                        techMarcus.SetPerformsWork(false);
+                        techMarcus.MoveToDestination(evacZone);
+                    }
+                    if (techElena != null)
+                    {
+                        techElena.SetPerformsWork(false);
+                        techElena.MoveToDestination(evacZone + new Vector3(1.5f, 0f, 0f));
+                    }
+
+                    // Spawn final ambush squad at transport interchange
+                    SpawnNextHostile(new Vector3(8f, 0.15f, 82f));
+                    SpawnNextHostile(new Vector3(-6f, 0.15f, 85f));
+                    break;
+
+                case OperationPhase.Debriefing:
+                    EndMission(true);
+                    break;
+            }
+        }
+
+        private IEnumerator PhaseManagementRoutine()
+        {
+            // Auto advance Reconnaissance after 14 seconds if player hasn't spotted yet
+            if (currentPhase == OperationPhase.Reconnaissance)
+            {
+                float timer = 14f;
+                while (timer > 0f && currentPhase == OperationPhase.Reconnaissance)
+                {
+                    yield return new WaitForSeconds(1.0f);
+                    timer -= 1.0f;
+                }
+                if (currentPhase == OperationPhase.Reconnaissance)
+                {
+                    TransitionToPhase(OperationPhase.Disruption);
+                }
+            }
+
+            while (isMissionActive)
+            {
+                yield return new WaitForSeconds(1.0f);
+
+                // Check Phase 3 -> Phase 4 transition (repair completed)
+                if (currentPhase == OperationPhase.TechnicianAdvance && commsRepairProgress >= 100f)
+                {
+                    TransitionToPhase(OperationPhase.NeutralizeCommander);
+                }
+
+                // Check Phase 4 -> Phase 5 transition (commander eliminated)
+                if (currentPhase == OperationPhase.NeutralizeCommander && isCommanderEliminated)
+                {
+                    TransitionToPhase(OperationPhase.ConvoyExtraction);
+                }
+
+                // Check Phase 5 -> Debriefing (technicians reached extraction and ambush hostiles eliminated)
+                if (currentPhase == OperationPhase.ConvoyExtraction)
+                {
+                    bool techClose = (techMarcus == null || Vector3.Distance(techMarcus.transform.position, new Vector3(3f, 0.15f, 75f)) < 6f);
+                    if (techClose && hostilesEliminatedCount >= (totalHostilesToSpawn - 1))
+                    {
+                        TransitionToPhase(OperationPhase.Debriefing);
+                    }
+                }
+            }
+        }
+
+        public void HandlePowerJunctionDisabled()
+        {
+            disabledViaPowerJunction = true;
+            Debug.Log("[DEADeyeMissionDirector] Power Junction disabled! Silent disruption achieved (+Secondary Objective).");
+
+            // Disable Jammer visuals/rotation in plaza
+            DisableJammerArray();
+
+            if (currentPhase == OperationPhase.Reconnaissance || currentPhase == OperationPhase.Disruption)
+            {
+                TransitionToPhase(OperationPhase.TechnicianAdvance);
+            }
+        }
+
+        public void HandleJammerDishHit()
+        {
+            Debug.Log("[DEADeyeMissionDirector] Jammer dish shot directly! Hostiles alerted.");
+
+            DisableJammerArray();
+
+            // Alert nearby hostiles
+            AlertHostilesInSector(new Vector3(22.5f, 0f, 40f), 45f);
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.ShowRadioDialogue(
+                    "CONTROL",
+                    "Jammer array destroyed! Loud impact has alerted the perimeter guards! Elena, Marcus, move under sniper cover!"
+                );
+            }
+
+            if (currentPhase == OperationPhase.Reconnaissance || currentPhase == OperationPhase.Disruption)
+            {
+                TransitionToPhase(OperationPhase.TechnicianAdvance);
+            }
+        }
+
+        public void HandleAlarmSilenced()
+        {
+            alarmSilenced = true;
+            Debug.Log("[DEADeyeMissionDirector] District Emergency Alarm silenced.");
+        }
+
+        public void HandleSecurityGateOpened()
+        {
+            securityGateOpened = true;
+            Debug.Log("[DEADeyeMissionDirector] Security alley gate opened.");
+        }
+
+        private void DisableJammerArray()
+        {
+            var jammerObj = GameObject.Find("CommunicationsJammer");
+            if (jammerObj != null)
+            {
+                var dish = jammerObj.transform.Find("JammerDish");
+                if (dish != null)
+                {
+                    dish.localRotation = Quaternion.Euler(0f, 0f, 85f); // Dish droops down powered off
+                }
+            }
+        }
+
+        private void AlertHostilesInSector(Vector3 pos, float radius)
+        {
+            DEADeyeHostileAI[] allHostiles = FindObjectsByType<DEADeyeHostileAI>(FindObjectsSortMode.None);
+            foreach (var h in allHostiles)
+            {
+                if (h != null && !h.IsEliminated)
+                {
+                    if (Vector3.Distance(h.transform.position, pos) <= radius)
+                    {
+                        h.ReactToGunfire(pos);
+                    }
+                }
+            }
+        }
+
+        private void SpawnCommanderVance()
+        {
+            if (isCommanderSpawned) return;
+            isCommanderSpawned = true;
+
+            Vector3 spawnPos = new Vector3(-6f, 0.15f, 48f);
+            GameObject cmdGO = null;
+
+            if (commanderPrefab != null)
+            {
+                cmdGO = Instantiate(commanderPrefab, spawnPos, Quaternion.Euler(0f, 0f, 0f));
+            }
+            else if (hostilePrefabs != null && hostilePrefabs.Length > 0)
+            {
+                cmdGO = Instantiate(hostilePrefabs[0], spawnPos, Quaternion.identity);
+            }
+            else
+            {
+                cmdGO = new GameObject("Hostile_Commander_Vance");
+                cmdGO.transform.position = spawnPos;
+                var humanoidAI = cmdGO.AddComponent<DEADeyeHostileHumanoid>();
+                humanoidAI.InitializeVariant(HumanoidVariant.Commander);
+            }
+
+            cmdGO.name = "Commander_Vance";
+            activeSpawnedEntities.Add(cmdGO);
+
+            commanderVance = cmdGO.GetComponent<DEADeyeHostileAI>();
+            if (commanderVance != null)
+            {
+                var spotable = cmdGO.GetComponent<DEADeyeSpotable>();
+                if (spotable == null) spotable = cmdGO.AddComponent<DEADeyeSpotable>();
+                spotable.SetTargetInfo("COMMANDER VANCE", SpotClassification.HostileCommander, "Syndicate tactical commander overseeing Operation Blackout. Target must be neutralized before exfiltration.", 200);
+
+                // Vance flees towards the northern highway escape point
+                Transform escapeTarget = (escapePoints != null && escapePoints.Count > 0) ? escapePoints[0] : null;
+                commanderVance.SetNavigationRoute(waypoints, escapeTarget);
+                commanderVance.ChangeState(HostileStateType.Escape);
+
+                commanderVance.OnEliminated += (ai) =>
+                {
+                    isCommanderEliminated = true;
+                    Debug.Log("[DEADeyeMissionDirector] COMMANDER VANCE NEUTRALIZED!");
+                    if (DEADeyeMissionHUD.Instance != null)
+                    {
+                        DEADeyeMissionHUD.Instance.ShowRadioDialogue("CONTROL", "Target confirmed neutralized! Commander Vance is down!");
+                    }
+                };
+
+                commanderVance.OnEscaped += (ai) =>
+                {
+                    Debug.LogError("[DEADeyeMissionDirector] MISSION FAILED: Commander Vance escaped!");
+                    EndMission(false);
+                };
+            }
+
+            hostilesSpawnedCount++;
+        }
+
         private void HandleCommsProgress(float progress)
         {
             commsRepairProgress = progress;
             OnCommsProgressUpdated?.Invoke(progress);
+
+            if (currentPhase == OperationPhase.TechnicianAdvance && DEADeyeMissionHUD.Instance != null)
+            {
+                int barCount = (int)(progress / 10f);
+                string bar = new string('=', barCount).PadRight(10, ' ');
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar($"PHASE 3: PROTECT TECHNICIANS - Repair: [{bar}] {progress:F0}%");
+
+                if (progress >= 50f && progress < 55f)
+                {
+                    DEADeyeMissionHUD.Instance.ShowRadioDialogue("MARCUS", "Handshake signal connected! Halfway through the bypass, keep covering us!");
+                }
+            }
         }
 
         private void HandleTechnicianKilled(DEADeyeFriendlyAI tech)
         {
             Debug.LogError($"[DEADeyeMissionDirector] MISSION FAILED: Comms Technician {tech.name} was eliminated!");
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.ShowRadioDialogue("CONTROL", "Critical friendly casualty! Mission is compromised!");
+            }
             EndMission(false);
         }
 
@@ -346,37 +716,37 @@ namespace DEADeye
             if (isMissionActive)
             {
                 // Timer elapsed -> check if mission objectives were met
-                bool victory = hostilesEscapedCount < maxEscapesAllowed && hostilesEliminatedCount >= (totalHostilesToSpawn / 2);
+                bool victory = (techMarcus != null && !techMarcus.IsEliminated) && (techElena != null && !techElena.IsEliminated) && isCommanderEliminated;
                 EndMission(victory);
             }
         }
 
-        private IEnumerator HostileSpawnerRoutine()
-        {
-            while (isMissionActive && hostilesSpawnedCount < totalHostilesToSpawn)
-            {
-                yield return new WaitForSeconds(spawnInterval);
-                if (isMissionActive)
-                {
-                    SpawnNextHostile();
-                }
-            }
-        }
-
-        public void SpawnNextHostile()
+        public void SpawnNextHostile(Vector3? customPos = null)
         {
             CollectNavigationNodes();
 
-            if (spawnPoints == null || spawnPoints.Count == 0)
+            Vector3 spawnPos;
+            Quaternion spawnRot = Quaternion.identity;
+
+            if (customPos.HasValue)
             {
-                Vector3 fallbackPos = new Vector3(0f, 0.1f, 20f + (hostilesSpawnedCount * 8f));
-                GameObject fallbackNode = new GameObject($"FallbackSpawn_{hostilesSpawnedCount + 1}");
-                fallbackNode.transform.position = fallbackPos;
-                spawnPoints = new List<Transform> { fallbackNode.transform };
+                spawnPos = customPos.Value;
+            }
+            else
+            {
+                if (spawnPoints == null || spawnPoints.Count == 0)
+                {
+                    Vector3 fallbackPos = new Vector3(0f, 0.1f, 20f + (hostilesSpawnedCount * 8f));
+                    GameObject fallbackNode = new GameObject($"FallbackSpawn_{hostilesSpawnedCount + 1}");
+                    fallbackNode.transform.position = fallbackPos;
+                    spawnPoints = new List<Transform> { fallbackNode.transform };
+                }
+
+                Transform spawnNode = spawnPoints[hostilesSpawnedCount % spawnPoints.Count];
+                spawnPos = spawnNode.position;
+                spawnRot = spawnNode.rotation;
             }
 
-            Transform spawnNode = spawnPoints[hostilesSpawnedCount % spawnPoints.Count];
-            Vector3 spawnPos = spawnNode.position;
             if (UnityEngine.AI.NavMesh.SamplePosition(spawnPos, out UnityEngine.AI.NavMeshHit navHit, 6f, UnityEngine.AI.NavMesh.AllAreas))
             {
                 spawnPos = navHit.position;
@@ -385,25 +755,23 @@ namespace DEADeye
             GameObject hostileGO = null;
             DEADeyeHostileAI ai = null;
 
-            // Spawn from configured clothed Humanoid Prefabs (Rifleman, Scout, Commander)
             if (hostilePrefabs != null && hostilePrefabs.Length > 0)
             {
                 int prefabIndex = hostilesSpawnedCount % hostilePrefabs.Length;
                 GameObject prefab = hostilePrefabs[prefabIndex];
                 if (prefab != null)
                 {
-                    hostileGO = Instantiate(prefab, spawnPos, spawnNode.rotation);
+                    hostileGO = Instantiate(prefab, spawnPos, spawnRot);
                     hostileGO.name = $"Hostile_{hostilesSpawnedCount + 1}_{prefab.name}";
                     ai = hostileGO.GetComponent<DEADeyeHostileAI>();
                 }
             }
 
-            // Fallback instantiation if no prefabs bound
             if (hostileGO == null)
             {
                 hostileGO = new GameObject($"Hostile_{hostilesSpawnedCount + 1}");
                 hostileGO.transform.position = spawnPos;
-                hostileGO.transform.rotation = spawnNode.rotation;
+                hostileGO.transform.rotation = spawnRot;
 
                 DEADeyeHostileHumanoid humanoidAI = hostileGO.AddComponent<DEADeyeHostileHumanoid>();
                 HumanoidVariant variant = (HumanoidVariant)(hostilesSpawnedCount % 3);
@@ -441,7 +809,6 @@ namespace DEADeye
             hostilesEscapedCount++;
             if (hostilesEscapedCount >= maxEscapesAllowed)
             {
-                // Too many hostiles escaped! Immediate failure
                 EndMission(false);
             }
             else
@@ -454,11 +821,9 @@ namespace DEADeye
         {
             if (!isMissionActive) return;
 
-            // All scheduled hostiles resolved
-            if (hostilesEliminatedCount + hostilesEscapedCount >= totalHostilesToSpawn)
+            if (currentPhase == OperationPhase.ConvoyExtraction && hostilesEliminatedCount >= (totalHostilesToSpawn - 1))
             {
-                bool victory = hostilesEscapedCount < maxEscapesAllowed;
-                EndMission(victory);
+                TransitionToPhase(OperationPhase.Debriefing);
             }
         }
 
@@ -468,7 +833,7 @@ namespace DEADeye
             isMissionActive = false;
 
             if (missionLoopCoroutine != null) StopCoroutine(missionLoopCoroutine);
-            if (spawnLoopCoroutine != null) StopCoroutine(spawnLoopCoroutine);
+            if (phaseCheckCoroutine != null) StopCoroutine(phaseCheckCoroutine);
 
             if (DEADeyeAudioManager.Instance != null)
             {
@@ -488,22 +853,22 @@ namespace DEADeye
             float accuracy = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.AccuracyPercentage : 0f;
             int civCasualties = DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.CivilianCasualties : 0;
 
-            // Show debrief on tactical terminal
+            // Show debriefing on tactical terminal
             if (DEADeyeTacticalTerminalUI.Instance != null)
             {
-                DEADeyeTacticalTerminalUI.Instance.ShowDebrief(
+                DEADeyeTacticalTerminalUI.Instance.ShowDebriefing(
                     isVictory,
                     score,
+                    hostilesEliminatedCount,
                     headshots,
                     accuracy,
-                    hostilesEliminatedCount,
-                    hostilesEscapedCount,
-                    civCasualties
+                    civCasualties,
+                    hostilesEscapedCount
                 );
             }
 
             OnMissionEnded?.Invoke(isVictory);
-            Debug.Log($"[DEADeyeMissionDirector] Mission Finished! Result: {(isVictory ? "VICTORY" : "DEFEAT")} - Eliminated: {hostilesEliminatedCount}, Escaped: {hostilesEscapedCount}, Score: {score}");
+            Debug.Log($"[DEADeyeMissionDirector] Mission Finished! Result: {(isVictory ? "VICTORY" : "DEFEAT")} - Eliminated: {hostilesEliminatedCount}, Escaped: {hostilesEscapedCount}, Score: {score}, JunctionDisruption: {disabledViaPowerJunction}");
         }
     }
 }

@@ -74,6 +74,13 @@ namespace DEADeye
             OnAccuracyUpdated?.Invoke(0f);
         }
 
+        public void AddScore(int points, bool isHeadshot = false)
+        {
+            currentScore += points;
+            if (isHeadshot) headshots++;
+            OnScoreUpdated?.Invoke(currentScore);
+        }
+
         public void RegisterShotFired()
         {
             shotsFired++;

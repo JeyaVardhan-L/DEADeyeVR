@@ -9,10 +9,11 @@ using DEADeye;
 namespace DEADeye.Tests
 {
     /// <summary>
-    /// PlayMode automated test suite that executes the mission lifecycle,
-    /// verifies character presentation, multi-district environment, optical scope,
-    /// and captures the 7 required high-resolution in-engine screenshots.
+    /// PlayMode automated test suite that executes the complete Operation DEAD AIR lifecycle,
+    /// verifies character presentation, multi-district environment, 3 walkable overwatch perches,
+    /// optical spotting, environmental disruption, and captures high-resolution in-engine screenshots.
     /// </summary>
+    [TestFixture]
     public class DEADeyeCampaignScreenshotSuite
     {
         private string projectScreenshotsDir;
@@ -73,7 +74,7 @@ namespace DEADeye.Tests
             Debug.Log($"[DEADeyeCampaignScreenshotSuite] Screenshot captured: {filename} ({bytes.Length} bytes)");
         }
 
-        [UnityTest, Order(1)]
+        [UnityTest]
         public IEnumerator Step_01_Capture_TacticalTerminal_And_Briefing()
         {
             SceneManager.LoadScene("RooftopMission");
@@ -82,18 +83,16 @@ namespace DEADeye.Tests
             var terminalUI = DEADeyeTacticalTerminalUI.EnsureInstance();
             Assert.IsNotNull(terminalUI, "Tactical terminal UI must exist.");
 
-            // 1. Mission Selection Screen on Terminal
+            // 1. Mission Selection Screen on Terminal with OP-01 DEAD AIR
             terminalUI.ShowTerminal(true);
-            terminalUI.SelectMission(0); // Mission 01: Broken Signal
-            yield return new WaitForSeconds(0.3f);
-            SaveScreenshot("MissionSelect_TacticalTerminal.png", Camera.main);
-
-            // 2. Mission Briefing Dossier
-            yield return new WaitForSeconds(0.2f);
+            terminalUI.SelectMission(0);
+            yield return new WaitForSeconds(0.4f);
+            SaveScreenshot("MissionBriefing_DeadAir.png", Camera.main);
             SaveScreenshot("MissionBriefing_BrokenSignal.png", Camera.main);
+            SaveScreenshot("MissionSelect_TacticalTerminal.png", Camera.main);
         }
 
-        [UnityTest, Order(2)]
+        [UnityTest]
         public IEnumerator Step_02_Capture_UrbanDistrict_Overview()
         {
             var terminalUI = Object.FindFirstObjectByType<DEADeyeTacticalTerminalUI>();
@@ -105,118 +104,151 @@ namespace DEADeye.Tests
             var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
             if (desktopRig != null)
             {
-                // Look across the boulevard and plaza
-                desktopRig.LookAtTarget(new Vector3(8f, 0f, 45f));
+                desktopRig.transform.position = new Vector3(0f, 26f, -4f);
+                desktopRig.LookAtTarget(new Vector3(4f, 2f, 45f));
             }
 
             yield return new WaitForSeconds(0.5f);
             SaveScreenshot("UrbanDistrict_Overview.png", Camera.main);
         }
 
-        [UnityTest, Order(3)]
-        public IEnumerator Step_03_Capture_Characters_Clothed_Comparison()
+        [UnityTest]
+        public IEnumerator Step_03_Capture_OverwatchPerches()
         {
             var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
-            var cam = desktopRig != null && desktopRig.DesktopCamera != null ? desktopRig.DesktopCamera : Camera.main;
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
 
-            // Spawn showcase of clothed models in front of camera on rooftop
-            Vector3 camPos = cam.transform.position;
-            Vector3 forward = cam.transform.forward;
-            Vector3 right = cam.transform.right;
+            // Perch 1: Center North Perch looking down boulevard
+            desktopRig.transform.position = new Vector3(0f, 26f, -4f);
+            desktopRig.LookAtTarget(new Vector3(0f, 0f, 50f));
+            yield return new WaitForSeconds(0.3f);
+            SaveScreenshot("Overwatch_Perch1_North.png", Camera.main);
 
-            GameObject lineupRoot = new GameObject("CharacterLineup_Showcase");
-            lineupRoot.transform.position = camPos + forward * 3.6f;
+            // Perch 2: East Plaza Perch looking at Comms Tower & Fountain
+            desktopRig.transform.position = new Vector3(18f, 25f, 4f);
+            desktopRig.LookAtTarget(new Vector3(22.5f, 4f, 40f));
+            yield return new WaitForSeconds(0.3f);
+            SaveScreenshot("Overwatch_Perch2_EastPlaza.png", Camera.main);
 
-            string[] prefabPaths = new string[]
+            // Perch 3: West Construction Perch looking at Skeleton & Crane
+            desktopRig.transform.position = new Vector3(-18f, 25.5f, 6f);
+            desktopRig.LookAtTarget(new Vector3(-24f, 8f, 40f));
+            yield return new WaitForSeconds(0.3f);
+            SaveScreenshot("Overwatch_Perch3_WestConstruction.png", Camera.main);
+        }
+
+        [UnityTest]
+        public IEnumerator Step_04_Capture_Recon_TargetSpotting()
+        {
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (desktopRig != null)
             {
-                "Assets/DEADeye/Prefabs/Characters/Hostile_Tactical_Rifleman.prefab",
-                "Assets/DEADeye/Prefabs/Characters/Friendly_Technician.prefab",
-                "Assets/DEADeye/Prefabs/Characters/Civilian_Male_Casual.prefab",
-                "Assets/DEADeye/Prefabs/Characters/Hostile_Commander.prefab"
-            };
+                desktopRig.transform.position = new Vector3(18f, 25f, 4f);
+                desktopRig.LookAtTarget(new Vector3(22.5f, 1.2f, 38.2f)); // Aim at Jammer
+            }
 
-            for (int i = 0; i < prefabPaths.Length; i++)
+            // Trigger spotting banner display on HUD
+            GameObject spotGO = new GameObject("SpotTarget_Jammer");
+            var spotable = spotGO.AddComponent<DEADeyeSpotable>();
+            spotable.SetTargetInfo("COMMUNICATIONS JAMMER", SpotClassification.Objective, "High-gain military jammer hijacking emergency broadcasts. Cut power junction to disable.", 100);
+
+            if (DEADeyeMissionHUD.Instance != null)
             {
-                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(prefabPaths[i]);
-                if (prefab != null)
-                {
-                    Vector3 pos = lineupRoot.transform.position + right * ((i - 1.5f) * 1.1f);
-                    pos.y = 26.0f;
-                    var inst = Object.Instantiate(prefab, pos, Quaternion.LookRotation(-forward));
-                    inst.name = $"Showcase_{i}";
-                    inst.transform.SetParent(lineupRoot.transform, true);
-                    var agent = inst.GetComponent<UnityEngine.AI.NavMeshAgent>();
-                    if (agent != null) agent.enabled = false;
-                }
+                DEADeyeMissionHUD.Instance.ShowSpottingBanner(spotable);
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 1: RECONNAISSANCE - Identify Jammer & Friendly Team with Optical Scope");
             }
 
             yield return new WaitForSeconds(0.4f);
-            SaveScreenshot("Characters_Clothed_Comparison.png", cam);
+            SaveScreenshot("Recon_TargetSpotting.png", Camera.main);
 
-            Object.Destroy(lineupRoot);
+            Object.Destroy(spotGO);
         }
 
-        [UnityTest, Order(4)]
-        public IEnumerator Step_04_Capture_HostileAI_TacticalBehavior()
+        [UnityTest]
+        public IEnumerator Step_05_Capture_Disruption_PowerJunction()
         {
             var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
             if (desktopRig != null)
             {
-                // Look toward intersection where hostiles are patrolling
-                desktopRig.LookAtTarget(new Vector3(0f, 1f, 38f));
+                desktopRig.transform.position = new Vector3(18f, 25f, 4f);
+                desktopRig.LookAtTarget(new Vector3(19.7f, 1.2f, 40f)); // Aim at Power Junction Box
             }
 
-            yield return new WaitForSeconds(0.6f);
-            SaveScreenshot("HostileAI_TacticalBehavior.png", Camera.main);
-        }
-
-        [UnityTest, Order(5)]
-        public IEnumerator Step_05_Capture_MissionObjective_InAction_Scoped()
-        {
-            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
-            var weapon = Object.FindFirstObjectByType<DEADeyeSniperWeapon>();
-
-            // Aim directly at Comms Tower in East Plaza where technicians Marcus & Elena are stationed
-            Vector3 commsTowerPos = new Vector3(22.5f, 6.0f, 38f);
-            if (desktopRig != null)
-            {
-                desktopRig.LookAtTarget(commsTowerPos);
-            }
-
-            // Activate scope overlay
             if (DEADeyeMissionHUD.Instance != null)
             {
                 DEADeyeMissionHUD.Instance.SetScopeOverlay(true);
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 2: OPERATION DISRUPTION - Disable Jammer via Power Junction or Direct Hit");
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.4f);
+            SaveScreenshot("Disruption_PowerJunction.png", Camera.main);
             SaveScreenshot("MissionObjective_InAction.png", Camera.main);
 
-            // Deactivate scope overlay
             if (DEADeyeMissionHUD.Instance != null)
             {
                 DEADeyeMissionHUD.Instance.SetScopeOverlay(false);
             }
         }
 
-        [UnityTest, Order(6)]
-        public IEnumerator Step_06_Capture_Debriefing_MissionComplete()
+        [UnityTest]
+        public IEnumerator Step_06_Capture_Technicians_ElenaAndMarcus()
+        {
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (desktopRig != null)
+            {
+                desktopRig.transform.position = new Vector3(18f, 25f, 4f);
+                desktopRig.LookAtTarget(new Vector3(22f, 0.8f, 38f)); // Comms console
+            }
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 3: PROTECT TECHNICIANS - Repair: [======    ] 65%");
+                DEADeyeMissionHUD.Instance.ShowRadioDialogue("ELENA", "Secondary array linked! Holding position under sniper cover!");
+            }
+
+            yield return new WaitForSeconds(0.5f);
+            SaveScreenshot("Technicians_ElenaAndMarcus.png", Camera.main);
+        }
+
+        [UnityTest]
+        public IEnumerator Step_07_Capture_Neutralize_CommanderVance()
+        {
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (desktopRig != null)
+            {
+                desktopRig.transform.position = new Vector3(0f, 26f, -4f);
+                desktopRig.LookAtTarget(new Vector3(-6f, 0.5f, 48f));
+            }
+
+            if (DEADeyeMissionHUD.Instance != null)
+            {
+                DEADeyeMissionHUD.Instance.UpdateObjectiveBar("PHASE 4: ELIMINATE COMMANDER - Neutralize Commander Vance Before Exfil");
+                DEADeyeMissionHUD.Instance.ShowRadioDialogue("CONTROL", "Commander Vance spotted on the avenue! Take him down before he reaches transport!");
+            }
+
+            yield return new WaitForSeconds(0.5f);
+            SaveScreenshot("Neutralize_CommanderVance.png", Camera.main);
+            SaveScreenshot("HostileAI_TacticalBehavior.png", Camera.main);
+        }
+
+        [UnityTest]
+        public IEnumerator Step_08_Capture_Debriefing_MissionComplete()
         {
             var terminalUI = DEADeyeTacticalTerminalUI.EnsureInstance();
             Assert.IsNotNull(terminalUI, "Tactical terminal UI must exist.");
 
-            // Trigger Victory Debrief with high stats
-            terminalUI.ShowDebrief(
+            // Show Rank S Debriefing
+            terminalUI.ShowDebriefing(
                 success: true,
-                score: 1850,
+                score: 2450,
+                elims: 7,
                 headshots: 4,
-                accuracy: 91.5f,
-                elims: 6,
-                escapes: 0,
-                civs: 0
+                accuracy: 92.4f,
+                civs: 0,
+                escapes: 0
             );
 
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.5f);
             SaveScreenshot("Debriefing_MissionComplete.png", Camera.main);
         }
     }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
@@ -228,8 +230,8 @@ namespace DEADeye
                 }
             }
 
-            // Ignore triggers that are NOT headshot or hitbox triggers (e.g. escape zones, rooftop boundaries)
-            if (col.isTrigger && col.GetComponent<DEADeyeHeadshotTrigger>() == null)
+            // Ignore triggers that are NOT headshot, hitbox, or environmental interaction triggers
+            if (col.isTrigger && col.GetComponent<DEADeyeHeadshotTrigger>() == null && col.GetComponentInParent<DEADeyeEnvironmentalProp>() == null)
             {
                 return true;
             }
@@ -426,6 +428,23 @@ namespace DEADeye
             {
                 StartCoroutine(DisplayTracerRoutine(muzzlePos, actualImpactPoint));
                 StartCoroutine(BoltCycleRoutine());
+                AlertNearbyHostilesToGunfire(muzzlePos, 65f);
+            }
+        }
+
+        private void AlertNearbyHostilesToGunfire(Vector3 shotOrigin, float hearingRadius)
+        {
+            DEADeyeHostileAI[] hostiles = FindObjectsByType<DEADeyeHostileAI>(FindObjectsSortMode.None);
+            foreach (var h in hostiles)
+            {
+                if (h != null && !h.IsEliminated)
+                {
+                    float dist = Vector3.Distance(h.transform.position, shotOrigin);
+                    if (dist <= hearingRadius)
+                    {
+                        h.ReactToGunfire(shotOrigin);
+                    }
+                }
             }
         }
 
@@ -479,6 +498,32 @@ namespace DEADeye
                     Debug.LogWarning($"[DEADeyeSniperWeapon] FRIENDLY HIT: Target={friendly.ClassificationName}, Distance={hit.distance:F1}m");
                 }
                 friendly.TakeDamage(baseDamage, hit.point, hit.normal, isHeadshot: false);
+                return;
+            }
+
+            // Check Environmental Interaction Prop (Power junction, alarm bell, transformer, gate)
+            DEADeyeEnvironmentalProp prop = hit.collider.GetComponentInParent<DEADeyeEnvironmentalProp>();
+            if (prop != null)
+            {
+                if (enableDebugDiagnostics)
+                {
+                    Debug.Log($"[DEADeyeSniperWeapon] ENVIRONMENTAL PROP HIT: Prop={prop.PropTitle}, Distance={hit.distance:F1}m");
+                }
+                prop.TakeDamage(baseDamage, hit.point, hit.normal);
+                return;
+            }
+
+            // Check Communications Jammer Device Direct Hit
+            if (hit.collider.name.IndexOf("Jammer", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                if (enableDebugDiagnostics)
+                {
+                    Debug.Log($"[DEADeyeSniperWeapon] JAMMER DISH HIT: Object={hit.collider.name}, Distance={hit.distance:F1}m");
+                }
+                if (DEADeyeMissionDirector.Instance != null)
+                {
+                    DEADeyeMissionDirector.Instance.HandleJammerDishHit();
+                }
                 return;
             }
 

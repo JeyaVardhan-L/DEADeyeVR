@@ -14,24 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: DEADeye.Runtime::DEADeye.DEADeyeMissionDefinition
   missionId: 0
   operationCode: OP-01
-  operationTitle: BROKEN SIGNAL
-  districtName: COMMERCIAL DISTRICT & COMMUNICATIONS PLAZA
-  tacticalBriefing: 'Syndicate hostiles have sabotaged the municipal relay tower
-    and pinned down our two-man comms engineering team in the commercial plaza.
-
-
-    Provide
-    precision sniper overwatch from the rooftop perch. Protect both technicians while
-    they restore the transmission array, and eliminate all advancing hostile elements
-    before they compromise the site.'
-  primaryObjective: Protect 2 Comms Technicians & Neutralize all 6 Hostiles
-  secondaryObjective: Achieve at least 2 Headshots without friendly casualties
-  timeLimitSeconds: 120
-  hostileCount: 6
+  operationTitle: DEAD AIR (THE BLACKOUT PROTOCOL)
+  districtName: CENTRAL COMMERCIAL PLAZA & COMMS INTERCHANGE
+  tacticalBriefing: "Syndicate strike team under Commander Vance has blacked out Sector 4 with a high-gain military jammer and surrounded our field engineers, Elena and Marcus.\n\nFrom your rooftop overwatch perches, locate and disrupt the jamming source, protect the technicians as they cross the plaza to repair the relay console, neutralize Commander Vance before he exfiltrates, and provide covering fire for the extraction convoy."
+  primaryObjective: Disrupt Jammer, Protect Elena & Marcus, Neutralize Commander & Escort Convoy
+  secondaryObjective: Disable Jammer via Power Junction; Achieve 2+ Headshots; 0 Friendly Casualties
+  timeLimitSeconds: 150
+  hostileCount: 7
   maxEscapesAllowed: 2
   hasTechnicians: 1
   hasCivilians: 0
-  hostileSpawnInterval: 6.5
-  threatLevel: HIGH (HEAVILY ARMED SYNDICATE STRIKE SQUAD)
-  weatherCondition: OVERCAST / CLEAR SIGHTLINES
+  hostileSpawnInterval: 6
+  threatLevel: HIGH (SYNDICATE STRIKE CELL & COMMANDER VANCE)
+  weatherCondition: OVERCAST DUSK / VARIABLE ROOFTOP SIGHTLINES
   recommendedZoom: 8

@@ -43,6 +43,15 @@ namespace DEADeye
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI ammoText;
 
+        [Header("Tactical Recon & Radio Elements")]
+        [SerializeField] private TextMeshProUGUI objectiveText;
+        [SerializeField] private GameObject spottingBannerPanel;
+        [SerializeField] private TextMeshProUGUI spottingTitleText;
+        [SerializeField] private TextMeshProUGUI spottingDescText;
+        [SerializeField] private GameObject radioDialoguePanel;
+        [SerializeField] private TextMeshProUGUI radioSenderText;
+        [SerializeField] private TextMeshProUGUI radioMessageText;
+
         [Header("Feedback Elements")]
         [SerializeField] private TextMeshProUGUI hitFeedbackText;
         [SerializeField] private GameObject hitmarkerObject;
@@ -55,6 +64,8 @@ namespace DEADeye
 
         private bool isPaused = false;
         private Coroutine hitFeedbackCoroutine;
+        private Coroutine spottingBannerCoroutine;
+        private Coroutine radioDialogueCoroutine;
 
         public bool IsPaused => isPaused;
 
@@ -125,6 +136,8 @@ namespace DEADeye
 
         private void EnsureHUDCanvas()
         {
+            DEADeyeTacticalTerminalUI.EnsureEventSystem();
+
             Canvas canvas = GetComponentInChildren<Canvas>();
             if (canvas == null)
             {
@@ -163,7 +176,62 @@ namespace DEADeye
                 hostilesRemainingText = CreateText(topBar.transform, "HostilesText", "HOSTILES: 8", 18, new Vector2(16f, -50f), new Vector2(200f, 28f), Color.white);
                 escapesText = CreateText(topBar.transform, "EscapesText", "ESCAPED: 0 / 3", 18, new Vector2(230f, -50f), new Vector2(200f, 28f), new Color(1.0f, 0.85f, 0.2f));
 
-                // 2. Ammo Bar (Bottom Right)
+                // 2. Objective Tracker Bar (Top Center)
+                GameObject objBar = new GameObject("ObjectiveBar");
+                objBar.transform.SetParent(canvasGO.transform, false);
+                RectTransform objRT = objBar.AddComponent<RectTransform>();
+                objRT.anchorMin = new Vector2(0.38f, 0.88f);
+                objRT.anchorMax = new Vector2(0.72f, 0.98f);
+                objRT.offsetMin = Vector2.zero;
+                objRT.offsetMax = Vector2.zero;
+
+                Image objBg = objBar.AddComponent<Image>();
+                objBg.color = new Color(0.03f, 0.06f, 0.10f, 0.88f);
+                Outline objOutline = objBar.AddComponent<Outline>();
+                objOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.6f);
+                objOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+                objectiveText = CreateText(objBar.transform, "ObjectiveText", "OPERATION DEAD AIR // RECONNAISSANCE", 16, new Vector2(14f, -10f), new Vector2(620f, 34f), new Color(0.0f, 1.0f, 0.65f));
+
+                // 3. Tactical Spotting Banner (Center High)
+                spottingBannerPanel = new GameObject("SpottingBannerPanel");
+                spottingBannerPanel.transform.SetParent(canvasGO.transform, false);
+                RectTransform sbRT = spottingBannerPanel.AddComponent<RectTransform>();
+                sbRT.anchorMin = new Vector2(0.28f, 0.74f);
+                sbRT.anchorMax = new Vector2(0.72f, 0.85f);
+                sbRT.offsetMin = Vector2.zero;
+                sbRT.offsetMax = Vector2.zero;
+
+                Image sbBg = spottingBannerPanel.AddComponent<Image>();
+                sbBg.color = new Color(0.02f, 0.05f, 0.08f, 0.94f);
+                Outline sbOutline = spottingBannerPanel.AddComponent<Outline>();
+                sbOutline.effectColor = new Color(0.0f, 0.9f, 1.0f, 0.8f);
+                sbOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+                spottingTitleText = CreateText(spottingBannerPanel.transform, "SpotTitle", "[ TARGET IDENTIFIED ]", 18, new Vector2(16f, -8f), new Vector2(800f, 26f), new Color(0.0f, 0.9f, 1.0f));
+                spottingDescText = CreateText(spottingBannerPanel.transform, "SpotDesc", "Tactical recon intel details.", 14, new Vector2(16f, -38f), new Vector2(800f, 36f), Color.white);
+                spottingBannerPanel.SetActive(false);
+
+                // 4. Radio Dialogue Subtitles (Bottom Left)
+                radioDialoguePanel = new GameObject("RadioDialoguePanel");
+                radioDialoguePanel.transform.SetParent(canvasGO.transform, false);
+                RectTransform rdRT = radioDialoguePanel.AddComponent<RectTransform>();
+                rdRT.anchorMin = new Vector2(0.02f, 0.18f);
+                rdRT.anchorMax = new Vector2(0.42f, 0.28f);
+                rdRT.offsetMin = Vector2.zero;
+                rdRT.offsetMax = Vector2.zero;
+
+                Image rdBg = radioDialoguePanel.AddComponent<Image>();
+                rdBg.color = new Color(0.02f, 0.04f, 0.07f, 0.90f);
+                Outline rdOutline = radioDialoguePanel.AddComponent<Outline>();
+                rdOutline.effectColor = new Color(0.2f, 0.85f, 1.0f, 0.6f);
+                rdOutline.effectDistance = new Vector2(1.5f, -1.5f);
+
+                radioSenderText = CreateText(radioDialoguePanel.transform, "RadioSender", "â–¶ RADIO // CONTROL", 15, new Vector2(12f, -8f), new Vector2(400f, 22f), new Color(0.0f, 0.9f, 1.0f));
+                radioMessageText = CreateText(radioDialoguePanel.transform, "RadioMessage", "Overwatch, maintain surveillance on the district.", 14, new Vector2(12f, -32f), new Vector2(700f, 34f), Color.white);
+                radioDialoguePanel.SetActive(false);
+
+                // 5. Ammo Bar (Bottom Right)
                 GameObject ammoBox = new GameObject("AmmoBox");
                 ammoBox.transform.SetParent(canvasGO.transform, false);
                 RectTransform abRT = ammoBox.AddComponent<RectTransform>();
@@ -179,18 +247,18 @@ namespace DEADeye
                 abOutline.effectColor = new Color(0.0f, 0.85f, 1.0f, 0.55f);
                 abOutline.effectDistance = new Vector2(1.5f, -1.5f);
 
-                ammoText = CreateText(ammoBox.transform, "AmmoText", "AMMO: 5 / 5\n<size=15><color=#888888>[R] RELOAD</color></size>", 22, new Vector2(16f, -8f), new Vector2(260f, 60f), new Color(0.0f, 0.9f, 1.0f));
+                ammoText = CreateText(ammoBox.transform, "AmmoText", "AMMO: 5 / \u221E\n<size=15><color=#888888>[R] RELOAD</color></size>", 22, new Vector2(16f, -8f), new Vector2(260f, 60f), new Color(0.0f, 0.9f, 1.0f));
 
-                // 3. Center Optical Sniper Scope Overlay (Circular Lens + Magnification)
+                // 6. Center Optical Sniper Scope Overlay
                 BuildScopeOverlay(canvasGO.transform);
 
-                // 4. Hit Feedback & Hitmarker (Center)
+                // 7. Hit Feedback & Hitmarker (Center)
                 BuildHitFeedback(canvasGO.transform);
 
-                // 5. Pause Panel
+                // 8. Pause Panel
                 BuildPauseMenu(canvasGO.transform);
 
-                // 6. Results UI
+                // 9. Results UI
                 GameObject resultsGO = new GameObject("ResultsUI");
                 resultsGO.transform.SetParent(canvasGO.transform, false);
                 resultsUI = resultsGO.AddComponent<DEADeyeResultsUI>();
@@ -459,9 +527,9 @@ namespace DEADeye
 
             CreateText(pausePanel.transform, "PauseTitle", "MISSION PAUSED", 28, new Vector2(140f, -25f), new Vector2(300f, 40f), new Color(0.0f, 0.9f, 1.0f));
 
-            CreateMenuButton(pausePanel.transform, "Btn_Resume", "▶  RESUME MISSION", new Vector2(0f, 45f), OnResumeClicked);
-            CreateMenuButton(pausePanel.transform, "Btn_Restart", "↺  RESTART MISSION", new Vector2(0f, -25f), OnRestartClicked);
-            CreateMenuButton(pausePanel.transform, "Btn_Quit", "✕  QUIT GAME", new Vector2(0f, -95f), OnQuitClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Resume", "â–¶  RESUME MISSION", new Vector2(0f, 45f), OnResumeClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Restart", "â†º  RESTART MISSION", new Vector2(0f, -25f), OnRestartClicked);
+            CreateMenuButton(pausePanel.transform, "Btn_Quit", "âœ•  QUIT GAME", new Vector2(0f, -95f), OnQuitClicked);
 
             pausePanel.SetActive(false);
         }
@@ -497,8 +565,16 @@ namespace DEADeye
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = Color.white;
             tmp.fontStyle = FontStyles.Bold;
+            tmp.raycastTarget = false; // Never block button click events
 
-            btn.onClick.AddListener(onClick);
+            btn.onClick.AddListener(() =>
+            {
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayButtonClick();
+                }
+                onClick?.Invoke();
+            });
         }
 
         private TextMeshProUGUI CreateText(Transform parent, string name, string content, float fontSize, Vector2 pos, Vector2 size, Color color)
@@ -553,12 +629,110 @@ namespace DEADeye
             }
         }
 
-        public void UpdateAmmoDisplay(int current, int max)
+                public void UpdateAmmoDisplay(int current, int max)
         {
             if (ammoText != null)
             {
                 string colTag = current == 0 ? "<color=red>" : "<color=#00E5FF>";
-                ammoText.text = $"AMMO: {colTag}{current}</color> / ∞\n<size=15><color=#888888>[R] RELOAD</color></size>";
+                ammoText.text = $"AMMO: {colTag}{current}</color> / \u221E\n<size=15><color=#888888>[R] RELOAD</color></size>";
+            }
+        }
+
+        public void SetObjectiveDisplay(string objective)
+        {
+            if (objectiveText != null)
+            {
+                objectiveText.text = objective;
+            }
+        }
+
+        public void UpdateObjectiveBar(string objective)
+        {
+            SetObjectiveDisplay(objective);
+        }
+
+        public void ShowSpottingBanner(DEADeyeSpotable target)
+        {
+            if (target == null) return;
+            if (spottingBannerCoroutine != null) StopCoroutine(spottingBannerCoroutine);
+            spottingBannerCoroutine = StartCoroutine(SpottingBannerRoutine(target));
+        }
+
+        private IEnumerator SpottingBannerRoutine(DEADeyeSpotable target)
+        {
+            if (spottingBannerPanel != null)
+            {
+                if (spottingTitleText != null)
+                {
+                    string colHex;
+                    switch (target.Classification)
+                    {
+                        case SpotClassification.Hostile:
+                            colHex = "#FF3333";
+                            break;
+                        case SpotClassification.HostileCommander:
+                            colHex = "#FF0055";
+                            break;
+                        case SpotClassification.Friendly:
+                        case SpotClassification.FriendlyVIP:
+                            colHex = "#00FF66";
+                            break;
+                        case SpotClassification.Objective:
+                            colHex = "#FFD700";
+                            break;
+                        case SpotClassification.Environmental:
+                        default:
+                            colHex = "#00E5FF";
+                            break;
+                    }
+                    spottingTitleText.text = $"<color={colHex}>[ TARGET IDENTIFIED: {target.TargetName} ]</color>";
+                }
+                if (spottingDescText != null)
+                {
+                    spottingDescText.text = target.TacticalDescription;
+                }
+                spottingBannerPanel.SetActive(true);
+            }
+
+            yield return new WaitForSeconds(3.5f);
+
+            if (spottingBannerPanel != null)
+            {
+                spottingBannerPanel.SetActive(false);
+            }
+        }
+
+        public void ShowRadioDialogue(string sender, string message)
+        {
+            if (radioDialogueCoroutine != null) StopCoroutine(radioDialogueCoroutine);
+            radioDialogueCoroutine = StartCoroutine(RadioDialogueRoutine(sender, message));
+        }
+
+        private IEnumerator RadioDialogueRoutine(string sender, string message)
+        {
+            if (radioDialoguePanel != null)
+            {
+                if (radioSenderText != null)
+                {
+                    radioSenderText.text = $"<color=#00E5FF>▶ RADIO // {sender.ToUpper()}</color>";
+                }
+                if (radioMessageText != null)
+                {
+                    radioMessageText.text = $"\"{message}\"";
+                }
+                radioDialoguePanel.SetActive(true);
+            }
+
+            if (DEADeyeAudioManager.Instance != null)
+            {
+                DEADeyeAudioManager.Instance.PlayRadioChatter();
+            }
+
+            yield return new WaitForSeconds(4.5f);
+
+            if (radioDialoguePanel != null)
+            {
+                radioDialoguePanel.SetActive(false);
             }
         }
 

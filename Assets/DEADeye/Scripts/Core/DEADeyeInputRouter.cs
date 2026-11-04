@@ -118,6 +118,24 @@ namespace DEADeye
             return false;
         }
 
+        public bool GetJumpDown()
+        {
+            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool GetTerminalToggleDown()
+        {
+            if (Keyboard.current != null && (Keyboard.current.yKey.wasPressedThisFrame || Keyboard.current.tKey.wasPressedThisFrame))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public Vector2 GetMoveInput()
         {
             Vector2 move = Vector2.zero;

@@ -99,6 +99,11 @@ namespace DEADeye
             }
         }
 
+        public void PlayBodyHit()
+        {
+            PlayHitConfirm();
+        }
+
         public void PlayEnemyAlert(Vector3 position)
         {
             PlaySpatial(enemyAlertClip, position, 0.75f);
@@ -131,6 +136,32 @@ namespace DEADeye
         {
             if (sfxSource != null && boltCycleClip != null)
                 sfxSource.PlayOneShot(boltCycleClip, 0.45f);
+        }
+
+        public void PlaySpottingChirp()
+        {
+            if (sfxSource != null)
+            {
+                if (!proceduralCache.TryGetValue("SpottingChirp", out AudioClip clip))
+                {
+                    clip = SynthesizeChime(1850f, 0.15f);
+                    proceduralCache["SpottingChirp"] = clip;
+                }
+                sfxSource.PlayOneShot(clip, 0.8f);
+            }
+        }
+
+        public void PlayEnvironmentalInteraction()
+        {
+            if (sfxSource != null)
+            {
+                if (!proceduralCache.TryGetValue("EnvInteraction", out AudioClip clip))
+                {
+                    clip = SynthesizeChime(880f, 0.3f);
+                    proceduralCache["EnvInteraction"] = clip;
+                }
+                sfxSource.PlayOneShot(clip, 0.9f);
+            }
         }
 
         public void PlayRadioChatter()

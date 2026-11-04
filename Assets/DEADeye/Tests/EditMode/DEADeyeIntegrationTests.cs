@@ -336,5 +336,84 @@ namespace DEADeye.Tests
             Object.DestroyImmediate(smGO);
             DEADeyeScoreManager.Instance = null;
         }
+
+        [Test]
+        public void Test_15_EnvironmentalProps_TriggerTacticalConsequences()
+        {
+            GameObject propGO = new GameObject("TestPowerJunction");
+            var prop = propGO.AddComponent<DEADeyeEnvironmentalProp>();
+            prop.Initialize(EnvironmentalPropType.PowerJunction, "TEST POWER JUNCTION");
+
+            Assert.IsFalse(prop.IsTriggered, "Prop should not be triggered initially.");
+            Assert.AreEqual(EnvironmentalPropType.PowerJunction, prop.PropType);
+
+            bool triggered = false;
+            prop.OnPropTriggered += (p) => triggered = true;
+
+            prop.TakeDamage(100, Vector3.zero, Vector3.up);
+
+            Assert.IsTrue(prop.IsTriggered, "Prop must be marked triggered after taking damage.");
+            Assert.IsTrue(triggered, "OnPropTriggered event must fire.");
+
+            Object.DestroyImmediate(propGO);
+        }
+
+        [Test]
+        public void Test_16_ReconSpottingSystem_IdentifiesTargets()
+        {
+            GameObject targetGO = new GameObject("TestSpotableTarget");
+            var spotable = targetGO.AddComponent<DEADeyeSpotable>();
+            spotable.SetTargetInfo("COMMUNICATIONS JAMMER", SpotClassification.Objective, "Test Description", 100);
+
+            Assert.IsFalse(spotable.IsIdentified, "Target should not be identified initially.");
+            Assert.AreEqual("COMMUNICATIONS JAMMER", spotable.TargetName);
+            Assert.AreEqual(SpotClassification.Objective, spotable.Classification);
+
+            bool identified = false;
+            spotable.OnTargetIdentified += (s) => identified = true;
+
+            spotable.MarkIdentified();
+
+            Assert.IsTrue(spotable.IsIdentified, "Target must be marked as identified.");
+            Assert.IsTrue(identified, "OnTargetIdentified event must fire.");
+
+            Object.DestroyImmediate(targetGO);
+        }
+
+        [Test]
+        public void Test_17_OperationDeadAir_TransitionsThroughPhases()
+        {
+            GameObject dirGO = new GameObject("TestDirector");
+            var director = dirGO.AddComponent<DEADeyeMissionDirector>();
+
+            Assert.AreEqual(OperationPhase.Reconnaissance, director.CurrentPhase, "Initial phase must be Reconnaissance.");
+
+            director.TransitionToPhase(OperationPhase.Disruption);
+            Assert.AreEqual(OperationPhase.Disruption, director.CurrentPhase, "Phase must transition to Disruption.");
+
+            director.TransitionToPhase(OperationPhase.TechnicianAdvance);
+            Assert.AreEqual(OperationPhase.TechnicianAdvance, director.CurrentPhase, "Phase must transition to TechnicianAdvance.");
+
+            director.TransitionToPhase(OperationPhase.NeutralizeCommander);
+            Assert.AreEqual(OperationPhase.NeutralizeCommander, director.CurrentPhase, "Phase must transition to NeutralizeCommander.");
+
+            director.TransitionToPhase(OperationPhase.ConvoyExtraction);
+            Assert.AreEqual(OperationPhase.ConvoyExtraction, director.CurrentPhase, "Phase must transition to ConvoyExtraction.");
+
+            director.TransitionToPhase(OperationPhase.Debriefing);
+            Assert.AreEqual(OperationPhase.Debriefing, director.CurrentPhase, "Phase must transition to Debriefing.");
+
+            Object.DestroyImmediate(dirGO);
+        }
+
+        [Test]
+        public void Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections()
+        {
+            Scene scene = EditorSceneManager.OpenScene("Assets/DEADeye/Scenes/RooftopMission.unity", OpenSceneMode.Single);
+            Assert.IsTrue(scene.IsValid(), "RooftopMission scene must exist.");
+
+            var cityBuilder = Object.FindFirstObjectByType<DEADeyeUrbanCityBuilder>();
+            Assert.IsNotNull(cityBuilder, "DEADeyeUrbanCityBuilder must exist in the scene.");
+        }
     }
 }

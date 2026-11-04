@@ -72,6 +72,25 @@ namespace DEADeye
                 hostileMarker = gameObject.AddComponent<DEADeyeHostileMarker>();
             }
 
+            // Ensure Spotable component for optical recon
+            var spotable = GetComponent<DEADeyeSpotable>();
+            if (spotable == null)
+            {
+                spotable = gameObject.AddComponent<DEADeyeSpotable>();
+            }
+            bool isCommander = name.IndexOf("Commander", StringComparison.OrdinalIgnoreCase) >= 0 || classificationName.IndexOf("Commander", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (isCommander)
+            {
+                spotable.SetTargetInfo("COMMANDER VANCE", SpotClassification.HostileCommander, "Syndicate tactical commander overseeing Operation Blackout. Priority HVT.", 150);
+                basePoints = 300;
+                maxHealth = 150;
+                currentHealth = maxHealth;
+            }
+            else
+            {
+                spotable.SetTargetInfo(classificationName.ToUpper(), SpotClassification.Hostile, "Syndicate strike force armed hostile.", 50);
+            }
+
             // Ensure Hitbox on root if none exists
             if (GetComponent<Collider>() == null)
             {
@@ -131,6 +150,29 @@ namespace DEADeye
             if (escapeTarget != null && agent != null && agent.isOnNavMesh)
             {
                 agent.SetDestination(escapeTarget.position);
+            }
+        }
+
+        public virtual void InvestigateLocation(Vector3 pos)
+        {
+            if (isEliminated || hasEscaped) return;
+            ChangeState(HostileStateType.Suspicious);
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.speed = alertSpeed;
+                agent.SetDestination(pos);
+            }
+        }
+
+        public virtual void ReactToGunfire(Vector3 soundOrigin)
+        {
+            if (isEliminated || hasEscaped) return;
+            ChangeState(HostileStateType.Alerted);
+            Vector3 lookDir = soundOrigin - transform.position;
+            lookDir.y = 0f;
+            if (lookDir.sqrMagnitude > 0.1f)
+            {
+                transform.rotation = Quaternion.LookRotation(lookDir);
             }
         }
 
