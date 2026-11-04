@@ -23,8 +23,8 @@ namespace DEADeye
         [Header("Weapon Mount")]
         [SerializeField] private DEADeyeSniperWeapon equippedWeapon;
         [SerializeField] private Transform weaponSocket;
-        [SerializeField] private Vector3 hipPosition = new Vector3(0.24f, -0.22f, 0.62f);
-        [SerializeField] private Vector3 aimPosition = new Vector3(0f, -0.16f, 0.35f);
+        [SerializeField] private Vector3 hipPosition = new Vector3(0.22f, -0.20f, 0.58f);
+        [SerializeField] private Vector3 aimPosition = new Vector3(0f, -0.155f, 0.36f);
         [SerializeField] private float aimTransitionSpeed = 14f;
 
         private CharacterController characterController;
@@ -82,7 +82,7 @@ namespace DEADeye
             if (desktopCamera != null)
             {
                 desktopCamera.tag = "MainCamera";
-                desktopCamera.nearClipPlane = 0.05f; // Prevent rifle mesh clipping in first person
+                desktopCamera.nearClipPlane = 0.04f; // Prevent rifle mesh clipping in first person
             }
 
             if (cameraPivot == null && desktopCamera != null)

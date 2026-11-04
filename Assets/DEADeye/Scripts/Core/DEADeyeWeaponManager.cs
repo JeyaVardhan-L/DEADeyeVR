@@ -80,15 +80,19 @@ namespace DEADeye
             isReloading = true;
             OnReloadStarted?.Invoke();
 
-            if (DEADeyeAudioManager.Instance != null)
+            try
             {
-                DEADeyeAudioManager.Instance.PlayReload(transform.position);
+                if (DEADeyeAudioManager.Instance != null)
+                {
+                    DEADeyeAudioManager.Instance.PlayReload(transform.position);
+                }
             }
+            catch (System.Exception) {}
 
             float elapsed = 0f;
             while (elapsed < reloadTime)
             {
-                elapsed += Time.deltaTime > 0f ? Time.deltaTime : 0.02f;
+                elapsed += Time.unscaledDeltaTime > 0f ? Time.unscaledDeltaTime : 0.02f;
                 yield return null;
             }
 

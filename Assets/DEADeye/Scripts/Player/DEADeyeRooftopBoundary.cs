@@ -20,20 +20,39 @@ namespace DEADeye
         [SerializeField] private Vector3 perch2SafePos = new Vector3(18f, 26.0f, 4.0f);
         [SerializeField] private Vector3 perch3SafePos = new Vector3(-18f, 26.0f, 6.0f);
 
+        public System.Action OnBoundaryResetTriggered;
+
         private void LateUpdate()
         {
             Transform playerT = null;
-            if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.ActiveCamera != null)
+            CharacterController cc = null;
+
+            if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.DesktopRig != null)
             {
-                playerT = DEADeyePlayerController.Instance.ActiveCamera.transform;
+                playerT = DEADeyePlayerController.Instance.DesktopRig.transform;
+                cc = DEADeyePlayerController.Instance.DesktopRig.GetComponent<CharacterController>();
+            }
+            else if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.VrRig != null)
+            {
+                playerT = DEADeyePlayerController.Instance.VrRig.transform;
             }
             else
             {
                 var desktopRig = FindFirstObjectByType<DEADeyeDesktopRig>();
-                if (desktopRig != null) playerT = desktopRig.transform;
+                if (desktopRig != null)
+                {
+                    playerT = desktopRig.transform;
+                    cc = desktopRig.GetComponent<CharacterController>();
+                }
             }
 
             if (playerT == null) return;
+
+            // If CharacterController is firmly grounded on any valid floor or bridge, player has not fallen
+            if (cc != null && cc.enabled && cc.isGrounded)
+            {
+                return;
+            }
 
             Vector3 currentPos = playerT.position;
             Vector3 min = networkCenter - networkSize * 0.5f;
@@ -49,28 +68,11 @@ namespace DEADeye
                 Vector3 targetSafePerch = GetNearestSafePerch(currentPos);
                 Debug.LogWarning($"[DEADeyeRooftopBoundary] Player fell off rooftop at {currentPos} (minY={minimumSafeY}). Resetting to nearest safe perch {targetSafePerch}.");
 
-                if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.DesktopRig != null)
-                {
-                    var cc = DEADeyePlayerController.Instance.DesktopRig.GetComponent<CharacterController>();
-                    if (cc != null) cc.enabled = false;
-                    DEADeyePlayerController.Instance.DesktopRig.transform.position = targetSafePerch;
-                    if (cc != null) cc.enabled = true;
-                }
-                else if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.VrRig != null)
-                {
-                    DEADeyePlayerController.Instance.VrRig.transform.position = targetSafePerch;
-                }
-                else
-                {
-                    var rig = FindFirstObjectByType<DEADeyeDesktopRig>();
-                    if (rig != null)
-                    {
-                        var cc = rig.GetComponent<CharacterController>();
-                        if (cc != null) cc.enabled = false;
-                        rig.transform.position = targetSafePerch;
-                        if (cc != null) cc.enabled = true;
-                    }
-                }
+                if (cc != null) cc.enabled = false;
+                playerT.position = targetSafePerch;
+                if (cc != null) cc.enabled = true;
+
+                OnBoundaryResetTriggered?.Invoke();
             }
         }
 

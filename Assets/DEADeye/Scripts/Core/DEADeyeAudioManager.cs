@@ -64,6 +64,15 @@ namespace DEADeye
                 ambientSource.volume = 0.35f;
             }
 
+#if UNITY_EDITOR
+            if (gunshotClip == null) gunshotClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Gunshot_Close.wav");
+            if (boltCycleClip == null) boltCycleClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Bolt_Cycle.wav");
+            if (reloadClip == null) reloadClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Reload_MagIn.wav");
+            if (scopeToggleClip == null) scopeToggleClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Scope_Toggle.wav");
+            if (concreteImpactClip == null) concreteImpactClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Concrete.wav");
+            if (metalImpactClip == null) metalImpactClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Metal.wav");
+            if (fleshImpactClip == null) fleshImpactClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Body.wav");
+#endif
             GenerateProceduralAudioClips();
         }
 
@@ -265,7 +274,11 @@ namespace DEADeye
         private void PlaySpatial(AudioClip clip, Vector3 position, float volume)
         {
             if (clip == null) return;
-            AudioSource.PlayClipAtPoint(clip, position, volume);
+            try
+            {
+                AudioSource.PlayClipAtPoint(clip, position, volume);
+            }
+            catch (System.Exception) {}
         }
 
         // =========================================================================

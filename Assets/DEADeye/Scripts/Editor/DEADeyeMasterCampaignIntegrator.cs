@@ -78,6 +78,35 @@ namespace DEADeye.Editor
                 }
             }
 
+            // 7. Wire Audio Manager with Studio Quality Clips
+            var audioMgr = Object.FindFirstObjectByType<DEADeyeAudioManager>();
+            if (audioMgr != null)
+            {
+                SerializedObject soAudio = new SerializedObject(audioMgr);
+                soAudio.FindProperty("gunshotClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Gunshot_Close.wav");
+                soAudio.FindProperty("boltCycleClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Bolt_Cycle.wav");
+                soAudio.FindProperty("reloadClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Reload_MagIn.wav");
+                soAudio.FindProperty("scopeToggleClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Sniper_Scope_Toggle.wav");
+                soAudio.FindProperty("concreteImpactClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Concrete.wav");
+                soAudio.FindProperty("metalImpactClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Metal.wav");
+                soAudio.FindProperty("fleshImpactClip").objectReferenceValue = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/DEADeye/Audio/Impact_Body.wav");
+                soAudio.ApplyModifiedProperties();
+                EditorUtility.SetDirty(audioMgr);
+                Debug.Log("[DEADeyeMasterCampaignIntegrator] Wired high-fidelity audio clips into DEADeyeAudioManager!");
+            }
+
+            // 8. Calibrate Desktop Rig Weapon Positioning
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            if (desktopRig != null)
+            {
+                SerializedObject soRig = new SerializedObject(desktopRig);
+                soRig.FindProperty("hipPosition").vector3Value = new Vector3(0.22f, -0.20f, 0.58f);
+                soRig.FindProperty("aimPosition").vector3Value = new Vector3(0f, -0.155f, 0.36f);
+                soRig.ApplyModifiedProperties();
+                EditorUtility.SetDirty(desktopRig);
+                Debug.Log("[DEADeyeMasterCampaignIntegrator] Calibrated Desktop Rig weapon socket!");
+            }
+
             // Mark Scene Dirty and Save
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);

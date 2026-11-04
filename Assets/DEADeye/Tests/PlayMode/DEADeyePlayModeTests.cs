@@ -410,9 +410,10 @@ namespace DEADeye.Tests
 
             foreach (var waypoint in returnPathEast)
             {
-                for (int step = 0; step < 30; step++)
+                for (int step = 0; step < 35; step++)
                 {
                     Vector3 delta = (waypoint - desktopRig.transform.position);
+                    delta.y = 0f;
                     if (delta.magnitude > 0.05f)
                     {
                         cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
@@ -426,8 +427,8 @@ namespace DEADeye.Tests
             // 3. Walk across West Bridge towards Perch 3 (-18m, 26m, 6m)
             Vector3[] westPath = new Vector3[]
             {
-                new Vector3(-4f, 26f, -4f),
-                new Vector3(-6.8f, 26f, -5.2f), // West bridge entrance
+                new Vector3(0f, 26f, -6.0f),     // Clear corridor south of terminal desk
+                new Vector3(-6.8f, 26f, -5.2f),  // West bridge entrance
                 new Vector3(-10.5f, 26f, -0.6f), // Mid-bridge
                 new Vector3(-14.0f, 26f, 4.0f),  // West perch entrance
                 new Vector3(-18.0f, 26f, 6.0f)   // Center of Perch 3
@@ -435,9 +436,10 @@ namespace DEADeye.Tests
 
             foreach (var waypoint in westPath)
             {
-                for (int step = 0; step < 30; step++)
+                for (int step = 0; step < 40; step++)
                 {
                     Vector3 delta = (waypoint - desktopRig.transform.position);
+                    delta.y = 0f;
                     if (delta.magnitude > 0.05f)
                     {
                         cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
@@ -455,14 +457,16 @@ namespace DEADeye.Tests
                 new Vector3(-14.0f, 26f, 4.0f),
                 new Vector3(-10.5f, 26f, -0.6f),
                 new Vector3(-6.8f, 26f, -5.2f),
-                new Vector3(0f, 26f, -3f)
+                new Vector3(0f, 26f, -6.0f),
+                new Vector3(0f, 26f, -3.0f)
             };
 
             foreach (var waypoint in returnPathWest)
             {
-                for (int step = 0; step < 30; step++)
+                for (int step = 0; step < 40; step++)
                 {
                     Vector3 delta = (waypoint - desktopRig.transform.position);
+                    delta.y = 0f;
                     if (delta.magnitude > 0.05f)
                     {
                         cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
@@ -578,6 +582,299 @@ namespace DEADeye.Tests
             Assert.IsTrue(reloadCompleted, "Reload completed event must fire.");
             Assert.IsFalse(weaponMgr.IsReloading, "Reload state must conclude.");
             Assert.AreEqual(5, weaponMgr.CurrentAmmo, "Magazine must be fully replenished to 5 rounds.");
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_09_RooftopTraversal_Perch1EdgesAndCorners_NoReset()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "DEADeyeRooftopBoundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            Assert.IsNotNull(cc, "CharacterController must exist on desktop rig.");
+
+            int resetCount = 0;
+            boundary.OnBoundaryResetTriggered += () => resetCount++;
+
+            // Test 4 perimeter corners & edges of Perch 1 (Standing area spans X: [-5.5, 5.5], Z: [-10.5, -2.0])
+            Vector3[] perch1Waypoints = new Vector3[]
+            {
+                new Vector3(0f, 26f, -2.0f),    // Front center
+                new Vector3(4.8f, 26f, -2.2f),  // Front East corner
+                new Vector3(4.8f, 26f, -10.0f), // Rear East corner
+                new Vector3(0f, 26f, -10.5f),   // Rear center
+                new Vector3(-4.8f, 26f, -10.0f),// Rear West corner
+                new Vector3(-4.8f, 26f, -2.2f), // Front West corner
+                new Vector3(0f, 26f, -3.0f)     // Return to center nest
+            };
+
+            foreach (var target in perch1Waypoints)
+            {
+                for (int step = 0; step < 25; step++)
+                {
+                    Vector3 delta = target - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.45f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must remain safely elevated on Perch 1 near {target}.");
+                Assert.AreEqual(0, resetCount, $"Player near {target} on Perch 1 must not trigger accidental boundary reset.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_10_RooftopTraversal_EastBridge_BothDirections_NoReset()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "DEADeyeRooftopBoundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            int resetCount = 0;
+            boundary.OnBoundaryResetTriggered += () => resetCount++;
+
+            // Path from Perch 1 across East Bridge to Perch 2
+            Vector3[] forwardPath = new Vector3[]
+            {
+                new Vector3(0f, 26f, -3.0f),
+                new Vector3(6.8f, 26f, -5.2f),  // Perch 1 East transition landing
+                new Vector3(10.5f, 26f, -1.6f), // East bridge midpoint
+                new Vector3(14.0f, 26f, 2.0f),  // Perch 2 West transition landing
+                new Vector3(18.0f, 26f, 4.0f)   // Perch 2 center
+            };
+
+            foreach (var wp in forwardPath)
+            {
+                for (int step = 0; step < 35; step++)
+                {
+                    Vector3 delta = wp - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must stay elevated on East path at {wp}.");
+                Assert.AreEqual(0, resetCount, "East Bridge traversal must not trigger reset.");
+            }
+
+            // Return Path from Perch 2 back to Perch 1
+            Vector3[] returnPath = new Vector3[]
+            {
+                new Vector3(18.0f, 26f, 4.0f),
+                new Vector3(14.0f, 26f, 2.0f),
+                new Vector3(10.5f, 26f, -1.6f),
+                new Vector3(6.8f, 26f, -5.2f),
+                new Vector3(0f, 26f, -3.0f)
+            };
+
+            foreach (var wp in returnPath)
+            {
+                for (int step = 0; step < 35; step++)
+                {
+                    Vector3 delta = wp - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must stay elevated on return path at {wp}.");
+                Assert.AreEqual(0, resetCount, "Return East Bridge traversal must not trigger reset.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_11_RooftopTraversal_WestBridge_BothDirections_NoReset()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "DEADeyeRooftopBoundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            int resetCount = 0;
+            boundary.OnBoundaryResetTriggered += () => resetCount++;
+
+            // Path from Perch 1 across West Bridge to Perch 3
+            Vector3[] forwardPath = new Vector3[]
+            {
+                new Vector3(0f, 26f, -3.0f),
+                new Vector3(-6.8f, 26f, -5.2f), // Perch 1 West transition landing
+                new Vector3(-10.5f, 26f, -0.6f),// West bridge midpoint
+                new Vector3(-14.0f, 26f, 4.0f), // Perch 3 East transition landing
+                new Vector3(-18.0f, 26f, 6.0f)  // Perch 3 center
+            };
+
+            foreach (var wp in forwardPath)
+            {
+                for (int step = 0; step < 35; step++)
+                {
+                    Vector3 delta = wp - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must stay elevated on West path at {wp}.");
+                Assert.AreEqual(0, resetCount, "West Bridge traversal must not trigger reset.");
+            }
+
+            // Return Path from Perch 3 back to Perch 1
+            Vector3[] returnPath = new Vector3[]
+            {
+                new Vector3(-18.0f, 26f, 6.0f),
+                new Vector3(-14.0f, 26f, 4.0f),
+                new Vector3(-10.5f, 26f, -0.6f),
+                new Vector3(-6.8f, 26f, -5.2f),
+                new Vector3(0f, 26f, -3.0f)
+            };
+
+            foreach (var wp in returnPath)
+            {
+                for (int step = 0; step < 35; step++)
+                {
+                    Vector3 delta = wp - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must stay elevated on return path at {wp}.");
+                Assert.AreEqual(0, resetCount, "Return West Bridge traversal must not trigger reset.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_12_RooftopTraversal_Perch2AndPerch3_EdgesAndParapets_NoReset()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "DEADeyeRooftopBoundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            int resetCount = 0;
+            boundary.OnBoundaryResetTriggered += () => resetCount++;
+
+            // Move to Perch 2 center
+            cc.enabled = false;
+            desktopRig.transform.position = new Vector3(18.0f, 26.0f, 4.0f);
+            cc.enabled = true;
+            yield return new WaitForFixedUpdate();
+
+            Vector3[] perch2Edges = new Vector3[]
+            {
+                new Vector3(18.0f, 26.0f, 7.0f), // North parapet notch
+                new Vector3(20.5f, 26.0f, 4.0f), // East wall
+                new Vector3(18.0f, 26.0f, 1.2f), // South wall
+                new Vector3(15.2f, 26.0f, 4.0f)  // West transition
+            };
+
+            foreach (var edge in perch2Edges)
+            {
+                for (int step = 0; step < 20; step++)
+                {
+                    Vector3 delta = edge - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must remain on Perch 2 edge at {edge}.");
+                Assert.AreEqual(0, resetCount, $"Player on Perch 2 edge at {edge} must not trigger reset.");
+            }
+
+            // Move to Perch 3 center
+            cc.enabled = false;
+            desktopRig.transform.position = new Vector3(-18.0f, 26.0f, 6.0f);
+            cc.enabled = true;
+            yield return new WaitForFixedUpdate();
+
+            Vector3[] perch3Edges = new Vector3[]
+            {
+                new Vector3(-18.0f, 26.0f, 9.0f), // North parapet notch
+                new Vector3(-20.5f, 26.0f, 6.0f), // West wall
+                new Vector3(-18.0f, 26.0f, 3.2f), // South wall
+                new Vector3(-15.2f, 26.0f, 6.0f)  // East transition
+            };
+
+            foreach (var edge in perch3Edges)
+            {
+                for (int step = 0; step < 20; step++)
+                {
+                    Vector3 delta = edge - desktopRig.transform.position;
+                    delta.y = 0f;
+                    if (delta.magnitude > 0.05f)
+                    {
+                        cc.Move(delta.normalized * Mathf.Min(delta.magnitude, 0.4f));
+                    }
+                    yield return new WaitForFixedUpdate();
+                }
+                Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, $"Player must remain on Perch 3 edge at {edge}.");
+                Assert.AreEqual(0, resetCount, $"Player on Perch 3 edge at {edge} must not trigger reset.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator PlayMode_13_RooftopTraversal_DeliberateFall_SafeResetToNearestPerch()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("RooftopMission");
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            var desktopRig = Object.FindFirstObjectByType<DEADeyeDesktopRig>();
+            var boundary = Object.FindFirstObjectByType<DEADeyeRooftopBoundary>();
+            Assert.IsNotNull(desktopRig, "Desktop rig must exist.");
+            Assert.IsNotNull(boundary, "DEADeyeRooftopBoundary must exist.");
+
+            var cc = desktopRig.GetComponent<CharacterController>();
+            int resetCount = 0;
+            boundary.OnBoundaryResetTriggered += () => resetCount++;
+
+            // Deliberately drop below minimumSafeY (e.g. Y = 10m over the street at X=0, Z=20)
+            cc.enabled = false;
+            desktopRig.transform.position = new Vector3(0f, 10f, 20f);
+            cc.enabled = true;
+
+            // Wait a few frames for boundary check
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            // Boundary must catch the fall and reset player
+            Assert.GreaterOrEqual(resetCount, 1, "Deliberate fall below minimumSafeY must trigger boundary reset.");
+            Assert.GreaterOrEqual(desktopRig.transform.position.y, 25.5f, "Player must be safely restored to elevated rooftop level (Y >= 25.5f).");
+            Assert.LessOrEqual(Vector3.Distance(desktopRig.transform.position, new Vector3(0f, 26f, -2.5f)), 4.0f, "Player must be restored to a safe perch location.");
         }
     }
 }
