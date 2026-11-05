@@ -174,6 +174,95 @@ namespace DEADeye.Editor
             File.WriteAllText("traversal_inspection.txt", sb.ToString());
             Debug.Log(sb.ToString());
         }
+
+        [MenuItem("DEADeye/Debug/Inspect XR Configuration")]
+        public static void InspectXRConfiguration()
+        {
+            var scene = EditorSceneManager.OpenScene("Assets/DEADeye/Scenes/RooftopMission.unity");
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"=== SCENE XR CONFIGURATION INSPECTION: {scene.name} ===");
+
+            // 1. DEADeyePlayerController
+            var pc = Object.FindFirstObjectByType<DEADeyePlayerController>(FindObjectsInactive.Include);
+            if (pc != null)
+            {
+                sb.AppendLine("\n--- DEADeyePlayerController ---");
+                sb.AppendLine($"GameObject: {pc.gameObject.name}, active={pc.gameObject.activeInHierarchy}");
+                SerializedObject so = new SerializedObject(pc);
+                var vrRigProp = so.FindProperty("vrRig");
+                var desktopRigProp = so.FindProperty("desktopRig");
+                sb.AppendLine($"  vrRig property: {(vrRigProp != null && vrRigProp.objectReferenceValue != null ? vrRigProp.objectReferenceValue.name : "null")}");
+                sb.AppendLine($"  desktopRig property: {(desktopRigProp != null && desktopRigProp.objectReferenceValue != null ? desktopRigProp.objectReferenceValue.name : "null")}");
+            }
+            else
+            {
+                sb.AppendLine("DEADeyePlayerController NOT found in scene!");
+            }
+
+            // 2. Search for XR Origin / Rigs in scene
+            var allGOs = scene.GetRootGameObjects();
+            sb.AppendLine("\n--- Root GameObjects in Scene ---");
+            foreach (var go in allGOs)
+            {
+                sb.AppendLine($"Root GO: {go.name} (active={go.activeSelf})");
+                if (go.name.Contains("XR") || go.name.Contains("VR") || go.name.Contains("Rig") || go.name.Contains("Player"))
+                {
+                    DumpHierarchy(go, sb, "  ");
+                }
+            }
+
+            // 3. Search for XR Origin / XROrigin components anywhere
+            var origins = Object.FindObjectsByType<Component>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            sb.AppendLine("\n--- XR Components in Scene ---");
+            foreach (var comp in origins)
+            {
+                string typeName = comp.GetType().FullName;
+                if (typeName.Contains("XR") || typeName.Contains("Locomotion") || typeName.Contains("ActionBased") || typeName.Contains("Controller") || typeName.Contains("Interact"))
+                {
+                    sb.AppendLine($"  Component: {typeName} on '{comp.gameObject.name}' (active={comp.gameObject.activeInHierarchy})");
+                }
+            }
+
+            // 4. Weapon XR interaction setup
+            var weapon = Object.FindFirstObjectByType<DEADeyeSniperWeapon>(FindObjectsInactive.Include);
+            if (weapon != null)
+            {
+                sb.AppendLine("\n--- Weapon Setup ---");
+                sb.AppendLine($"Weapon: {weapon.gameObject.name}, parent={weapon.transform.parent?.name}");
+                foreach (var c in weapon.GetComponents<Component>())
+                {
+                    sb.AppendLine($"  Comp: {c.GetType().FullName}");
+                }
+            }
+
+            // 5. Input Router
+            var router = Object.FindFirstObjectByType<DEADeyeInputRouter>(FindObjectsInactive.Include);
+            if (router != null)
+            {
+                sb.AppendLine("\n--- DEADeyeInputRouter ---");
+                sb.AppendLine($"Router: {router.gameObject.name}, active={router.gameObject.activeInHierarchy}");
+            }
+
+            string reportPath = Path.Combine(Application.dataPath, "..", "xr_inspection_report.txt");
+            File.WriteAllText(reportPath, sb.ToString());
+            Debug.Log($"[DEADeyeSceneInspector] XR Inspection Report written to {reportPath}");
+        }
+
+        private static void DumpHierarchy(GameObject go, StringBuilder sb, string indent)
+        {
+            sb.AppendLine($"{indent}GO: {go.name} (active={go.activeSelf})");
+            foreach (var comp in go.GetComponents<Component>())
+            {
+                if (comp != null)
+                {
+                    sb.AppendLine($"{indent}  [{comp.GetType().Name}]");
+                }
+            }
+            foreach (Transform child in go.transform)
+            {
+                DumpHierarchy(child.gameObject, sb, indent + "  ");
+            }
+        }
     }
 }
 #endif

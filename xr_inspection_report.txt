@@ -1,0 +1,365 @@
+=== SCENE XR CONFIGURATION INSPECTION: RooftopMission ===
+
+--- DEADeyePlayerController ---
+GameObject: DEADeye_PlayerController, active=True
+  vrRig property: VR_XROriginRig
+  desktopRig property: Desktop_FPSRig
+
+--- Root GameObjects in Scene ---
+Root GO: City_Sunlight (active=True)
+Root GO: Mission_AuthoritativeManagers (active=True)
+Root GO: CityEnvironment_Controller (active=True)
+Root GO: DEADeye_PlayerController (active=True)
+  GO: DEADeye_PlayerController (active=True)
+    [Transform]
+    [DEADeyePlayerController]
+    GO: Desktop_FPSRig (active=True)
+      [Transform]
+      [CharacterController]
+      [DEADeyeDesktopRig]
+      GO: DesktopCamera (active=True)
+        [Transform]
+        [Camera]
+        [AudioListener]
+    GO: VR_XROriginRig (active=False)
+      [Transform]
+      [XROrigin]
+      [CharacterController]
+      [InputActionManager]
+      [XRInputModalityManager]
+      [XRGazeAssistance]
+      GO: Camera Offset (active=True)
+        [Transform]
+        GO: Main Camera (active=True)
+          [Transform]
+          [Camera]
+          [AudioListener]
+          [TrackedPoseDriver]
+          [UniversalAdditionalCameraData]
+        GO: Gaze Interactor (active=False)
+          [Transform]
+          [XRGazeInteractor]
+          [GazeInputManager]
+          [TrackedPoseDriver]
+        GO: Gaze Stabilized (active=False)
+          [Transform]
+          [XRTransformStabilizer]
+          GO: Gaze Stabilized Attach (active=True)
+            [Transform]
+        GO: Left Controller (active=True)
+          [Transform]
+          [ControllerInputActionManager]
+          [XRInteractionGroup]
+          [HapticImpulsePlayer]
+          [TrackedPoseDriver]
+          GO: Poke Interactor (active=True)
+            [Transform]
+            [XRPokeInteractor]
+            [SimpleHapticFeedback]
+            GO: Poke Point (active=True)
+              [Transform]
+              GO: Pinch_Pointer_LOD0 (active=True)
+                [Transform]
+                [SkinnedMeshRenderer]
+            GO: Poke Point Affordances (active=True)
+              [Transform]
+              GO: Poke (active=True)
+                [Transform]
+                [XRInteractorAffordanceStateProvider]
+                [MaterialPropertyBlockHelper]
+                [ColorMaterialPropertyAffordanceReceiver]
+              GO: NearFar (active=True)
+                [Transform]
+                [XRInteractorAffordanceStateProvider]
+                [MaterialPropertyBlockHelper]
+                [ColorMaterialPropertyAffordanceReceiver]
+          GO: Near-Far Interactor (active=True)
+            [Transform]
+            [NearFarInteractor]
+            [InteractionAttachController]
+            [SphereInteractionCaster]
+            [CurveInteractionCaster]
+            [SimpleHapticFeedback]
+            GO: LineVisual (active=True)
+              [Transform]
+              [CurveVisualController]
+              [LineRenderer]
+              [SortingGroup]
+          GO: Teleport Interactor (active=True)
+            [Transform]
+            [XRRayInteractor]
+            [LineRenderer]
+            [XRInteractorLineVisual]
+            [SortingGroup]
+            [SimpleHapticFeedback]
+          GO: Left Controller Visual (active=True)
+            [Transform]
+            [ControllerAnimator]
+            GO: UniversalController (active=True)
+              [Transform]
+              GO: Bumper (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Button_Home (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Controller_Base (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: TouchPad (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Trigger (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: XRController_Thumbstick_Buttons (active=True)
+                [Transform]
+                GO: Button_A (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: Button_B (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: ThumbStick (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: ThumbStick_Base (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+        GO: Left Controller Teleport Stabilized Origin (active=True)
+          [Transform]
+          [XRTransformStabilizer]
+          GO: Left Controller Stabilized Attach (active=True)
+            [Transform]
+        GO: Right Controller (active=True)
+          [Transform]
+          [ControllerInputActionManager]
+          [XRInteractionGroup]
+          [HapticImpulsePlayer]
+          [TrackedPoseDriver]
+          GO: Poke Interactor (active=True)
+            [Transform]
+            [XRPokeInteractor]
+            [SimpleHapticFeedback]
+            GO: Poke Point (active=True)
+              [Transform]
+              GO: Pinch_Pointer_LOD0 (active=True)
+                [Transform]
+                [SkinnedMeshRenderer]
+            GO: Poke Point Affordances (active=True)
+              [Transform]
+              GO: Poke (active=True)
+                [Transform]
+                [XRInteractorAffordanceStateProvider]
+                [MaterialPropertyBlockHelper]
+                [ColorMaterialPropertyAffordanceReceiver]
+              GO: NearFar (active=True)
+                [Transform]
+                [XRInteractorAffordanceStateProvider]
+                [MaterialPropertyBlockHelper]
+                [ColorMaterialPropertyAffordanceReceiver]
+          GO: Near-Far Interactor (active=True)
+            [Transform]
+            [NearFarInteractor]
+            [InteractionAttachController]
+            [SphereInteractionCaster]
+            [CurveInteractionCaster]
+            [SimpleHapticFeedback]
+            GO: LineVisual (active=True)
+              [Transform]
+              [CurveVisualController]
+              [LineRenderer]
+              [SortingGroup]
+          GO: Teleport Interactor (active=True)
+            [Transform]
+            [XRRayInteractor]
+            [LineRenderer]
+            [XRInteractorLineVisual]
+            [SortingGroup]
+            [SimpleHapticFeedback]
+          GO: Right Controller Visual (active=True)
+            [Transform]
+            [ControllerAnimator]
+            GO: UniversalController (active=True)
+              [Transform]
+              GO: Bumper (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Button_Home (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Controller_Base (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: TouchPad (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: Trigger (active=True)
+                [Transform]
+                [MeshFilter]
+                [MeshRenderer]
+              GO: XRController_Thumbstick_Buttons (active=True)
+                [Transform]
+                GO: Button_A (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: Button_B (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: ThumbStick (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+                GO: ThumbStick_Base (active=True)
+                  [Transform]
+                  [MeshFilter]
+                  [MeshRenderer]
+        GO: Right Controller Teleport Stabilized Origin (active=True)
+          [Transform]
+          [XRTransformStabilizer]
+          GO: Right Controller Stabilized Attach (active=True)
+            [Transform]
+      GO: Locomotion (active=True)
+        [Transform]
+        [LocomotionMediator]
+        [XRBodyTransformer]
+        GO: Turn (active=True)
+          [Transform]
+          [SnapTurnProvider]
+          [ContinuousTurnProvider]
+        GO: Move (active=True)
+          [Transform]
+          [DynamicMoveProvider]
+        GO: Grab Move (active=False)
+          [Transform]
+          [GrabMoveProvider]
+          [GrabMoveProvider]
+          [TwoHandedGrabMoveProvider]
+        GO: Teleportation (active=True)
+          [Transform]
+          [TeleportationProvider]
+        GO: Climb (active=True)
+          [Transform]
+          [ClimbProvider]
+          GO: Climb Teleport (active=True)
+            [Transform]
+            [ClimbTeleportInteractor]
+            [ClimbTeleportDestinationIndicator]
+        GO: Gravity (active=True)
+          [Transform]
+          [GravityProvider]
+        GO: Jump (active=True)
+          [Transform]
+          [JumpProvider]
+    GO: XR Interaction Simulator (active=True)
+      [Transform]
+      [XRInteractionSimulator]
+      [SimulatedDeviceLifecycleManager]
+      [SimulatedHandExpressionManager]
+      [InputActionManager]
+Root GO: RooftopSafetyBoundary (active=True)
+Root GO: XM500_PrecisionSniper (active=True)
+Root GO: DEADeye_MissionHUD (active=True)
+
+--- XR Components in Scene ---
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Climbing.ClimbProvider on 'Climb' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRPokeInteractor on 'Poke Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.XRTransformStabilizer on 'Left Controller Teleport Stabilized Origin' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering.ColorMaterialPropertyAffordanceReceiver on 'Poke' (active=False)
+  Component: UnityEngine.InputSystem.XR.TrackedPoseDriver on 'Main Camera' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.XRBodyTransformer on 'Locomotion' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State.XRInteractorAffordanceStateProvider on 'NearFar' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics.HapticImpulsePlayer on 'Right Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Poke Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.XRInputModalityManager on 'VR_XROriginRig' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRInteractionGroup on 'Left Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Gaze.XRGazeAssistance on 'VR_XROriginRig' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering.ColorMaterialPropertyAffordanceReceiver on 'Poke' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRGazeInteractor on 'Gaze Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.CurveVisualController on 'LineVisual' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.XRInteractorLineVisual on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.DynamicMoveProvider on 'Move' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State.XRInteractorAffordanceStateProvider on 'Poke' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering.ColorMaterialPropertyAffordanceReceiver on 'NearFar' (active=False)
+  Component: Unity.XR.CoreUtils.XROrigin on 'VR_XROriginRig' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation.TeleportationProvider on 'Teleportation' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.SimulatedDeviceLifecycleManager on 'XR Interaction Simulator' (active=True)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Jump.JumpProvider on 'Jump' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering.MaterialPropertyBlockHelper on 'Poke' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.SimulatedHandExpressionManager on 'XR Interaction Simulator' (active=True)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.XRTransformStabilizer on 'Gaze Stabilized' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.GazeInputManager on 'Gaze Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.ControllerAnimator on 'Right Controller Visual' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.ControllerInputActionManager on 'Left Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering.MaterialPropertyBlockHelper on 'NearFar' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.GrabMoveProvider on 'Grab Move' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Casters.SphereInteractionCaster on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Casters.CurveInteractionCaster on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.GrabMoveProvider on 'Grab Move' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRPokeInteractor on 'Poke Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Turning.SnapTurnProvider on 'Turn' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State.XRInteractorAffordanceStateProvider on 'NearFar' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Climbing.ClimbTeleportInteractor on 'Climb Teleport' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.NearFarInteractor on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity.GravityProvider on 'Gravity' (active=False)
+  Component: UnityEngine.InputSystem.XR.TrackedPoseDriver on 'Gaze Interactor' (active=False)
+  Component: DEADeye.DEADeyePlayerController on 'DEADeye_PlayerController' (active=True)
+  Component: UnityEngine.XR.Interaction.Toolkit.Attachment.InteractionAttachController on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.Haptics.HapticImpulsePlayer on 'Left Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.ControllerInputActionManager on 'Right Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.LocomotionMediator on 'Locomotion' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Visuals.CurveVisualController on 'LineVisual' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.InputSystem.XR.TrackedPoseDriver on 'Right Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.XRTransformStabilizer on 'Right Controller Teleport Stabilized Origin' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.ControllerAnimator on 'Left Controller Visual' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.InputActionManager on 'VR_XROriginRig' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Casters.SphereInteractionCaster on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.InputActionManager on 'XR Interaction Simulator' (active=True)
+  Component: UnityEngine.XR.Interaction.Toolkit.Attachment.InteractionAttachController on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.TwoHandedGrabMoveProvider on 'Grab Move' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Feedback.SimpleHapticFeedback on 'Poke Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.State.XRInteractorAffordanceStateProvider on 'Poke' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering.MaterialPropertyBlockHelper on 'NearFar' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Receiver.Rendering.ColorMaterialPropertyAffordanceReceiver on 'NearFar' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRRayInteractor on 'Teleport Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.XRInteractionGroup on 'Right Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Interactors.Casters.CurveInteractionCaster on 'Near-Far Interactor' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets.ClimbTeleportDestinationIndicator on 'Climb Teleport' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.AffordanceSystem.Rendering.MaterialPropertyBlockHelper on 'Poke' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Locomotion.Turning.ContinuousTurnProvider on 'Turn' (active=False)
+  Component: UnityEngine.InputSystem.XR.TrackedPoseDriver on 'Left Controller' (active=False)
+  Component: UnityEngine.XR.Interaction.Toolkit.Inputs.Simulation.XRInteractionSimulator on 'XR Interaction Simulator' (active=True)
+  Component: UnityEngine.CharacterController on 'VR_XROriginRig' (active=False)
+  Component: UnityEngine.CharacterController on 'Desktop_FPSRig' (active=True)
+
+--- Weapon Setup ---
+Weapon: XM500_PrecisionSniper, parent=
+  Comp: UnityEngine.Transform
+  Comp: UnityEngine.BoxCollider
+  Comp: UnityEngine.Rigidbody
+  Comp: DEADeye.DEADeyeSniperWeapon
+
+--- DEADeyeInputRouter ---
+Router: Mission_AuthoritativeManagers, active=True
