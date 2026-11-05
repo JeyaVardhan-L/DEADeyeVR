@@ -174,6 +174,15 @@ namespace DEADeye
             // Desktop firing is handled solely by DEADeyeDesktopRig.HandleWeaponInput()
             // to strictly prevent double-firing on a single click.
 
+            // Standalone VR Mode Weapon Handling:
+            // - Hold Grip: Activate optical scope zoom
+            // - Pull Trigger: Fire weapon (only when scoped; dry fire if unscoped)
+            // - Press A (right) or X (left): Reload
+            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.VR)
+            {
+                HandleVRWeaponInput();
+            }
+
             // Scope optic activation on RMB when in desktop mode without a desktop rig
             if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.Desktop)
             {
@@ -191,6 +200,44 @@ namespace DEADeye
             // Apply procedural offsets cleanly without accumulating drift
             transform.localPosition = recoilOffset + reloadOffset;
             transform.localRotation = recoilRotation;
+        }
+
+        private void HandleVRWeaponInput()
+        {
+            if (DEADeyeInputRouter.Instance == null) return;
+
+            // Enforce optical scope zoom while Grip is held
+            bool isAimHeld = DEADeyeInputRouter.Instance.GetAimHeld();
+            if (scopeOptic != null && scopeOptic.IsAiming != isAimHeld)
+            {
+                scopeOptic.SetScopeActive(isAimHeld);
+            }
+
+            // Reload via A (Right Hand) or X (Left Hand)
+            if (DEADeyeInputRouter.Instance.GetReloadDown())
+            {
+                if (DEADeyeWeaponManager.Instance != null)
+                {
+                    DEADeyeWeaponManager.Instance.Reload();
+                }
+            }
+
+            // Firing via Right Controller Trigger
+            if (DEADeyeInputRouter.Instance.GetFireDown())
+            {
+                if (IsScoped)
+                {
+                    TryFire();
+                }
+                else
+                {
+                    // Unscoped trigger pull: strictly forbidden from firing! Play dry click
+                    if (DEADeyeAudioManager.Instance != null)
+                    {
+                        DEADeyeAudioManager.Instance.PlayDryFire();
+                    }
+                }
+            }
         }
 
         private void OnActivatedTrigger(ActivateEventArgs args)

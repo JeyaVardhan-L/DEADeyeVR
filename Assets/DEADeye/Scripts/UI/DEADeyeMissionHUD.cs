@@ -122,6 +122,47 @@ namespace DEADeye
             UpdateTimerDisplay(DEADeyeMissionDirector.Instance != null ? DEADeyeMissionDirector.Instance.TimeRemaining : 120f);
             UpdateScoreDisplay(DEADeyeScoreManager.Instance != null ? DEADeyeScoreManager.Instance.CurrentScore : 0);
             UpdateAmmoDisplay(5, 5);
+            UpdateCanvasRenderMode();
+        }
+
+        private void Update()
+        {
+            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.VR)
+            {
+                UpdateCanvasRenderMode();
+            }
+        }
+
+        public void UpdateCanvasRenderMode()
+        {
+            Canvas canvas = GetComponentInChildren<Canvas>();
+            if (canvas == null) return;
+
+            bool isVR = (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.VR);
+            if (isVR)
+            {
+                if (canvas.renderMode != RenderMode.ScreenSpaceCamera)
+                {
+                    canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                }
+
+                Camera targetCam = (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.ActiveCamera != null)
+                    ? DEADeyePlayerController.Instance.ActiveCamera
+                    : Camera.main;
+
+                if (canvas.worldCamera != targetCam && targetCam != null)
+                {
+                    canvas.worldCamera = targetCam;
+                }
+                canvas.planeDistance = 1.0f;
+            }
+            else
+            {
+                if (canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                {
+                    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                }
+            }
         }
 
         private void OnDestroy()
@@ -170,6 +211,7 @@ namespace DEADeye
                 scaler.matchWidthOrHeight = 0.5f;
 
                 canvasGO.AddComponent<GraphicRaycaster>();
+                canvasGO.AddComponent<UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster>();
 
                 // 1. Telemetry Bar (Top Left)
                 GameObject topBar = new GameObject("TelemetryBar");
@@ -322,6 +364,11 @@ namespace DEADeye
                 GameObject resultsGO = new GameObject("ResultsUI");
                 resultsGO.transform.SetParent(canvasGO.transform, false);
                 resultsUI = resultsGO.AddComponent<DEADeyeResultsUI>();
+            }
+
+            if (canvas != null && canvas.GetComponent<UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster>() == null)
+            {
+                canvas.gameObject.AddComponent<UnityEngine.XR.Interaction.Toolkit.UI.TrackedDeviceGraphicRaycaster>();
             }
         }
 

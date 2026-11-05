@@ -14,18 +14,30 @@ namespace DEADeye.Editor
     public static class DEADeyeAndroidBuilder
     {
         private const string APK_OUTPUT_PATH = "Builds/Android/DEADeye_Release.apk";
+        private const string QUEST2_APK_OUTPUT_PATH = "Builds/Android/DEADeye_Quest2.apk";
 
         private static readonly string[] BUILD_SCENES = new string[]
         {
             "Assets/DEADeye/Scenes/RooftopMission.unity"
         };
 
+        [MenuItem("DEADeye/Build/Build Quest 2 Standalone APK")]
+        public static void BuildQuest2Apk()
+        {
+            BuildTargetApk(QUEST2_APK_OUTPUT_PATH, "Meta Quest 2 Standalone");
+        }
+
         [MenuItem("DEADeye/Build/Build Android Quest APK")]
         public static void BuildQuestApk()
         {
-            Debug.Log("[DEADeyeAndroidBuilder] Starting Meta Quest Android Build Process...");
+            BuildTargetApk(APK_OUTPUT_PATH, "Meta Quest Release");
+        }
 
-            string outputDir = Path.GetDirectoryName(APK_OUTPUT_PATH);
+        public static void BuildTargetApk(string outputPath, string buildName)
+        {
+            Debug.Log($"[DEADeyeAndroidBuilder] Starting {buildName} Android Build Process -> {outputPath}...");
+
+            string outputDir = Path.GetDirectoryName(outputPath);
             if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             {
                 Directory.CreateDirectory(outputDir);
@@ -60,13 +72,13 @@ namespace DEADeye.Editor
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
             {
                 scenes = BUILD_SCENES,
-                locationPathName = APK_OUTPUT_PATH,
+                locationPathName = outputPath,
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,
                 options = BuildOptions.None
             };
 
-            Debug.Log($"[DEADeyeAndroidBuilder] Executing BuildPlayer to: {APK_OUTPUT_PATH}...");
+            Debug.Log($"[DEADeyeAndroidBuilder] Executing BuildPlayer to: {outputPath}...");
             BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
             BuildSummary summary = report.summary;
 
@@ -79,7 +91,7 @@ namespace DEADeye.Editor
                 throw new Exception($"[DEADeyeAndroidBuilder] Android Build Failed! Total Errors: {summary.totalErrors}");
             }
 
-            Debug.Log($"[DEADeyeAndroidBuilder] BUILD SUCCEEDED. Artifact generated: {Path.GetFullPath(APK_OUTPUT_PATH)}");
+            Debug.Log($"[DEADeyeAndroidBuilder] BUILD SUCCEEDED. Artifact generated: {Path.GetFullPath(outputPath)}");
         }
     }
 }
