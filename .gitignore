@@ -1,3 +1,8 @@
+# ==============================================================================
+# Unity Project .gitignore — Comprehensive Standard Configuration
+# ==============================================================================
+
+# Generated Unity directories
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -9,8 +14,10 @@
 /[Rr]ecordings/
 .utmp/
 
+# Visual Studio / Visual Studio Code / JetBrains Rider caches & projects
 .vs/
 .vscode/
+.idea/
 .gradle/
 ExportedObj/
 .consulo/
@@ -29,16 +36,33 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+
+# Log and diagnostic files
 *.log
-
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
 sysinfo.txt
+crashlytics-build.properties
 
+# Test result artifacts in root
+/*.xml
+/TestResults*/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# Builds and package archives
 *.apk
 *.aab
 *.unitypackage
 *.app
 
-*.xml
+# Meta files for ignored extensions (ensure real asset metas are tracked)
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta

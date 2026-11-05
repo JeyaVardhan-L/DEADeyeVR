@@ -101,3 +101,4 @@ While the OpenXR runtime, Touch Controller bindings, weapon socketing, and ARM64
 - [ ] **Controller Grip Alignment**: Confirm that the rifle stock rests naturally in your dominant hand.
 - [ ] **Optical Scope Alignment**: Check comfort of holding Grip while lining up long-distance targets across the city boulevard.
 - [ ] **Frame Rate & Comfort**: Confirm steady 72Hz / 90Hz frame timing on Quest 2 during intense firefights.
+
