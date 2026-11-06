@@ -27,19 +27,24 @@ namespace DEADeye
             Transform playerT = null;
             CharacterController cc = null;
 
-            if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.DesktopRig != null)
+            if (DEADeyePlayerController.Instance != null && 
+                DEADeyePlayerController.Instance.DesktopRig != null && 
+                DEADeyePlayerController.Instance.DesktopRig.gameObject.activeInHierarchy)
             {
                 playerT = DEADeyePlayerController.Instance.DesktopRig.transform;
                 cc = DEADeyePlayerController.Instance.DesktopRig.GetComponent<CharacterController>();
             }
-            else if (DEADeyePlayerController.Instance != null && DEADeyePlayerController.Instance.VrRig != null)
+            else if (DEADeyePlayerController.Instance != null && 
+                     DEADeyePlayerController.Instance.VrRig != null && 
+                     DEADeyePlayerController.Instance.VrRig.activeInHierarchy)
             {
                 playerT = DEADeyePlayerController.Instance.VrRig.transform;
+                cc = DEADeyePlayerController.Instance.VrRig.GetComponent<CharacterController>();
             }
             else
             {
                 var desktopRig = FindFirstObjectByType<DEADeyeDesktopRig>();
-                if (desktopRig != null)
+                if (desktopRig != null && desktopRig.gameObject.activeInHierarchy)
                 {
                     playerT = desktopRig.transform;
                     cc = desktopRig.GetComponent<CharacterController>();

@@ -159,16 +159,16 @@ namespace DEADeye
                 rend.material = sparkMat;
             }
 
-            if (Application.isPlaying)
-            {
-                Destroy(sparkGO.GetComponent<Collider>());
-                Destroy(sparkGO, 0.6f);
-            }
-            else
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorApplication.isPlaying)
             {
                 DestroyImmediate(sparkGO.GetComponent<Collider>());
                 DestroyImmediate(sparkGO);
+                return;
             }
+#endif
+            Destroy(sparkGO.GetComponent<Collider>());
+            Destroy(sparkGO, 0.6f);
         }
 
         private void LureNearbyHostiles(Vector3 epicenter, float radius)

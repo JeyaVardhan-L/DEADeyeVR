@@ -1,65 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-run id="2" testcasecount="26" result="Failed(Child)" total="26" passed="25" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:24Z" duration="17.3923832">
-  <test-suite type="TestSuite" id="1000" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="26" result="Failed" site="Child" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:24Z" duration="17.392383" total="26" passed="25" failed="1" inconclusive="0" skipped="0" asserts="0">
+<test-run id="2" testcasecount="27" result="Passed" total="27" passed="27" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:24Z" duration="7.7912416">
+  <test-suite type="TestSuite" id="1000" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="27" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:24Z" duration="7.791242" total="27" passed="27" failed="0" inconclusive="0" skipped="0" asserts="0">
     <properties>
       <property name="platform" value="EditMode" />
     </properties>
-    <failure>
-      <message><![CDATA[One or more child tests had errors]]></message>
-    </failure>
-    <test-suite type="Assembly" id="1020" name="DEADeye.EditMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.EditMode.Tests.dll" runstate="Runnable" testcasecount="18" result="Failed" site="Child" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:16Z" duration="9.171485" total="18" passed="17" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1021" name="DEADeye.EditMode.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeye.EditMode.Tests.dll" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:20Z" duration="4.021659" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="30056" />
+        <property name="_PID" value="25416" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <failure>
-        <message><![CDATA[One or more child tests had errors]]></message>
-      </failure>
-      <test-suite type="TestSuite" id="1021" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="18" result="Failed" site="Child" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:16Z" duration="9.170527" total="18" passed="17" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1022" name="DEADeye" fullname="DEADeye" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:20Z" duration="4.020774" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <failure>
-          <message><![CDATA[One or more child tests had errors]]></message>
-        </failure>
-        <test-suite type="TestSuite" id="1022" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="18" result="Failed" site="Child" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:16Z" duration="9.170081" total="18" passed="17" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1023" name="Tests" fullname="DEADeye.Tests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:20Z" duration="4.019846" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <failure>
-            <message><![CDATA[One or more child tests had errors]]></message>
-          </failure>
-          <test-suite type="TestFixture" id="1001" name="DEADeyeIntegrationTests" fullname="DEADeye.Tests.DEADeyeIntegrationTests" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" testcasecount="18" result="Failed" site="Child" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:16Z" duration="9.166625" total="18" passed="17" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestFixture" id="1001" name="DEADeyeIntegrationTests" fullname="DEADeye.Tests.DEADeyeIntegrationTests" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:20Z" duration="4.015962" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <failure>
-              <message><![CDATA[One or more child tests had errors]]></message>
-            </failure>
-            <test-case id="1002" name="Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" methodname="Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1993801106" result="Passed" start-time="2026-11-03 19:25:07Z" end-time="2026-11-03 19:25:14Z" duration="6.859844" asserts="0">
+            <test-case id="1002" name="Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" methodname="Test_01_RooftopMission_ContainsAllMissionSystemsAndNavMesh" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1382686016" result="Passed" start-time="2026-11-06 09:23:16Z" end-time="2026-11-06 09:23:18Z" duration="2.040397" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1003" name="Test_02_RooftopMission_IsSoleActiveBuildScene" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_02_RooftopMission_IsSoleActiveBuildScene" methodname="Test_02_RooftopMission_IsSoleActiveBuildScene" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="524033743" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:14Z" duration="0.022436" asserts="0">
+            <test-case id="1003" name="Test_02_RooftopMission_IsSoleActiveBuildScene" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_02_RooftopMission_IsSoleActiveBuildScene" methodname="Test_02_RooftopMission_IsSoleActiveBuildScene" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1054319931" result="Passed" start-time="2026-11-06 09:23:18Z" end-time="2026-11-06 09:23:18Z" duration="0.016406" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1004" name="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" methodname="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="940248739" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:14Z" duration="0.692280" asserts="0">
+            <test-case id="1004" name="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" methodname="Test_03_RooftopMission_ContainsAllMissionSystemsAndNavMesh" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="440054719" result="Passed" start-time="2026-11-06 09:23:18Z" end-time="2026-11-06 09:23:19Z" duration="0.805644" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1005" name="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" methodname="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1055775040" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:14Z" duration="0.028951" asserts="0">
+            <test-case id="1005" name="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" methodname="Test_04_PlayerController_EnforcesMutuallyExclusiveRigs" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1112337965" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.030998" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyePlayerController] Active Player Rig: Desktop FPS Rig
+[DEADeyePlayerController] VR Camera & Tracking configured: XROrigin=Floor (yOffset=1.7), TrackedPoseDriver.ignoreTrackingState=true
 [DEADeyePlayerController] Active Player Rig: VR (XR Origin)
 ]]></output>
             </test-case>
-            <test-case id="1006" name="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_05_SniperWeapon_BlocksFiringOutsideMissionState" methodname="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1931308080" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:14Z" duration="0.004986" asserts="0">
+            <test-case id="1006" name="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_05_SniperWeapon_BlocksFiringOutsideMissionState" methodname="Test_05_SniperWeapon_BlocksFiringOutsideMissionState" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="212026915" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.007188" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -67,31 +53,31 @@
               <output><![CDATA[[DEADeyeGameManager] Game state changed to: Lobby
 ]]></output>
             </test-case>
-            <test-case id="1007" name="Test_06_HostileStatePattern_TransitionsCorrectly" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_06_HostileStatePattern_TransitionsCorrectly" methodname="Test_06_HostileStatePattern_TransitionsCorrectly" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="272222267" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:14Z" duration="0.007039" asserts="0">
+            <test-case id="1007" name="Test_06_HostileStatePattern_TransitionsCorrectly" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_06_HostileStatePattern_TransitionsCorrectly" methodname="Test_06_HostileStatePattern_TransitionsCorrectly" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="6922208" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.006136" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1008" name="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" methodname="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="157050708" result="Passed" start-time="2026-11-03 19:25:14Z" end-time="2026-11-03 19:25:15Z" duration="0.022061" asserts="0">
+            <test-case id="1008" name="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" methodname="Test_07_PrecisionHeadshot_AppliesThreeTimesDamage" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="530729331" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.014161" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1009" name="Test_08_ScoreManager_CalculatesMetricsAccurately" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_08_ScoreManager_CalculatesMetricsAccurately" methodname="Test_08_ScoreManager_CalculatesMetricsAccurately" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1764560756" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.009115" asserts="0">
+            <test-case id="1009" name="Test_08_ScoreManager_CalculatesMetricsAccurately" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_08_ScoreManager_CalculatesMetricsAccurately" methodname="Test_08_ScoreManager_CalculatesMetricsAccurately" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="2062780189" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.004494" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1010" name="Test_09_WeaponManager_ConsumesAmmoAndReloads" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_09_WeaponManager_ConsumesAmmoAndReloads" methodname="Test_09_WeaponManager_ConsumesAmmoAndReloads" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1742039442" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.002277" asserts="0">
+            <test-case id="1010" name="Test_09_WeaponManager_ConsumesAmmoAndReloads" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_09_WeaponManager_ConsumesAmmoAndReloads" methodname="Test_09_WeaponManager_ConsumesAmmoAndReloads" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1034724427" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.002253" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1011" name="Test_10_DifficultySettings_ModifyHostileSpeeds" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_10_DifficultySettings_ModifyHostileSpeeds" methodname="Test_10_DifficultySettings_ModifyHostileSpeeds" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1930415442" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.009463" asserts="0">
+            <test-case id="1011" name="Test_10_DifficultySettings_ModifyHostileSpeeds" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_10_DifficultySettings_ModifyHostileSpeeds" methodname="Test_10_DifficultySettings_ModifyHostileSpeeds" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1951617964" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.007468" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -100,19 +86,19 @@
 [DEADeyeGameManager] Difficulty set to: Elite
 ]]></output>
             </test-case>
-            <test-case id="1012" name="Test_11_CampaignMissions_ExistAndAreConfigured" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_11_CampaignMissions_ExistAndAreConfigured" methodname="Test_11_CampaignMissions_ExistAndAreConfigured" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1799721070" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.643690" asserts="0">
+            <test-case id="1012" name="Test_11_CampaignMissions_ExistAndAreConfigured" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_11_CampaignMissions_ExistAndAreConfigured" methodname="Test_11_CampaignMissions_ExistAndAreConfigured" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1989343721" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.065579" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1013" name="Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" methodname="Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1514729040" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.004256" asserts="0">
+            <test-case id="1013" name="Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" methodname="Test_12_ClothedCharacterPrefabs_ExistAndHaveRequiredComponents" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="64170847" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.002006" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1014" name="Test_13_FriendlyAI_TracksRepairProgressAndKills" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_13_FriendlyAI_TracksRepairProgressAndKills" methodname="Test_13_FriendlyAI_TracksRepairProgressAndKills" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1993521476" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.011939" asserts="0">
+            <test-case id="1014" name="Test_13_FriendlyAI_TracksRepairProgressAndKills" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_13_FriendlyAI_TracksRepairProgressAndKills" methodname="Test_13_FriendlyAI_TracksRepairProgressAndKills" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1932229470" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.006820" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -120,7 +106,7 @@
               <output><![CDATA[[DEADeyeFriendlyAI] CRITICAL VIP KILLED: TestFriendlyTech
 ]]></output>
             </test-case>
-            <test-case id="1015" name="Test_14_CivilianAI_PenalizesFriendlyFire" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_14_CivilianAI_PenalizesFriendlyFire" methodname="Test_14_CivilianAI_PenalizesFriendlyFire" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1575396569" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.007143" asserts="0">
+            <test-case id="1015" name="Test_14_CivilianAI_PenalizesFriendlyFire" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_14_CivilianAI_PenalizesFriendlyFire" methodname="Test_14_CivilianAI_PenalizesFriendlyFire" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1506380660" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.006705" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -128,59 +114,43 @@
               <output><![CDATA[[DEADeyeCivilianAI] Civilian casualty recorded: TestCiv
 ]]></output>
             </test-case>
-            <test-case id="1016" name="Test_15_EnvironmentalProps_TriggerTacticalConsequences" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_15_EnvironmentalProps_TriggerTacticalConsequences" methodname="Test_15_EnvironmentalProps_TriggerTacticalConsequences" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="509381906" result="Failed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.038566" asserts="0">
+            <test-case id="1016" name="Test_15_EnvironmentalProps_TriggerTacticalConsequences" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_15_EnvironmentalProps_TriggerTacticalConsequences" methodname="Test_15_EnvironmentalProps_TriggerTacticalConsequences" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="667845063" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.019289" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
-              <failure>
-                <message><![CDATA[Unhandled log message: '[Error] Destroy may not be called from edit mode! Use DestroyImmediate instead.
-Destroying an object in edit mode destroys it permanently.'. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
-                <stack-trace><![CDATA[UnityEngine.Object:Destroy (UnityEngine.Object)
-DEADeye.DEADeyeEnvironmentalProp:CreateImpactVisuals (UnityEngine.Vector3) (at Assets/DEADeye/Scripts/Environment/DEADeyeEnvironmentalProp.cs:162)
-DEADeye.DEADeyeEnvironmentalProp:TriggerOpportunity (UnityEngine.Vector3) (at Assets/DEADeye/Scripts/Environment/DEADeyeEnvironmentalProp.cs:87)
-DEADeye.DEADeyeEnvironmentalProp:TakeDamage (int,UnityEngine.Vector3,UnityEngine.Vector3) (at Assets/DEADeye/Scripts/Environment/DEADeyeEnvironmentalProp.cs:70)
-DEADeye.Tests.DEADeyeIntegrationTests:Test_15_EnvironmentalProps_TriggerTacticalConsequences () (at Assets/DEADeye/Tests/EditMode/DEADeyeIntegrationTests.cs:353)
-System.Reflection.MethodBase:Invoke (object,object[])
-NUnit.Framework.Internal.Reflect:InvokeMethod (System.Reflection.MethodInfo,object,object[])
-NUnit.Framework.Internal.MethodWrapper:Invoke (object,object[])
-NUnit.Framework.Internal.Commands.TestMethodCommand:RunNonAsyncTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
-NUnit.Framework.Internal.Commands.TestMethodCommand:RunTestMethod (NUnit.Framework.Internal.ITestExecutionContext)
-NUnit.Framework.Internal.Commands.TestMethodCommand:Execute (NUnit.Framework.Internal.ITestExecutionContext)
-UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
-
-]]></stack-trace>
-              </failure>
-              <output><![CDATA[Destroy may not be called from edit mode! Use DestroyImmediate instead.
-Destroying an object in edit mode destroys it permanently.
-Destroy may not be called from edit mode! Use DestroyImmediate instead.
-Destroying an object in edit mode destroys it permanently.
-[DEADeyeEnvironmentalProp] POWER JUNCTION DESTROYED -> Hostile Jammer shut down!
+              <output><![CDATA[[DEADeyeEnvironmentalProp] POWER JUNCTION DESTROYED -> Hostile Jammer shut down!
 ]]></output>
             </test-case>
-            <test-case id="1017" name="Test_16_ReconSpottingSystem_IdentifiesTargets" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_16_ReconSpottingSystem_IdentifiesTargets" methodname="Test_16_ReconSpottingSystem_IdentifiesTargets" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="609484909" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.001988" asserts="0">
+            <test-case id="1017" name="Test_16_ReconSpottingSystem_IdentifiesTargets" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_16_ReconSpottingSystem_IdentifiesTargets" methodname="Test_16_ReconSpottingSystem_IdentifiesTargets" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1200899668" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.001797" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
             </test-case>
-            <test-case id="1018" name="Test_17_OperationDeadAir_TransitionsThroughPhases" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_17_OperationDeadAir_TransitionsThroughPhases" methodname="Test_17_OperationDeadAir_TransitionsThroughPhases" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1621253249" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:15Z" duration="0.029420" asserts="0">
+            <test-case id="1018" name="Test_17_OperationDeadAir_TransitionsThroughPhases" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_17_OperationDeadAir_TransitionsThroughPhases" methodname="Test_17_OperationDeadAir_TransitionsThroughPhases" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="802829712" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:19Z" duration="0.031073" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
               </properties>
               <output><![CDATA[[DEADeyeMissionDirector] Transitioning to Disruption
 [DEADeyeMissionDirector] Transitioning to TechnicianAdvance
-[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.08, 50.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (-12.00, 0.09, 42.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_1 at (0.00, 0.07, 50.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_2 at (-12.00, 0.11, 42.00)
 [DEADeyeMissionDirector] Transitioning to NeutralizeCommander
 [DEADeyeMissionDirector] Transitioning to ConvoyExtraction
-[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.08, 82.00)
-[DEADeyeMissionDirector] Spawned hostile Hostile_5 at (-6.00, 0.08, 85.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_4 at (8.00, 0.32, 82.00)
+[DEADeyeMissionDirector] Spawned hostile Hostile_5 at (-6.00, 0.14, 85.00)
 [DEADeyeMissionDirector] Transitioning to Debriefing
 ]]></output>
             </test-case>
-            <test-case id="1019" name="Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" methodname="Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="402823984" result="Passed" start-time="2026-11-03 19:25:15Z" end-time="2026-11-03 19:25:16Z" duration="0.719399" asserts="0">
+            <test-case id="1019" name="Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" methodname="Test_18_WalkableOverwatchPerches_ExistWithBridgeConnections" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="2129698303" result="Passed" start-time="2026-11-06 09:23:19Z" end-time="2026-11-06 09:23:20Z" duration="0.825679" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1020" name="Test_19_SniperScope_FiringRequiresOpticalScope" fullname="DEADeye.Tests.DEADeyeIntegrationTests.Test_19_SniperScope_FiringRequiresOpticalScope" methodname="Test_19_SniperScope_FiringRequiresOpticalScope" classname="DEADeye.Tests.DEADeyeIntegrationTests" runstate="Runnable" seed="1174042872" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.077202" asserts="0">
               <properties>
                 <property name="retryIteration" value="0" />
                 <property name="repeatIteration" value="0" />
@@ -190,46 +160,46 @@ Destroying an object in edit mode destroys it permanently.
         </test-suite>
       </test-suite>
     </test-suite>
-    <test-suite type="Assembly" id="1033" name="DEADeyeVR.Foundation.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeyeVR.Foundation.Tests.dll" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 19:25:16Z" end-time="2026-11-03 19:25:24Z" duration="8.201602" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="Assembly" id="1034" name="DEADeyeVR.Foundation.Tests.dll" fullname="C:/Unity/Editors/DEADeyeVR_Foundation/Library/ScriptAssemblies/DEADeyeVR.Foundation.Tests.dll" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.750439" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
       <properties>
-        <property name="_PID" value="30056" />
+        <property name="_PID" value="25416" />
         <property name="_APPDOMAIN" value="Unity Child Domain" />
         <property name="platform" value="EditMode" />
         <property name="EditorOnly" value="True" />
       </properties>
-      <test-suite type="TestSuite" id="1034" name="DEADeyeVR" fullname="DEADeyeVR" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:24Z" duration="7.382051" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="1035" name="DEADeyeVR" fullname="DEADeyeVR" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.722769" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
         <properties />
-        <test-suite type="TestSuite" id="1035" name="Foundation" fullname="DEADeyeVR.Foundation" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:24Z" duration="7.381255" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="1036" name="Foundation" fullname="DEADeyeVR.Foundation" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.722278" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
           <properties />
-          <test-suite type="TestSuite" id="1036" name="Tests" fullname="DEADeyeVR.Foundation.Tests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:24Z" duration="7.380751" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <test-suite type="TestSuite" id="1037" name="Tests" fullname="DEADeyeVR.Foundation.Tests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.721927" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
             <properties />
-            <test-suite type="TestFixture" id="1023" name="FoundationIntegrationTests" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.096464" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1024" name="FoundationIntegrationTests" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.072127" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1024" name="Test_01_PlayerGroundedOnSolidFloor" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_01_PlayerGroundedOnSolidFloor" methodname="Test_01_PlayerGroundedOnSolidFloor" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1764478800" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.030096" asserts="0">
+              <test-case id="1025" name="Test_01_PlayerGroundedOnSolidFloor" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_01_PlayerGroundedOnSolidFloor" methodname="Test_01_PlayerGroundedOnSolidFloor" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="795265583" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.015625" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1025" name="Test_02_PerimeterWallsCollidersEnforceBoundary" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_02_PerimeterWallsCollidersEnforceBoundary" methodname="Test_02_PerimeterWallsCollidersEnforceBoundary" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1426074559" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.011233" asserts="0">
+              <test-case id="1026" name="Test_02_PerimeterWallsCollidersEnforceBoundary" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_02_PerimeterWallsCollidersEnforceBoundary" methodname="Test_02_PerimeterWallsCollidersEnforceBoundary" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="2125678428" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.006258" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1026" name="Test_03_GrabbableObjects_PickupAndRelease" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_03_GrabbableObjects_PickupAndRelease" methodname="Test_03_GrabbableObjects_PickupAndRelease" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1736880589" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.005243" asserts="0">
+              <test-case id="1027" name="Test_03_GrabbableObjects_PickupAndRelease" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_03_GrabbableObjects_PickupAndRelease" methodname="Test_03_GrabbableObjects_PickupAndRelease" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1988005921" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.003270" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1027" name="Test_04_WeaponInteractable_CanBePickedUp" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_04_WeaponInteractable_CanBePickedUp" methodname="Test_04_WeaponInteractable_CanBePickedUp" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="60364500" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.002921" asserts="0">
+              <test-case id="1028" name="Test_04_WeaponInteractable_CanBePickedUp" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_04_WeaponInteractable_CanBePickedUp" methodname="Test_04_WeaponInteractable_CanBePickedUp" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1076110801" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.002008" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
                 </properties>
               </test-case>
-              <test-case id="1028" name="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_05_WeaponAimAndFire_HitsTargetAndRegisters" methodname="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="955705643" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.017263" asserts="0">
+              <test-case id="1029" name="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_05_WeaponAimAndFire_HitsTargetAndRegisters" methodname="Test_05_WeaponAimAndFire_HitsTargetAndRegisters" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="984461386" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.013101" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
@@ -238,7 +208,7 @@ Destroying an object in edit mode destroys it permanently.
 [FoundationWeapon] Shot #1 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
 ]]></output>
               </test-case>
-              <test-case id="1029" name="Test_06_MultipleShots_AccumulateCorrectHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_06_MultipleShots_AccumulateCorrectHits" methodname="Test_06_MultipleShots_AccumulateCorrectHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1239267034" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.016463" asserts="0">
+              <test-case id="1030" name="Test_06_MultipleShots_AccumulateCorrectHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_06_MultipleShots_AccumulateCorrectHits" methodname="Test_06_MultipleShots_AccumulateCorrectHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="974138013" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.017497" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
@@ -255,7 +225,7 @@ Destroying an object in edit mode destroys it permanently.
 [FoundationWeapon] Shot #5 fired from (0.00, 1.50, 1.00) towards (0.00, 0.00, 1.00). Hit: TARGET REGISTERED
 ]]></output>
               </test-case>
-              <test-case id="1030" name="Test_07_MissedShot_DoesNotIncrementTargetHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_07_MissedShot_DoesNotIncrementTargetHits" methodname="Test_07_MissedShot_DoesNotIncrementTargetHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="1365386194" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:17Z" duration="0.005211" asserts="0">
+              <test-case id="1031" name="Test_07_MissedShot_DoesNotIncrementTargetHits" fullname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests.Test_07_MissedShot_DoesNotIncrementTargetHits" methodname="Test_07_MissedShot_DoesNotIncrementTargetHits" classname="DEADeyeVR.Foundation.Tests.FoundationIntegrationTests" runstate="Runnable" seed="293271141" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:20Z" duration="0.006462" asserts="0">
                 <properties>
                   <property name="retryIteration" value="0" />
                   <property name="repeatIteration" value="0" />
@@ -264,9 +234,9 @@ Destroying an object in edit mode destroys it permanently.
 ]]></output>
               </test-case>
             </test-suite>
-            <test-suite type="TestFixture" id="1031" name="FoundationPlayModeTests" fullname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" classname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:24Z" duration="7.283538" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <test-suite type="TestFixture" id="1032" name="FoundationPlayModeTests" fullname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" classname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.648994" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
               <properties />
-              <test-case id="1032" name="PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" fullname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests.PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" methodname="PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" classname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" runstate="Runnable" seed="1986206629" result="Passed" start-time="2026-11-03 19:25:17Z" end-time="2026-11-03 19:25:24Z" duration="7.280792" asserts="0">
+              <test-case id="1033" name="PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" fullname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests.PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" methodname="PlayMode_FoundationTestScene_VerifiesFullInteractionAndScreenshots" classname="DEADeyeVR.Foundation.Tests.FoundationPlayModeTests" runstate="Runnable" seed="1698943677" result="Passed" start-time="2026-11-06 09:23:20Z" end-time="2026-11-06 09:23:24Z" duration="3.645094" asserts="0">
                 <properties>
                   <property name="_JOINTYPE" value="UnityCombinatorial" />
                   <property name="retryIteration" value="0" />

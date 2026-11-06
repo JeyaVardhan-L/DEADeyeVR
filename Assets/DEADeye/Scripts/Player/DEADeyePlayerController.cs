@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.XR;
+using Unity.XR.CoreUtils;
+using UnityEngine.InputSystem.XR;
 
 namespace DEADeye
 {
@@ -13,6 +16,12 @@ namespace DEADeye
         [Header("Rig Instances")]
         [SerializeField] private GameObject vrRig;
         [SerializeField] private DEADeyeDesktopRig desktopRig;
+
+        [Header("VR Rig Tracking References")]
+        private Camera vrCamera;
+        private Transform vrCameraOffset;
+        private TrackedPoseDriver vrTrackedPoseDriver;
+        private XROrigin vrXROrigin;
 
         public GameObject VrRig => vrRig;
         public DEADeyeDesktopRig DesktopRig => desktopRig;
@@ -58,10 +67,20 @@ namespace DEADeye
 
         private void Update()
         {
-            // VR-specific global menu and interface toggles
+            // VR-specific global menu, interface toggles and head tracking
             if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.VR)
             {
                 HandleVRGlobalInput();
+                UpdateVRHeadTracking();
+            }
+        }
+
+        private void LateUpdate()
+        {
+            // Enforce VR camera head tracking and height alignment before render
+            if (DEADeyeGameManager.Instance != null && DEADeyeGameManager.Instance.PlayerMode == DEADeyePlayerMode.VR)
+            {
+                UpdateVRHeadTracking();
             }
         }
 
@@ -125,6 +144,7 @@ namespace DEADeye
                 if (vrRig != null)
                 {
                     vrRig.SetActive(true);
+                    ConfigureVRRigAndTracking();
                     AttachWeaponToVRHand();
                 }
                 Debug.Log("[DEADeyePlayerController] Active Player Rig: VR (XR Origin)");
@@ -186,6 +206,103 @@ namespace DEADeye
                 }
 
                 Debug.Log($"[DEADeyePlayerController] Mounted {weapon.name} to VR Right Controller at: {socket.name}");
+            }
+        }
+
+        private void ConfigureVRRigAndTracking()
+        {
+            if (vrRig == null) return;
+
+            // 1. Locate XROrigin & enforce Floor origin mode with 1.7m standard eye height
+            vrXROrigin = vrRig.GetComponent<XROrigin>();
+            if (vrXROrigin != null)
+            {
+                vrXROrigin.RequestedTrackingOriginMode = XROrigin.TrackingOriginMode.Floor;
+                vrXROrigin.CameraYOffset = 1.7f;
+            }
+
+            // 2. Locate Camera Offset
+            vrCameraOffset = vrRig.transform.Find("Camera Offset");
+
+            // 3. Locate Main Camera & TrackedPoseDriver
+            vrCamera = vrRig.GetComponentInChildren<Camera>(true);
+            if (vrCamera != null)
+            {
+                vrTrackedPoseDriver = vrCamera.GetComponent<TrackedPoseDriver>();
+                if (vrTrackedPoseDriver != null)
+                {
+                    // Ensure TrackedPoseDriver does not mute updates due to trackingState evaluation
+                    vrTrackedPoseDriver.ignoreTrackingState = true;
+
+                    // Explicitly enable input actions if referenced
+                    if (vrTrackedPoseDriver.positionInput.action != null && !vrTrackedPoseDriver.positionInput.action.enabled)
+                    {
+                        vrTrackedPoseDriver.positionInput.action.Enable();
+                    }
+                    if (vrTrackedPoseDriver.rotationInput.action != null && !vrTrackedPoseDriver.rotationInput.action.enabled)
+                    {
+                        vrTrackedPoseDriver.rotationInput.action.Enable();
+                    }
+                    if (vrTrackedPoseDriver.trackingStateInput.action != null && !vrTrackedPoseDriver.trackingStateInput.action.enabled)
+                    {
+                        vrTrackedPoseDriver.trackingStateInput.action.Enable();
+                    }
+                }
+            }
+
+            Debug.Log("[DEADeyePlayerController] VR Camera & Tracking configured: XROrigin=Floor (yOffset=1.7), TrackedPoseDriver.ignoreTrackingState=true");
+        }
+
+        private void UpdateVRHeadTracking()
+        {
+            if (vrCamera == null)
+            {
+                if (vrRig != null) vrCamera = vrRig.GetComponentInChildren<Camera>();
+                if (vrCamera == null) return;
+            }
+
+            // Direct hardware query from OpenXR CenterEye node
+            InputDevice centerEye = InputDevices.GetDeviceAtXRNode(XRNode.CenterEye);
+            if (!centerEye.isValid)
+            {
+                centerEye = InputDevices.GetDeviceAtXRNode(XRNode.Head);
+            }
+
+            if (centerEye.isValid)
+            {
+                // 1. Head rotation: 360-degree look rotation
+                if (centerEye.TryGetFeatureValue(CommonUsages.centerEyeRotation, out Quaternion headRot) ||
+                    centerEye.TryGetFeatureValue(CommonUsages.deviceRotation, out headRot))
+                {
+                    if (headRot != Quaternion.identity)
+                    {
+                        vrCamera.transform.localRotation = headRot;
+                    }
+                }
+
+                // 2. Head position: 1-to-1 physical tracking
+                if (centerEye.TryGetFeatureValue(CommonUsages.centerEyePosition, out Vector3 headPos) ||
+                    centerEye.TryGetFeatureValue(CommonUsages.devicePosition, out headPos))
+                {
+                    if (headPos.sqrMagnitude > 0.0001f)
+                    {
+                        vrCamera.transform.localPosition = headPos;
+                    }
+                }
+            }
+
+            // 3. Viewpoint height safeguard:
+            // If the combined camera height (offset + localPos) is near floor level (< 1.3m),
+            // lift the Camera Offset so the player stands naturally at eye height (1.7m) overlooking the city
+            if (vrCameraOffset != null)
+            {
+                float currentTotalHeight = vrCameraOffset.localPosition.y + vrCamera.transform.localPosition.y;
+                if (currentTotalHeight < 1.3f)
+                {
+                    Vector3 offsetPos = vrCameraOffset.localPosition;
+                    offsetPos.y = Mathf.Max(0f, 1.7f - vrCamera.transform.localPosition.y);
+                    vrCameraOffset.localPosition = offsetPos;
+                }
             }
         }
 
