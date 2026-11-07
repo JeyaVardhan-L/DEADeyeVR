@@ -54,7 +54,7 @@ C:\Unity\Editors\DEADeyeVR_Foundation\
 │   └── XRI\                      # XR Interaction Toolkit runtime & editor settings
 ├── Builds\
 │   └── Android\                  # Standalone APK artifacts (DEADeye_Quest2.apk)
-├── Documentation\                # Engineering handbook, architecture, viva bank
+├── Documentation\                # Technical documentation suite & API reference
 ├── Packages\                     # Unity Package Manager manifest.json
 └── ProjectSettings\              # Editor, physics, tags, XR, and player settings
 ```

@@ -1,5 +1,5 @@
 # ==============================================================================
-# Unity Project .gitignore — Comprehensive Standard Configuration
+# DEADeye VR — Unity Project .gitignore
 # ==============================================================================
 
 # Generated Unity directories
@@ -39,12 +39,21 @@ ExportedObj/
 
 # Log and diagnostic files
 *.log
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
 sysinfo.txt
 crashlytics-build.properties
 
-# Test result artifacts in root
-/*.xml
-/TestResults*/
+# Scratch, diagnostics and temporary scripts
+/scratch/
+/xr_inspection_report.txt
+
+# Standalone build artifacts (distributed via GitHub Releases, not source git)
+*.apk
+*.aab
+*.unitypackage
+*.app
 
 # OS generated files
 .DS_Store
@@ -56,13 +65,7 @@ ehthumbs.db
 Thumbs.db
 [Dd]esktop.ini
 
-# Builds and package archives
-*.apk
-*.aab
-*.unitypackage
-*.app
-
-# Meta files for ignored extensions (ensure real asset metas are tracked)
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
+# Root-level temporary test result XMLs
+/playmode_test_results.xml
+/test_results.xml
+/test_filter_results.xml
