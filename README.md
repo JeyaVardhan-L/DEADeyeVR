@@ -138,6 +138,7 @@ DEADeyeVR/
 ```
 
 For comprehensive architectural breakdowns, consult the [Documentation Suite](Documentation/):
+- [Project Handover & Re-entry Guide](Documentation/PROJECT_REENTRY_GUIDE.md)
 - [Technical Architecture Specification](Documentation/TECHNICAL_ARCHITECTURE.md)
 - [OpenXR & Meta Quest 2 Engineering](Documentation/VR_AND_OPENXR.md)
 - [Weapon Systems & Two-Pass Ballistics](Documentation/WEAPON_AND_BALLISTICS.md)
